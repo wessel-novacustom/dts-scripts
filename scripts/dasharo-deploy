@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-# set -x
-
 source $DTS_ENV
 source $DTS_FUNCS
 
@@ -399,7 +397,7 @@ install() {
   fi
 
   if [ "$NEED_BOOTSPLASH_MIGRATION" = "true" ]; then
-    bootsplaash_migration
+    bootsplash_migration
   fi
 
   if [ "$NEED_SMBIOS_MIGRATION" = "true" ]; then
@@ -551,6 +549,22 @@ update() {
   fi
 
   handle_fw_switching $_can_switch_to_heads
+
+  if [[ "$UPDATE_VERSION" == "1.1.1" && \
+    ( "$BOARD_MODEL" == "PRO Z690-A WIFI DDR4(MS-7D25)" || \
+      "$BOARD_MODEL" == "PRO Z690-A DDR4(MS-7D25)" || \
+      "$BOARD_MODEL" == "PRO Z690-A (MS-7D25)" || \
+      "$BOARD_MODEL" == "PRO Z690-A WIFI (MS-7D25)" ) ]]; then
+
+    cpu_gen_check=$(lscpu | grep -F "Model name" | grep -E "\-(13|14)[0-9]{3}" | wc -l)
+
+    if [ $cpu_gen_check -ne 0 ]; then
+      echo "You have a 13th gen or above CPU and are trying to flash Dasharo v1.1.1 on a MSI PRO Z690-A DDR4 or DDR5 board"
+      echo "That version does not support gen 13 and above CPU. Therefore we cannot continue with flashing."
+      error_exit "Aborting update process..."
+    fi
+
+  fi
 
   while : ; do
     echo

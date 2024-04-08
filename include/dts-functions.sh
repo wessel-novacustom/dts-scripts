@@ -137,7 +137,10 @@ check_network_connection() {
   echo 'Waiting for network connection ...'
   n="10"
   while : ; do
-    ping -c 3 cloud.3mdeb.com > /dev/null 2>&1 && break
+    if wget --spider cloud.3mdeb.com > /dev/null 2>&1; then
+      echo 'Network connection established.'
+      return 0
+    fi
     n=$((n-1))
     if [ "${n}" == "0" ]; then
       echo 'No network connection to 3mdeb cloud, please recheck Ethernet connection'
@@ -145,7 +148,6 @@ check_network_connection() {
     fi
     sleep 1
   done
-  return 0
 }
 
 ## Supported boards configuration
@@ -565,6 +567,64 @@ board_config() {
           error_exit "Board model $SYSTEM_MODEL is currently not supported"
           ;;
       esac
+      ;;
+    "PC Engines")
+      FLASH_CHIP_LIST="W25Q64JV-.Q"
+      shopt -s nocasematch
+      case "$SYSTEM_MODEL" in
+        "APU2")
+          DASHARO_REL_NAME="pcengines_apu2"
+          DASHARO_REL_VER_DES="0.9.0"
+          HAVE_EC="false"
+          NEED_EC_RESET="false"
+          BIOS_LINK_DES="${FW_STORE_URL_DES}/pcengines_apu2/v${DASHARO_REL_VER_DES}/${DASHARO_REL_NAME}_v${DASHARO_REL_VER_DES}.rom"
+          BIOS_HASH_LINK_DES="${BIOS_LINK_DES}.sha256"
+          BIOS_SIGN_LINK_DES="${BIOS_LINK_DES}.sha256.sig"
+          PROGRAMMER_BIOS="internal:boardmismatch=force"
+          NEED_SMMSTORE_MIGRATION="true"
+          NEED_BOOTSPLASH_MIGRATION="true"
+          ;;
+        "APU3")
+          DASHARO_REL_NAME="pcengines_apu3"
+          DASHARO_REL_VER_DES="0.9.0"
+          HAVE_EC="false"
+          NEED_EC_RESET="false"
+          BIOS_LINK_DES="${FW_STORE_URL_DES}/pcengines_apu2/v${DASHARO_REL_VER_DES}/${DASHARO_REL_NAME}_v${DASHARO_REL_VER_DES}.rom"
+          BIOS_HASH_LINK_DES="${BIOS_LINK_DES}.sha256"
+          BIOS_SIGN_LINK_DES="${BIOS_LINK_DES}.sha256.sig"
+          PROGRAMMER_BIOS="internal:boardmismatch=force"
+          NEED_SMMSTORE_MIGRATION="true"
+          NEED_BOOTSPLASH_MIGRATION="true"
+          ;;
+        "APU4")
+          DASHARO_REL_NAME="pcengines_apu4"
+          DASHARO_REL_VER_DES="0.9.0"
+          HAVE_EC="false"
+          NEED_EC_RESET="false"
+          BIOS_LINK_DES="${FW_STORE_URL_DES}/pcengines_apu2/v${DASHARO_REL_VER_DES}/${DASHARO_REL_NAME}_v${DASHARO_REL_VER_DES}.rom"
+          BIOS_HASH_LINK_DES="${BIOS_LINK_DES}.sha256"
+          BIOS_SIGN_LINK_DES="${BIOS_LINK_DES}.sha256.sig"
+          PROGRAMMER_BIOS="internal:boardmismatch=force"
+          NEED_SMMSTORE_MIGRATION="true"
+          NEED_BOOTSPLASH_MIGRATION="true"
+          ;;
+        "APU6")
+          DASHARO_REL_NAME="pcengines_apu6"
+          DASHARO_REL_VER_DES="0.9.0"
+          HAVE_EC="false"
+          NEED_EC_RESET="false"
+          BIOS_LINK_DES="${FW_STORE_URL_DES}/pcengines_apu2/v${DASHARO_REL_VER_DES}/${DASHARO_REL_NAME}_v${DASHARO_REL_VER_DES}.rom"
+          BIOS_HASH_LINK_DES="${BIOS_LINK_DES}.sha256"
+          BIOS_SIGN_LINK_DES="${BIOS_LINK_DES}.sha256.sig"
+          PROGRAMMER_BIOS="internal:boardmismatch=force"
+          NEED_SMMSTORE_MIGRATION="true"
+          NEED_BOOTSPLASH_MIGRATION="true"
+          ;;
+        *)
+          error_exit "Board model $SYSTEM_MODEL is currently not supported"
+          ;;
+      esac
+      shopt -u nocasematch
       ;;
     *)
       error_exit "Board vendor: $BOARD_VENDOR is currently not supported"
