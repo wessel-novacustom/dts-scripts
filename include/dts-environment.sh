@@ -7,10 +7,11 @@
 # shellcheck disable=SC2034
 
 # Text Reset
-COLOR_OFF='\033[0m'
+NORMAL='\033[0m'
 RED='\033[0;31m'
 YELLOW='\033[0;33m'
 GREEN='\033[0;32m'
+BLUE='\033[0;36m'
 
 BOARD_VENDOR="$(dmidecode -s system-manufacturer)"
 SYSTEM_MODEL="$(dmidecode -s system-product-name)"

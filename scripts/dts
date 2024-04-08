@@ -157,12 +157,12 @@ while : ; do
       echo ${TMP_CLOUDSEND_DOWNLOAD_URL} >> ${SE_credential_file}
       echo ${TMP_CLOUDSEND_PASSWORD} >> ${SE_credential_file}
 
-      print_green "Dasharo DES credentials have been saved"
+      print_ok "Dasharo DES credentials have been saved"
       echo "Verifying Dasharo DES credentials..."
 
       check_se_creds
       if [ $? -eq 0 ]; then
-         print_green "Verification of the Dasharo DES was successful. They are valid and will be used."
+         print_ok "Verification of the Dasharo DES was successful. They are valid and will be used."
       else
         echo -e "Something may be wrong with the DES credentials. Please use option 4 to change the DES keys
                   \rand make sure that there is no typo."
@@ -204,14 +204,14 @@ while : ; do
       ;;
     8)
       if systemctl is-active sshd.socket > /dev/null 2>&1; then
-        print_green "Turning off the SSH server..."
+        print_ok "Turning off the SSH server..."
         systemctl stop sshd.socket
       else
         print_warning "Starting SSH server!"
         print_warning "Now you can log in into the system using root account."
         print_warning "Stopping server will not drop all connected sessions."
         systemctl start sshd.socket
-        print_green "Listening on IPs: $(ip -br -f inet a show scope global | grep UP | awk '{ print $3 }' | tr '\n' ' ')"
+        print_ok "Listening on IPs: $(ip -br -f inet a show scope global | grep UP | awk '{ print $3 }' | tr '\n' ' ')"
       fi
       ;;
     9)

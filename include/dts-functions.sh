@@ -8,17 +8,29 @@
 # shellcheck source=../include/dts-environment.sh
 source $DTS_ENV
 
-### Color functions
+### Color functions:
+function echo_green() {
+  echo -e "$GREEN""$1""$NORMAL"
+}
+
+function echo_red() {
+  echo -e "$RED""$1""$NORMAL"
+}
+
+function echo_yellow() {
+  echo -e "$YELLOW""$1""$NORMAL"
+}
+
 print_warning() {
-  echo -e "$YELLOW""$1""$COLOR_OFF"
+  echo_yellow "$1"
 }
 
 print_error() {
-  echo -e "$RED""$1""$COLOR_OFF"
+  echo_red "$1"
 }
 
-print_green() {
-  echo -e "$GREEN""$1""$COLOR_OFF"
+print_ok() {
+  echo_green "$1"
 }
 
 check_if_dasharo() {
@@ -837,7 +849,7 @@ download_artifacts() {
      fi
     fi
   fi
-  print_green "Done"
+  print_ok "Done"
 }
 
 download_keys() {
@@ -856,7 +868,7 @@ get_signing_keys() {
         wget -q https://raw.githubusercontent.com/3mdeb/3mdeb-secpack/master/$key -O - | gpg --import - >> $ERR_LOG_FILE 2>&1
         error_check "Cannot get $key key to verify signatures."
     done
-    print_green "Done"
+    print_ok "Done"
 }
 
 verify_artifacts() {
@@ -886,12 +898,12 @@ verify_artifacts() {
   echo -n "Checking $_name firmware checksum... "
   sha256sum --check <(echo "$(cat $_hash_file | cut -d ' ' -f 1)" $_update_file) >> $ERR_LOG_FILE 2>&1
   error_check "Failed to verify $_name firmware checksum"
-  print_green "Verified."
+  print_ok "Verified."
   if [ -v PLATFORM_SIGN_KEY ]; then
     echo -n "Checking $_name firmware signature... "
     _sig_result="$(cat $_hash_file | gpg --verify $_sign_file - >> $ERR_LOG_FILE 2>&1)"
     error_check "Failed to verify $_name firmware signature.$'\n'$_sig_result"
-    print_green "Verified."
+    print_ok "Verified."
   fi
   echo "$_sig_result"
 }

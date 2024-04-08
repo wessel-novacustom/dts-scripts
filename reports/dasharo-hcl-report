@@ -16,7 +16,7 @@ update_result() {
 
   # check if status was set as a unknown
   if [ ! -v $3 ]; then
-   echo -e [$YELLOW"UNKNOWN"$COLOR_OFF]"\t"$TOOL >> result
+   echo -e [$YELLOW"UNKNOWN"$NORMAL]"\t"$TOOL >> result
    return
   fi
 
@@ -33,20 +33,20 @@ update_result() {
   # specific check for firmware dump
   if [ $LOGFILE == "logs/flashrom_read.log" ]; then
     if [ $LOG -ne 0 ] && [ -f "logs/rom.bin" ]; then
-      echo -e [$GREEN"OK"$COLOR_OFF]"\t\t"$TOOL >> result
+      echo -e [$GREEN"OK"$NORMAL]"\t\t"$TOOL >> result
     else
-      echo -e [$RED"ERROR"$COLOR_OFF]"\t\t"$TOOL >> result
+      echo -e [$RED"ERROR"$NORMAL]"\t\t"$TOOL >> result
     fi
     return
   fi
 
   # generic checks
   if [ $LOG -ne 0 ] && [ $ERR -eq 0 ]; then
-   echo -e [$GREEN"OK"$COLOR_OFF]"\t\t"$TOOL >> result
+   echo -e [$GREEN"OK"$NORMAL]"\t\t"$TOOL >> result
   elif [ $LOG -eq 0 ] && [ $ERR -ne 0 ]; then
-   echo -e [$RED"ERROR"$COLOR_OFF]"\t\t"$TOOL >> result
+   echo -e [$RED"ERROR"$NORMAL]"\t\t"$TOOL >> result
   else
-   echo -e [$YELLOW"UNKNOWN"$COLOR_OFF]"\t"$TOOL >> result
+   echo -e [$YELLOW"UNKNOWN"$NORMAL]"\t"$TOOL >> result
   fi
 }
 
@@ -271,9 +271,9 @@ echo
 
 echo "Results of getting data:" >> result
 echo -e "\nLegend:" >> result
-echo -e [$GREEN"OK"$COLOR_OFF]"\t\t Data get successfully" >> result
-echo -e [$YELLOW"UNKNOWN"$COLOR_OFF]"\t Result is unknown" >> result
-echo -e [$RED"ERROR"$COLOR_OFF]"\t\t Error during getting data\n" >> result
+echo -e [$GREEN"OK"$NORMAL]"\t\t Data get successfully" >> result
+echo -e [$YELLOW"UNKNOWN"$NORMAL]"\t Result is unknown" >> result
+echo -e [$RED"ERROR"$NORMAL]"\t\t Error during getting data\n" >> result
 
 mv result logs/result
 if [ $DEPLOY_REPORT = "false" ]; then

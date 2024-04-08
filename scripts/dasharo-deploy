@@ -262,7 +262,7 @@ smmstore_migration() {
       print_warning "Failed! Default settings will be used."
     cbfstool "$BIOS_UPDATE_FILE" write -r SMMSTORE -f /tmp/smmstore.bin -u >> $ERR_LOG_FILE 2>&1 || \
       print_warning "Failed! Default settings will be used."
-    print_green Done.
+    print_ok Done.
 }
 
 bootsplash_migration() {
@@ -273,7 +273,7 @@ bootsplash_migration() {
     echo -n "Backing up custom boot logo... "
     dcu logo $BIOS_UPDATE_FILE -l /tmp/logo.bmp >> $ERR_LOG_FILE 2>&1 || \
       print_warning "Failed! Default boot splash will be used." || return 1
-    print_green Done.
+    print_ok Done.
 }
 
 resign_binary() {
@@ -344,21 +344,21 @@ blob_transmission() {
     error_file_check "$SCH5545_FW" "Failed to find SCH5545 EC firmware binary."
     echo -n "Adding SCH5545 EC firmware..."
     cbfstool "$BIOS_UPDATE_FILE" add -f "$SCH5545_FW" -n sch5545_ecfw.bin -t raw
-    print_green "Done"
+    print_ok "Done"
   fi
 
   if [ -n "$ACM_BIN" ]; then
     error_file_check "$ACM_BIN" "Failed to find BIOS ACM binary."
     echo -n "Adding BIOS ACM..."
     cbfstool "$BIOS_UPDATE_FILE" add -f "$ACM_BIN" -n txt_bios_acm.bin -t raw
-    print_green "Done"
+    print_ok "Done"
   fi
 
   if [ -n "$SINIT_ACM" ]; then
     error_file_check "$SINIT_ACM" "Failed to find Intel SINIT ACM binary."
     echo -n "Adding SINIT ACM..."
     cbfstool "$BIOS_UPDATE_FILE" add -f "$SINIT_ACM" -n txt_sinit_acm.bin -t raw
-    print_green "Done"
+    print_ok "Done"
   fi
 }
 
@@ -421,7 +421,7 @@ install() {
   $FLASHROM -p "$PROGRAMMER_BIOS" ${FLASH_CHIP_SELECT} ${FLASHROM_ADD_OPT_REGIONS} -w "$BIOS_UPDATE_FILE" >> $FLASHROM_LOG_FILE 2>> $ERR_LOG_FILE
   error_check "Failed to install Dasharo firmware"
 
-  print_green "Successfully installed Dasharo firmware"
+  print_ok "Successfully installed Dasharo firmware"
 
   echo -n "Syncing disks... "
   sync
@@ -522,8 +522,8 @@ update() {
       else
         # Access to the heads FW is possible, allow to switch to heads
         _can_switch_to_heads="true"
-        print_green "Dasharo Heads firmware version is available and your subscription"
-        print_green "gives you access to this firmware."
+        print_ok "Dasharo Heads firmware version is available and your subscription"
+        print_ok "gives you access to this firmware."
       fi
     elif [ -v HAVE_HEADS_FW ] && [ "$DASHARO_FLAVOR" == "Dasharo (coreboot+heads)" ]; then
       # Set the switch flag to offer switch back
@@ -532,8 +532,8 @@ update() {
     fi
   else
     if [ -v DASHARO_REL_VER_DES ]; then
-      print_green "DES version available, if you are interested"
-      print_green "please visit https://shop.3mdeb.com/product-category/dasharo-entry-subscription/"
+      print_ok "DES version available, if you are interested"
+      print_ok "please visit https://shop.3mdeb.com/product-category/dasharo-entry-subscription/"
     fi
     if [ "$DASHARO_FLAVOR" != "Dasharo (coreboot+heads)" ]; then
       echo "Latest available Dasharo version: $DASHARO_REL_VER"
@@ -550,9 +550,9 @@ update() {
     fi
     UPDATE_VERSION=$DASHARO_REL_VER
     if [ -v HAVE_HEADS_FW ] && [ "$DASHARO_FLAVOR" != "Dasharo (coreboot+heads)" ]; then
-      print_green "Dasharo heads firmware version is available. If you are interested,"
-      print_green "please provide your subscription credentials in the main DTS menu"
-      print_green "and select 'Update Dasharo firmware' again to check if you are eligible."
+      print_ok "Dasharo heads firmware version is available. If you are interested,"
+      print_ok "please provide your subscription credentials in the main DTS menu"
+      print_ok "and select 'Update Dasharo firmware' again to check if you are eligible."
     elif [ -v HAVE_HEADS_FW ] && [ "$DASHARO_FLAVOR" == "Dasharo (coreboot+heads)" ]; then
       # Set the switch flag to offer switch back
       _can_switch_to_heads="true"
@@ -680,11 +680,11 @@ update() {
     # Any post-branch-switch messaging should go here
     case "$SWITCHING_TO" in
       "uefi")
-        print_green "Successfully switched to Dasharo UEFI firmware."
+        print_ok "Successfully switched to Dasharo UEFI firmware."
         print_warning "You may need to re-create boot manager entries!"
         ;;
       "heads")
-        print_green "Successfully switched to Dasharo Heads firmware."
+        print_ok "Successfully switched to Dasharo Heads firmware."
         print_warning "On first boot you will see a warning about unsealing TOTP secrets."
         print_warning "This is expected. Run OEM Factory Reset / Re-Ownership to finish deploying Heads."
         ;;
@@ -692,7 +692,7 @@ update() {
     read -p "Press enter to continue" # Make sure the user acknowledges.
   else
     # Regular update flow
-    print_green "Successfully updated Dasharo firmware."
+    print_ok "Successfully updated Dasharo firmware."
   fi
 
   if [ "$HAVE_EC" == "true" ]; then
@@ -762,7 +762,7 @@ restore() {
           tar -zxf "$HCL_REPORT_PACKAGE" -C /tmp
           echo "Restoring BIOS firmware..."
           if [ -f "/tmp/logs/rom.bin" ]; then
-            print_green "Found $HCL_REPORT_PACKAGE"
+            print_ok "Found $HCL_REPORT_PACKAGE"
             read -p "Do you want to restore firmware from the given HCL report? [N/y] "
             case ${REPLY} in
                 yes|y|Y|Yes|YES)
@@ -777,7 +777,7 @@ restore() {
                   set_intel_regions_update_params "-N --ifd -i bios"
                   $FLASHROM -p "$PROGRAMMER_BIOS" ${FLASH_CHIP_SELECT} ${FLASHROM_ADD_OPT_REGIONS} -w "/tmp/logs/rom.bin" >> $FLASHROM_LOG_FILE 2>> $ERR_LOG_FILE
                   error_check "Failed to restore BIOS firmware! You can try one more time."
-                  print_green "Successfully restored firmware"
+                  print_ok "Successfully restored firmware"
                   echo "Returning to main menu..."
                   exit 0
                   ;;
@@ -817,7 +817,7 @@ restore() {
           set_intel_regions_update_params "-N --ifd -i bios"
           flashrom -p "$PROGRAMMER_BIOS" ${FLASH_CHIP_SELECT} ${FLASHROM_ADD_OPT_REGIONS} -w "/tmp/logs/rom.bin" >> $FLASHROM_LOG_FILE 2>> $ERR_LOG_FILE
           error_check "Failed to restore BIOS firmware! You can try one more time."
-          print_green "Successfully restored firmware"
+          print_ok "Successfully restored firmware"
         else
           print_error "Report does not have firmware backup!"
         fi
