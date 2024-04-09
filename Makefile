@@ -1,20 +1,20 @@
-# Makefile for installing/uninstalling scripts.
+SBINDIR ?= /usr/sbin
+SYSCONFDIR ?= /etc
 
-DTS_PROFILE = dts-profile.sh
-DTS_INCLUDE = dts-environment.sh dts-functions.sh
-DTS_SCRIPTS = cloud_list dasharo-deploy dts dts-boot ec_transition
+install:
+	install -d $(DESTDIR)$(SBINDIR)
 
-DTS_PROFILE_DEST = $(DTS_PROFILE:%=$(DESTDIR)/$(SYSCONFDIR)/%)
-DTS_INCLUDE_DEST = $(DTS_INCLUDE:%=$(DESTDIR)/%)
-DTS_SCRIPTS_DEST = $(DTS_SCRIPTS:%=$(DESTDIR)/%)
+	install -m 0755 include/dts-environment.sh $(DESTDIR)$(SBINDIR)
+	install -m 0755 include/dts-functions.sh $(DESTDIR)$(SBINDIR)
 
-install: $(DTS_PROFILE_DEST) $(DTS_INCLUDE_DEST) $(DTS_SCRIPTS_DEST)
+	install -m 0755 scripts/cloud_list $(DESTDIR)$(SBINDIR)
+	install -m 0755 scripts/dasharo-deploy $(DESTDIR)$(SBINDIR)
+	install -m 0755 scripts/dts $(DESTDIR)$(SBINDIR)
+	install -m 0755 scripts/dts-boot $(DESTDIR)$(SBINDIR)
+	install -m 0755 scripts/ec_transition $(DESTDIR)$(SBINDIR)
 
-$(DTS_PROFILE_DEST):
-	install -D -m 0755 $$(find ./ -type f -name $(notdir $@)) $@
+	install -m 0755 reports/dasharo-hcl-report $(DESTDIR)$(SBINDIR)
+	install -m 0755 reports/touchpad-info $(DESTDIR)$(SBINDIR)
 
-$(DTS_INCLUDE_DEST):
-	install -D -m 0655 $$(find ./ -type f -name $(notdir $@)) $@
-
-$(DTS_SCRIPTS_DEST):
-	install -D -m 0755 $$(find ./ -type f -name $(notdir $@)) $@
+	install -d $(DESTDIR)$(SYSCONFDIR)/profile.d
+	install -m 0755 dts-profile.sh $(DESTDIR)$(SYSCONFDIR)/profile.d
