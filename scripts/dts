@@ -10,8 +10,6 @@ source $DTS_FUNCS
 trap : 2
 trap : 3
 
-show_header
-
 while : ; do
   # Each time the main menu is displayed, check for DES credentials and export
   # them, if file exists
@@ -28,6 +26,7 @@ while : ; do
     unset DES_IS_LOGGED
   fi
 
+  show_header
   show_des_credentials
   show_ssh_info
   show_menu
@@ -62,6 +61,7 @@ while : ; do
           export DEPLOY_REPORT="false"
           ${CMD_DASHARO_HCL_REPORT}
       fi
+      read -p "Press ENTER to continue."
       ;;
     ${DASHARO_FIRM_OPT})
       if ! check_if_dasharo; then
@@ -109,11 +109,13 @@ while : ; do
         # Use regular update process for everything else
         ${CMD_DASHARO_DEPLOY} update
       fi
+      read -p "Press ENTER to continue."
       ;;
     ${REST_FIRM_OPT})
       if check_if_dasharo; then
         ${CMD_DASHARO_DEPLOY} restore
       fi
+      read -p "Press ENTER to continue."
       ;;
     ${DES_KEYS_OPT})
       echo ""
@@ -142,6 +144,7 @@ while : ; do
         unset CLOUDSEND_DOWNLOAD_URL
         unset DES_IS_LOGGED
       fi
+      read -p "Press ENTER to continue."
       ;;
     ${SSH_OPT_UP} | ${SSH_OPT_LOW})
       if systemctl is-active sshd.socket > /dev/null 2>&1; then
@@ -154,6 +157,7 @@ while : ; do
         systemctl start sshd.socket
         print_ok "Listening on IPs: $(ip -br -f inet a show scope global | grep UP | awk '{ print $3 }' | tr '\n' ' ')"
       fi
+      read -p "Press ENTER to continue."
       ;;
     ${SHELL_OPT_UP} | ${SHELL_OPT_LOW})
       echo "Entering shell, to leave type exit and press Enter or press LCtrl+D"
