@@ -1239,3 +1239,47 @@ sync_clocks() {
     print_warning "Some time critical tasks might fail!"
   fi
 }
+
+show_ram_inf() {
+  # Get the data:
+  local data=$(dmidecode)
+
+  # Initialize an empty array to store the extracted values:
+  local -a memory_devices_array
+
+  # Parse the data to exclude fields "Locator" and "Part Number" and format to
+  # "Locator: Part Number":
+  while IFS= read -r line; do
+    # memory_device signals whether the line contains beginning of "Memory
+    # Device" dmidecode structure, if so - set to 1 and pars the structure, if
+    # the line contains "Handle" (the string every structure in dmidecode begins
+    # with) - set to 0:
+    if [[ $line =~ ^Handle ]]; then
+      memory_device=0
+    elif [[ $line =~ Memory\ Device ]]; then
+      memory_device=1
+    # Modify entry if "Memory Device" structure has been found
+    # (memory_device is set to 1) and either "Locator" or "Part Number"
+    # fields have been found:
+    elif [[ $memory_device -eq 1 && $line =~ Locator:\ |Part\ Number: ]]; then
+      # Extract a value of "Locator" field and then add a value of "Part Number"
+      # field but ignore "Bank Locator" field, cos it will be included by parent
+      # condition:
+      if [[ $line =~ Bank\ Locator ]]; then
+        continue  # Ignore Bank Locator field.
+      elif [[ $line =~ Locator: ]]; then
+        entry="${line#*: }"  # Extract the Locator value.
+      elif [[ $line =~ Part\ Number: ]]; then
+        entry+=": ${NORMAL}${line#*: }"  # Concatenate Part Number value with
+					 # Locator and add a colon with yellow
+					 # color termination.
+        memory_devices_array+=("$entry")
+      fi
+    fi
+  done <<< "$data"
+
+  # Print the extracted values preformatted:
+  for entry in "${memory_devices_array[@]}"; do
+    echo -e "${BLUE}**${YELLOW}    RAM ${entry}"
+  done
+}
