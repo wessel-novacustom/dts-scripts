@@ -13,7 +13,7 @@ YELLOW='\033[0;33m'
 GREEN='\033[0;32m'
 BLUE='\033[0;36m'
 
-BOARD_VENDOR="$(dmidecode -s system-manufacturer)"
+SYSTEM_VENDOR="$(dmidecode -s system-manufacturer)"
 SYSTEM_MODEL="$(dmidecode -s system-product-name)"
 BOARD_MODEL="$(dmidecode -s baseboard-product-name)"
 

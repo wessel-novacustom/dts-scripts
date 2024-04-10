@@ -9,7 +9,7 @@ source $DTS_ENV
 # shellcheck source=../include/dts-functions.sh
 source $DTS_FUNCS
 
-[ -z "$BOARD_VENDOR" ] && error_exit "BOARD_VENDOR not given"
+[ -z "$SYSTEM_VENDOR" ] && error_exit "SYSTEM_VENDOR not given"
 [ -z "$SYSTEM_MODEL" ] && error_exit "SYSTEM_MODEL not given"
 
 CMD="$1"
@@ -85,8 +85,8 @@ display_flashing_warning() {
     print_warning "Please verify detected hardware!"
     echo
 
-    if [ -v BOARD_VENDOR ]; then
-      echo "Board vendor: $BOARD_VENDOR"
+    if [ -v SYSTEM_VENDOR ]; then
+      echo "Board vendor: $SYSTEM_VENDOR"
     fi
     if [ -v SYSTEM_MODEL ]; then
       echo "System model: $SYSTEM_MODEL"

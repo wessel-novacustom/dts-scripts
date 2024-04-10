@@ -176,7 +176,7 @@ board_config() {
   check_network_connection
 
   echo "Checking if board is Dasharo compatible."
-  case "$BOARD_VENDOR" in
+  case "$SYSTEM_VENDOR" in
     "Notebook")
       case "$SYSTEM_MODEL" in
         "NV4XMB,ME,MZ")
@@ -645,7 +645,7 @@ board_config() {
       shopt -u nocasematch
       ;;
     *)
-      error_exit "Board vendor: $BOARD_VENDOR is currently not supported"
+      error_exit "Board vendor: $SYSTEM_VENDOR is currently not supported"
       ;;
   esac
 }

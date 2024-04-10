@@ -21,7 +21,7 @@ check_network_connection() {
 }
 
 board_config() {
-  case "$BOARD_VENDOR" in
+  case "$SYSTEM_VENDOR" in
     "Notebook")
       case "$SYSTEM_MODEL" in
         "NS50_70MU")
@@ -52,7 +52,7 @@ board_config() {
       esac
       ;;
     *)
-      error_exit "Board vendor: $BOARD_VENDOR is currently not supported"
+      error_exit "Board vendor: $SYSTEM_VENDOR is currently not supported"
       ;;
   esac
 }
@@ -125,7 +125,7 @@ usage() {
 
 ROOT_DIR="/"
 
-[ -z "$BOARD_VENDOR" ] && error_exit "BOARD_VENDOR not given"
+[ -z "$SYSTEM_VENDOR" ] && error_exit "SYSTEM_VENDOR not given"
 [ -z "$SYSTEM_MODEL" ] && error_exit "SYSTEM_MODEL not given"
 
 check_for_opensource_firmware
