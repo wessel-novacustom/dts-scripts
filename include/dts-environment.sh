@@ -15,8 +15,9 @@ BLUE='\033[0;36m'
 
 SYSTEM_VENDOR="$(dmidecode -s system-manufacturer)"
 SYSTEM_MODEL="$(dmidecode -s system-product-name)"
+BOARD_VENDOR="$(dmidecode -s baseboard-manufacturer)"
 BOARD_MODEL="$(dmidecode -s baseboard-product-name)"
-
+CPU_VERSION="$(dmidecode -s processor-version)"
 BIOS_VENDOR="$(dmidecode -s bios-vendor)"
 BIOS_VERSION="$(dmidecode -s bios-version)"
 DASHARO_VERSION="$(echo $BIOS_VERSION | cut -d ' ' -f 3 | tr -d 'v')"

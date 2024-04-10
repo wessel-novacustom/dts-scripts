@@ -1283,3 +1283,24 @@ show_ram_inf() {
     echo -e "${BLUE}**${YELLOW}    RAM ${entry}"
   done
 }
+
+show_header() {
+  local _os_version
+  _os_version=$(grep "VERSION_ID" ${OS_VERSION_FILE} | cut -d "=" -f 2-)
+  printf "\ec"
+  echo -e "${NORMAL}\n Dasharo Tools Suite Script ${_os_version} ${NORMAL}"
+  echo -e "${NORMAL} (c) Dasharo <contact@dasharo.com> ${NORMAL}"
+  echo -e "${NORMAL} Report issues at: https://github.com/Dasharo/dasharo-issues ${NORMAL}"
+  echo -e "${BLUE}*********************************************************${NORMAL}"
+  echo -e "${BLUE}**${NORMAL}                HARDWARE INFORMATION ${NORMAL}"
+  echo -e "${BLUE}*********************************************************${NORMAL}"
+  echo -e "${BLUE}**${YELLOW}    System Inf.: ${NORMAL}${SYSTEM_VENDOR} ${SYSTEM_MODEL}"
+  echo -e "${BLUE}**${YELLOW} Baseboard Inf.: ${NORMAL}${BOARD_VENDOR} ${BOARD_MODEL}"
+  echo -e "${BLUE}**${YELLOW}       CPU Inf.: ${NORMAL}${CPU_VERSION}"
+  show_ram_inf
+  echo -e "${BLUE}*********************************************************${NORMAL}"
+  echo -e "${BLUE}**${NORMAL}                FIRMWARE INFORMATION ${NORMAL}"
+  echo -e "${BLUE}*********************************************************${NORMAL}"
+  echo -e "${BLUE}**${YELLOW}      BIOS Inf.: ${NORMAL}${BIOS_VENDOR} ${BIOS_VERSION}"
+  echo -e "${BLUE}*********************************************************${NORMAL}"
+}
