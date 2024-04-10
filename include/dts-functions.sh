@@ -1240,6 +1240,21 @@ sync_clocks() {
   fi
 }
 
+print_disclaimer() {
+echo -e \
+"Please note that the report is not anonymous, but we will use it only for\r
+backup and future improvement of the Dasharo product. Every log is encrypted\r
+and sent over HTTPS, so security is assured.\r
+If you still have doubts, you can skip HCL report generation.\r\n
+What is inside the HCL report? We gather information about:\r
+  - PCI, Super I/O, GPIO, EC, audio, and Intel configuration,\r
+  - MSRs, CMOS NVRAM, CPU info, DIMMs, state of touchpad, SMBIOS and ACPI tables,\r
+  - Decoded BIOS information, full firmware image backup, kernel dmesg,\r
+  - IO ports, input bus types, and topology - including I2C and USB,\r
+\r
+You can find more info about HCL in docs.dasharo.com/glossary\r"
+}
+
 show_ram_inf() {
   # Get the data:
   local data=$(dmidecode)
@@ -1303,4 +1318,48 @@ show_header() {
   echo -e "${BLUE}*********************************************************${NORMAL}"
   echo -e "${BLUE}**${YELLOW}      BIOS Inf.: ${NORMAL}${BIOS_VENDOR} ${BIOS_VERSION}"
   echo -e "${BLUE}*********************************************************${NORMAL}"
+}
+
+show_des_credentials() {
+  if [ -n "${DES_IS_LOGGED}" ]; then
+    echo -e "${BLUE}**${NORMAL}                DES credentials ${NORMAL}"
+    echo -e "${BLUE}*********************************************************${NORMAL}"
+    echo -e "${BLUE}**${YELLOW}       Logs key: ${NORMAL}${CLOUDSEND_LOGS_URL}"
+    echo -e "${BLUE}**${YELLOW}   Download key: ${NORMAL}${CLOUDSEND_DOWNLOAD_URL}"
+    echo -e "${BLUE}**${YELLOW}       Password: ${NORMAL}${CLOUDSEND_PASSWORD}"
+    echo -e "${BLUE}*********************************************************${NORMAL}"
+  fi
+}
+
+show_ssh_info() {
+  if systemctl is-active sshd.socket &> /dev/null; then
+    local ip=$(ip -br -f inet a show scope global | grep UP | awk '{ print $3 }' | tr '\n' ' ')
+    echo -e "${BLUE}**${NORMAL}    SSH status: ${GREEN}ON${NORMAL} IP: ${ip}{${NORMAL}"
+    echo -e "${BLUE}*********************************************************${NORMAL}"
+  fi
+}
+
+show_menu() {
+  echo -e "${BLUE}**${YELLOW}     ${HCL_REPORT_OPT})${BLUE} Dasharo HCL report${NORMAL}"
+  if ! check_if_dasharo; then
+    echo -e "${BLUE}**${YELLOW}     ${DASHARO_FIRM_OPT})${BLUE} Update Dasharo Firmware${NORMAL}"
+  else
+    echo -e "${BLUE}**${YELLOW}     ${DASHARO_FIRM_OPT})${BLUE} Install Dasharo Firmware${NORMAL}"
+  fi
+  echo -e "${BLUE}**${YELLOW}     ${REST_FIRM_OPT})${BLUE} Restore firmware from Dasharo HCL report${NORMAL}"
+  if [ -n "${DES_IS_LOGGED}" ]; then
+    echo -e "${BLUE}**${YELLOW}     ${DES_KEYS_OPT})${BLUE} Edit your DES keys${NORMAL}"
+  else
+    echo -e "${BLUE}**${YELLOW}     ${DES_KEYS_OPT})${BLUE} Load your DES keys${NORMAL}"
+  fi
+  echo -e "${BLUE}*********************************************************${NORMAL}"
+  echo -e "${YELLOW}Select a menu option or${NORMAL}"
+  echo -ne "${RED}${REBOOT_OPT_UP}${NORMAL} to reboot  ${NORMAL}"
+  echo -ne "${RED}${POWEROFF_OPT_UP}${NORMAL} to poweroff  ${NORMAL}"
+  echo -e "${RED}${SHELL_OPT_UP}${NORMAL} to enter shell  ${NORMAL}"
+  if systemctl is-active sshd.socket &> /dev/null; then
+    echo -ne "${RED}${SSH_OPT_UP}${NORMAL} to stop SSH server  ${NORMAL}"
+  else
+    echo -ne "${RED}${SSH_OPT_UP}${NORMAL} to launch SSH server  ${NORMAL}"
+  fi
 }

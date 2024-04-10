@@ -6,12 +6,26 @@
 
 # shellcheck disable=SC2034
 
-# Text Reset
+# Text colors:
 NORMAL='\033[0m'
 RED='\033[0;31m'
 YELLOW='\033[0;33m'
 GREEN='\033[0;32m'
 BLUE='\033[0;36m'
+
+# DTS options:
+HCL_REPORT_OPT="1"
+DASHARO_FIRM_OPT="2"
+REST_FIRM_OPT="3"
+DES_KEYS_OPT="4"
+REBOOT_OPT_UP="R"
+REBOOT_OPT_LOW="$(echo $REBOOT_OPT_UP | awk '{print tolower($0)}')"
+POWEROFF_OPT_UP="P"
+POWEROFF_OPT_LOW="$(echo $POWEROFF_OPT_UP | awk '{print tolower($0)}')"
+SHELL_OPT_UP="S"
+SHELL_OPT_LOW="$(echo $SHELL_OPT_UP | awk '{print tolower($0)}')"
+SSH_OPT_UP="K"
+SSH_OPT_LOW="$(echo $SSH_OPT_UP | awk '{print tolower($0)}')"
 
 SYSTEM_VENDOR="$(dmidecode -s system-manufacturer)"
 SYSTEM_MODEL="$(dmidecode -s system-product-name)"

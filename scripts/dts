@@ -10,29 +10,7 @@ source $DTS_FUNCS
 trap : 2
 trap : 3
 
-check_os_version() {
-  local os_version=$(grep "VERSION_ID" ${OS_VERSION_FILE} | cut -d "=" -f 2-)
-  echo "  DTS version v${os_version}"
-}
-
-print_disclaimer() {
-echo -e \
-"Please note that the report is not anonymous, but we will use it only for\r
-backup and future improvement of the Dasharo product. Every log is encrypted\r
-and sent over HTTPS, so security is assured.\r
-If you still have doubts, you can skip HCL report generation.\r\n
-What is inside the HCL report? We gather information about:\r
-  - PCI, Super I/O, GPIO, EC, audio, and Intel configuration,\r
-  - MSRs, CMOS NVRAM, CPU info, DIMMs, state of touchpad, SMBIOS and ACPI tables,\r
-  - Decoded BIOS information, full firmware image backup, kernel dmesg,\r
-  - IO ports, input bus types, and topology - including I2C and USB,\r
-\r
-You can find more info about HCL in docs.dasharo.com/glossary\r"
-}
-
-show_header()
-
-logs_sent=""
+show_header
 
 while : ; do
   # Each time the main menu is displayed, check for DES credentials and export
@@ -50,41 +28,16 @@ while : ; do
     unset DES_IS_LOGGED
   fi
 
+  show_des_credentials
+  show_ssh_info
+  show_menu
+
   echo
-  check_os_version
-  echo
-  echo "  1) Dasharo HCL report - dump hardware information from this device"
-  if ! check_if_dasharo; then
-    echo "  2) Install Dasharo firmware"
-  fi
-  if check_if_dasharo; then
-    echo "  3) Restore firmware from Dasharo HCL report"
-  fi
-  if [ -n "${DES_IS_LOGGED}" ]; then
-      echo "  4) Edit your DES keys"
-      echo "     Logs key    : " ${CLOUDSEND_LOGS_URL}
-      echo "     Download key: " ${CLOUDSEND_DOWNLOAD_URL}
-      echo "     Password    : " ${CLOUDSEND_PASSWORD}
-  else
-      echo "  4) Load your DES keys"
-  fi
-  if check_if_dasharo; then
-    echo "  5) Check and apply Dasharo firmware updates"
-  fi
-  if systemctl is-active sshd.socket > /dev/null 2>&1; then
-      echo "  8) Stop SSH server"
-  else
-      echo "  8) Start SSH server"
-  fi
-  echo "  9) Shell"
-  echo "  10) Power off system"
-  echo "  11) Reboot system"
-  echo
-  read -p "Enter an option: " OPTION
+  read OPTION
   echo
 
   case ${OPTION} in
-    1)
+    ${HCL_REPORT_OPT})
       print_disclaimer
       read -p "Do you want to support Dasharo development by sending us logs with your hardware configuration? [N/y] "
       case ${REPLY} in
@@ -110,7 +63,7 @@ while : ; do
           ${CMD_DASHARO_HCL_REPORT}
       fi
       ;;
-    2)
+    ${DASHARO_FIRM_OPT})
       if ! check_if_dasharo; then
         if check_network_connection; then
           echo "Preparing ..."
@@ -125,18 +78,44 @@ while : ; do
             fi
           fi
         fi
-      fi
 
-      if [ -n "${logs_sent}" ]; then
+        if [ -n "${logs_sent}" ]; then
           ${CMD_DASHARO_DEPLOY} install
+        fi
+      else
+        # For NovaCustom TGL laptops with Dasharo version lower than 1.3.0,
+        # we shall run the ec_transition script instead. See:
+        # https://docs.dasharo.com/variants/novacustom_nv4x_tgl/releases/#v130-2022-10-18
+        if [ "$SYSTEM_VENDOR" = "Notebook" ]; then
+            case "$SYSTEM_MODEL" in
+              "NS50_70MU"|"NV4XMB,ME,MZ")
+                compare_versions $DASHARO_VERSION 1.3.0
+                if [ $? -eq 1 ]; then
+                # For Dasharo version lesser than 1.3.0
+                  print_warning "Detected NovaCustom hardware with version < 1.3.0"
+                  print_warning "Need to perform EC transition after which the platform will turn off"
+                  print_warning "Then, please power it on and proceed with update again"
+                  print_warning "EC transition procedure will start in 5 seconds"
+                  sleep 5
+                  ${CMD_EC_TRANSITION}
+                  error_check "Could not perform EC transition"
+                fi
+                # Continue with regular update process for Dasharo version
+                #  greater or equal 1.3.0
+                ;;
+            esac
+        fi
+
+        # Use regular update process for everything else
+        ${CMD_DASHARO_DEPLOY} update
       fi
       ;;
-    3)
+    ${REST_FIRM_OPT})
       if check_if_dasharo; then
         ${CMD_DASHARO_DEPLOY} restore
       fi
       ;;
-    4)
+    ${DES_KEYS_OPT})
       echo ""
       read -p "Enter logs key:                " 'TMP_CLOUDSEND_LOGS_URL'
       echo ""
@@ -164,36 +143,7 @@ while : ; do
         unset DES_IS_LOGGED
       fi
       ;;
-    5)
-      if check_if_dasharo; then
-        # For NovaCustom TGL laptops with Dasharo version lower than 1.3.0,
-        # we shall run the ec_transition script instead. See:
-        # https://docs.dasharo.com/variants/novacustom_nv4x_tgl/releases/#v130-2022-10-18
-        if [ "$BOARD_VENDOR" = "Notebook" ]; then
-            case "$SYSTEM_MODEL" in
-              "NS50_70MU"|"NV4XMB,ME,MZ")
-                compare_versions $DASHARO_VERSION 1.3.0
-                if [ $? -eq 1 ]; then
-                # For Dasharo version lesser than 1.3.0
-                  print_warning "Detected NovaCustom hardware with version < 1.3.0"
-                  print_warning "Need to perform EC transition after which the platform will turn off"
-                  print_warning "Then, please power it on and proceed with update again"
-                  print_warning "EC transition procedure will start in 5 seconds"
-                  sleep 5
-                  ${CMD_EC_TRANSITION}
-                  error_check "Could not perform EC transition"
-                fi
-                # Continue with regular update process for Dasharo version
-                #  greater or equal 1.3.0
-                ;;
-            esac
-        fi
-
-        # Use regular update process for everything else
-        ${CMD_DASHARO_DEPLOY} update
-      fi
-      ;;
-    8)
+    ${SSH_OPT_UP} | ${SSH_OPT_LOW})
       if systemctl is-active sshd.socket > /dev/null 2>&1; then
         print_ok "Turning off the SSH server..."
         systemctl stop sshd.socket
@@ -205,15 +155,15 @@ while : ; do
         print_ok "Listening on IPs: $(ip -br -f inet a show scope global | grep UP | awk '{ print $3 }' | tr '\n' ' ')"
       fi
       ;;
-    9)
+    ${SHELL_OPT_UP} | ${SHELL_OPT_LOW})
       echo "Entering shell, to leave type exit and press Enter or press LCtrl+D"
       echo ""
       ${CMD_SHELL}
       ;;
-    10)
+    ${POWEROFF_OPT_UP} | ${POWEROFF_OPT_LOW})
       ${CMD_POWEROFF}
       ;;
-    11)
+    ${REBOOT_OPT_UP} | ${REBOOT_OPT_LOW})
       ${CMD_REBOOT}
       ;;
     *)
