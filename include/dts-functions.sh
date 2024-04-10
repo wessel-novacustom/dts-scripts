@@ -1334,8 +1334,15 @@ show_des_credentials() {
 show_ssh_info() {
   if systemctl is-active sshd.socket &> /dev/null; then
     local ip=$(ip -br -f inet a show scope global | grep UP | awk '{ print $3 }' | tr '\n' ' ')
-    echo -e "${BLUE}**${NORMAL}    SSH status: ${GREEN}ON${NORMAL} IP: ${ip}{${NORMAL}"
-    echo -e "${BLUE}*********************************************************${NORMAL}"
+    # Display "check your connection" in red color in IP field in case no IPV4
+    # address is assigned, otherwise display IP/PORT:
+    if [[ -z "$ip" ]]; then
+      echo -e "${BLUE}**${NORMAL}    SSH status: ${GREEN}ON${NORMAL} IP: ${RED}check your connection${NORMAL}"
+      echo -e "${BLUE}*********************************************************${NORMAL}"
+    else
+      echo -e "${BLUE}**${NORMAL}    SSH status: ${GREEN}ON${NORMAL} IP: ${ip}${NORMAL}"
+      echo -e "${BLUE}*********************************************************${NORMAL}"
+    fi
   fi
 }
 
