@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# SPDX-FileCopyrightText: 2024 3mdeb <contact@3mdeb.com>
+#
+# SPDX-License-Identifier: Apache-2.0
+
 SBIN_DIR="/usr/sbin"
 FUM_EFIVAR="/sys/firmware/efi/vars/FirmwareUpdateMode-d15b327e-ff2d-4fc1-abf6-c12bd08c1359"
 

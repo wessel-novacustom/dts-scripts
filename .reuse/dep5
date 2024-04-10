@@ -1,0 +1,10 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Dasharo Tools Suite
+Upstream-Contact: 3mdeb <contact@3mdeb.com>
+Source: https://docs.dasharo.com/dasharo-tools-suite/overview/
+
+# Sample paragraph, commented out:
+#
+# Files: src/*
+# Copyright: $YEAR $NAME <$CONTACT>
+# License: ...

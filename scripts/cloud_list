@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# SPDX-FileCopyrightText: 2024 3mdeb <contact@3mdeb.com>
+#
+# SPDX-License-Identifier: Apache-2.0
+
 TMP_RESPONSE="/tmp/webdav_response"
 TMP_LIST="/tmp/cloud_list"
 HW_UUID="$1"
