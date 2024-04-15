@@ -323,7 +323,8 @@ board_config() {
           fi
           ;;
         *)
-          error_exit "Board model $SYSTEM_MODEL is currently not supported"
+          print_error "Board model $SYSTEM_MODEL is currently not supported"
+          return 1
           ;;
       esac
       ;;
@@ -410,7 +411,8 @@ board_config() {
               fi
               ;;
             *)
-              error_exit "Board model $BOARD_MODEL is currently not supported"
+              print_error "Board model $BOARD_MODEL is currently not supported"
+              return 1
               ;;
           esac
           ;;
@@ -493,12 +495,14 @@ board_config() {
               fi
               ;;
             *)
-              error_exit "Board model $BOARD_MODEL is currently not supported"
+              print_error "Board model $BOARD_MODEL is currently not supported"
+              return 1
               ;;
           esac
           ;;
         *)
-          error_exit "Board model $SYSTEM_MODEL is currently not supported"
+          print_error "Board model $SYSTEM_MODEL is currently not supported"
+          return 1
           ;;
       esac
       ;;
@@ -546,10 +550,12 @@ board_config() {
           # SCH5545_FW="/tmp/_T1650A28.exe.extracted/65C10_output/pfsobject/section-7ec6c2b0-3fe3-42a0-a316-22dd0517c1e8/volume-0x60000/file-d386beb8-4b54-4e69-94f5-06091f67e0d3/section0.raw"
           # ACM_BIN="/tmp/_T1650A28.exe.extracted/65C10_output/pfsobject/section-7ec6c2b0-3fe3-42a0-a316-22dd0517c1e8/volume-0x500000/file-2d27c618-7dcd-41f5-bb10-21166be7e143/object-0.raw"
           print_warning "Dasharo Firmware for Precision T1650 not available yet!"
-          error_exit "Board model $SYSTEM_MODEL is currently not supported"
+          print_error "Board model $SYSTEM_MODEL is currently not supported"
+          return 1
           ;;
         *)
-          error_exit "Board model $SYSTEM_MODEL is currently not supported"
+          print_error "Board model $SYSTEM_MODEL is currently not supported"
+          return 1
           ;;
       esac
       ;;
@@ -574,7 +580,8 @@ board_config() {
             BIOS_LINK_COMM="$FW_STORE_URL/$DASHARO_REL_NAME/v$DASHARO_REL_VER/${DASHARO_REL_NAME}_v${DASHARO_REL_VER}_${FLASH_CHIP_SIZE}M_vboot_notpm.rom"
             ;;
           *)
-            error_exit "Platform uses chipset with not supported size"
+            print_error "Platform uses chipset with not supported size"
+            return 1
             ;;
           esac
           NEED_SMBIOS_MIGRATION="true"
@@ -582,7 +589,8 @@ board_config() {
           PROGRAMMER_BIOS="internal"
           ;;
         *)
-          error_exit "Board model $SYSTEM_MODEL is currently not supported"
+          print_error "Board model $SYSTEM_MODEL is currently not supported"
+          return 1
           ;;
       esac
       ;;
@@ -639,13 +647,15 @@ board_config() {
           NEED_BOOTSPLASH_MIGRATION="true"
           ;;
         *)
-          error_exit "Board model $SYSTEM_MODEL is currently not supported"
+          print_error "Board model $SYSTEM_MODEL is currently not supported"
+          return 1
           ;;
       esac
       shopt -u nocasematch
       ;;
     *)
-      error_exit "Board vendor: $SYSTEM_VENDOR is currently not supported"
+      print_error "Board vendor: $SYSTEM_VENDOR is currently not supported"
+      return 1
       ;;
   esac
 }
@@ -703,6 +713,9 @@ check_se_creds() {
   CLOUDSEND_PASSWORD=$(sed -n '3p' < ${SE_credential_file} | tr -d '\n')
   USER_DETAILS="$CLOUDSEND_DOWNLOAD_URL:$CLOUDSEND_PASSWORD"
   board_config
+  if [ "$?" == "1" ]; then
+    return 1
+  fi
   TEST_LOGS_URL="https://cloud.3mdeb.com/index.php/s/${CLOUDSEND_LOGS_URL}/authenticate/showShare"
 
   if [ ! -v BIOS_LINK_DES ] && [ ! -v HEADS_LINK_DES ]; then
