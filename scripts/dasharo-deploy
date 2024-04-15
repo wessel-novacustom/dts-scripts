@@ -4,7 +4,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+# shellcheck source=../include/dts-environment.sh
 source $DTS_ENV
+# shellcheck source=../include/dts-functions.sh
 source $DTS_FUNCS
 
 [ -z "$BOARD_VENDOR" ] && error_exit "BOARD_VENDOR not given"
@@ -112,13 +114,15 @@ display_flashing_warning() {
   while : ; do
     echo "Following firmware will be used to install Dasharo"
     if [ -v BIOS_HASH_LINK ]; then
-      local _bios_hash="$(cat $BIOS_HASH_FILE | cut -d ' ' -f 1)"
+      local _bios_hash
+      _bios_hash="$(cat $BIOS_HASH_FILE | cut -d ' ' -f 1)"
       echo "Dasharo BIOS firmware:"
       echo "  - link: $BIOS_LINK"
       echo "  - hash: $_bios_hash"
     fi
     if [ -v EC_HASH_LINK ]; then
-      local _ec_hash="$(cat $EC_HASH_FILE | cut -d ' ' -f 1)"
+      local _ec_hash
+      _ec_hash="$(cat $EC_HASH_FILE | cut -d ' ' -f 1)"
       echo "Dasharo EC firmware:"
       echo "  - link: $EC_LINK"
       echo "  - hash: $_ec_hash"
@@ -508,7 +512,7 @@ update() {
     fi
     if [ -v HAVE_HEADS_FW ] && [ "$DASHARO_FLAVOR" != "Dasharo (coreboot+heads)" ]; then
       # Check if given SE credentials give access to heads, if not,
-      # then it means DES is for regualar releases
+      # then it means DES is for regular releases
       curl -sfI -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$HEADS_LINK_DES" -o /dev/null
       if [ $? -ne 0 ]; then
         print_warning "Dasharo Heads firmware version is available, but your"
@@ -534,10 +538,12 @@ update() {
       echo "Latest available Dasharo version: $DASHARO_REL_VER"
     fi
     BIOS_HASH_LINK=$BIOS_HASH_LINK_COMM
+    # shellcheck disable=SC2034
     BIOS_SIGN_LINK=$BIOS_SIGN_LINK_COMM
     BIOS_LINK=$BIOS_LINK_COMM
     if [ "$HAVE_EC" == "true" ]; then
       EC_HASH_LINK=$EC_HASH_LINK_COMM
+      # shellcheck disable=SC2034
       EC_SIGN_LINK=$EC_SIGN_LINK_COMM
       EC_LINK=$EC_LINK_COMM
     fi
@@ -662,7 +668,7 @@ update() {
       fi
     fi
     if [ $UPDATE_ME -eq 0 ]; then
-      UPDATE_STRING+="Managment Engine"
+      UPDATE_STRING+="Management Engine"
     fi
     echo "Updating $UPDATE_STRING"
     $FLASHROM -p "$PROGRAMMER_BIOS" ${FLASH_CHIP_SELECT} ${FLASHROM_ADD_OPT_REGIONS} -w "$BIOS_UPDATE_FILE" >> $FLASHROM_LOG_FILE 2>> $ERR_LOG_FILE
@@ -682,8 +688,7 @@ update() {
         print_warning "This is expected. Run OEM Factory Reset / Re-Ownership to finish deploying Heads."
         ;;
     esac
-    echo "Press any key to continue" # Make sure the user acknowledges.
-    read -n 1 -r input
+    read -p "Press enter to continue" # Make sure the user acknowledges.
   else
     # Regular update flow
     print_green "Successfully updated Dasharo firmware."
@@ -736,7 +741,7 @@ restore() {
     # HCL report should be named as in dasharo-hcl-report so we can find
     # the package based on uuid saved in name, we need to check two options
     # with and without MAC address
-    uuid_string=`cat /sys/class/net/$(ip route show default | awk '/default/ {print $5}')/address`
+    uuid_string="$(cat /sys/class/net/$(ip route show default | awk '/default/ {print $5}')/address)"
     # if above gives error then there is no internet connection and first
     # part of uuid should be blank
     if [ ! $? -eq 0 ]; then
@@ -796,7 +801,7 @@ restore() {
         ${CMD_CLOUD_LIST} $uuid
         error_check "Could not download HCL report from cloud."
 
-        HCL_REPORT_PACKAGE="$(find / -name *$uuid* | head -n1)"
+        HCL_REPORT_PACKAGE="$(find / -name "*$uuid*" | head -n1)"
         tar -zxf "$HCL_REPORT_PACKAGE" -C /tmp
         echo "Restoring BIOS firmware..."
         if [ -f "/tmp/logs/rom.bin" ]; then

@@ -5,6 +5,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # shellcheck disable=SC2034
+# shellcheck source=../include/dts-environment.sh
 source $DTS_ENV
 
 ### Color functions
@@ -191,7 +192,7 @@ board_config() {
           # TODO: Let DTS determine which parameters are suitable.
           # FIXME: Can we ever get rid of that? We change so much in each release,
           # that we almost always need to flash whole BIOS regions
-          # because of non-backward compatbile or breaking changes.
+          # because of non-backward compatible or breaking changes.
             compare_versions $DASHARO_VERSION 1.5.2
             if [ $? -eq 1 ]; then
               # For Dasharo version lesser than 1.5.2
@@ -225,7 +226,7 @@ board_config() {
           # TODO: Let DTS determine which parameters are suitable.
           # FIXME: Can we ever get rid of that? We change so much in each release,
           # that we almost always need to flash whole BIOS regions
-          # because of non-backward compatbile or breaking changes.
+          # because of non-backward compatible or breaking changes.
             compare_versions $DASHARO_VERSION 1.5.2
             if [ $? -eq 1 ]; then
               # For Dasharo version lesser than 1.5.2
@@ -258,7 +259,7 @@ board_config() {
           # TODO: Let DTS determine which parameters are suitable.
           # FIXME: Can we ever get rid of that? We change so much in each release,
           # that we almost always need to flash whole BIOS regions
-          # because of non-backward compatbile or breaking changes.
+          # because of non-backward compatible or breaking changes.
             compare_versions $DASHARO_VERSION 1.7.2
             if [ $? -eq 1 ]; then
               # For Dasharo version lesser than 1.7.2
@@ -295,7 +296,7 @@ board_config() {
           # TODO: Let DTS determine which parameters are suitable.
           # FIXME: Can we ever get rid of that? We change so much in each release,
           # that we almost always need to flash whole BIOS regions
-          # because of non-backward compatbile or breaking changes.
+          # because of non-backward compatible or breaking changes.
             compare_versions $DASHARO_VERSION 1.7.2
             if [ $? -eq 1 ]; then
               # For Dasharo version lesser than 1.7.2
@@ -348,7 +349,7 @@ board_config() {
                 # TODO: Let DTS determine which parameters are suitable.
                 # FIXME: Can we ever get rid of that? We change so much in each release,
                 # that we almost always need to flash whole BIOS region
-                # because of non-backward compatbile or breaking changes.
+                # because of non-backward compatible or breaking changes.
                 compare_versions $DASHARO_VERSION 1.1.3
                 if [ $? -eq 1 ]; then
                   # For Dasharo version lesser than 1.1.3
@@ -387,7 +388,7 @@ board_config() {
                 # TODO: Let DTS determine which parameters are suitable.
                 # FIXME: Can we ever get rid of that? We change so much in each release,
                 # that we almost always need to flash whole BIOS region
-                # because of non-backward compatbile or breaking changes.
+                # because of non-backward compatible or breaking changes.
                 compare_versions $DASHARO_VERSION 1.1.3
                 if [ $? -eq 1 ]; then
                   # For Dasharo version lesser than 1.1.3
@@ -432,7 +433,7 @@ board_config() {
                 # TODO: Let DTS determine which parameters are suitable.
                 # FIXME: Can we ever get rid of that? We change so much in each release,
                 # that we almost always need to flash whole BIOS region
-                # because of non-backward compatbile or breaking changes.
+                # because of non-backward compatible or breaking changes.
                 compare_versions $DASHARO_VERSION 0.9.1
                 if [ $? -eq 1 ]; then
                   # For Dasharo version lesser than 0.9.1
@@ -470,7 +471,7 @@ board_config() {
                 # TODO: Let DTS determine which parameters are suitable.
                 # FIXME: Can we ever get rid of that? We change so much in each release,
                 # that we almost always need to flash whole BIOS region
-                # because of non-backward compatbile or breaking changes.
+                # because of non-backward compatible or breaking changes.
                 compare_versions $DASHARO_VERSION 0.9.1
                 if [ $? -eq 1 ]; then
                   # For Dasharo version lesser than 0.9.1
@@ -682,6 +683,9 @@ check_se_creds() {
   local _check_dwn_req_resp_uefi="0"
   local _check_dwn_req_resp_heads="0"
   local _check_logs_req_resp="0"
+  # Ignore "SC2154 (warning): SE_credential_file is referenced but not assigned"
+  # for external variable:
+  # shellcheck disable=SC2154
   CLOUDSEND_LOGS_URL=$(sed -n '1p' < ${SE_credential_file} | tr -d '\n')
   CLOUDSEND_DOWNLOAD_URL=$(sed -n '2p' < ${SE_credential_file} | tr -d '\n')
   CLOUDSEND_PASSWORD=$(sed -n '3p' < ${SE_credential_file} | tr -d '\n')
@@ -724,10 +728,11 @@ compare_versions() {
     # that only the major, minor, and patch versions are compared. If the
     # resulting versions are the same (ver1 equals ver2), then the one without
     # any suffix is considered to be the newer version.
-    local ver1="$(echo $1 | awk -F '-' '{print $1}')"
-    local ver2="$(echo $2 | awk -F '-' '{print $1}')"
-    local suffix1="$(echo $1 | sed 's/^[0-9]*\.[0-9]*\.[0-9]*-*//')"
-    local suffix2="$(echo $2 | sed 's/^[0-9]*\.[0-9]*\.[0-9]*-*//')"
+    local ver1 ver2 suffix1 suffix2
+    ver1="$(echo $1 | awk -F '-' '{print $1}')"
+    ver2="$(echo $2 | awk -F '-' '{print $1}')"
+    suffix1="$(echo $1 | sed 's/^[0-9]*\.[0-9]*\.[0-9]*-*//')"
+    suffix2="$(echo $2 | sed 's/^[0-9]*\.[0-9]*\.[0-9]*-*//')"
 
     if [[ $ver1 =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] && [[ $ver2 =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
       IFS='.' read -r -a arr_ver1 <<< "$ver1"
@@ -879,7 +884,7 @@ verify_artifacts() {
     ;;
   esac
   echo -n "Checking $_name firmware checksum... "
-  sha256sum --check <(echo $(cat $_hash_file | cut -d ' ' -f 1) $_update_file) >> $ERR_LOG_FILE 2>&1
+  sha256sum --check <(echo "$(cat $_hash_file | cut -d ' ' -f 1)" $_update_file) >> $ERR_LOG_FILE 2>&1
   error_check "Failed to verify $_name firmware checksum"
   print_green "Verified."
   if [ -v PLATFORM_SIGN_KEY ]; then
@@ -923,19 +928,19 @@ check_blobs_in_binary() {
   if [ $BOARD_HAS_FD_REGION -ne 0 ]; then
     ME_OFFSET=$(ifdtool -d $1 2> /dev/null | grep "Flash Region 2 (Intel ME):" | sed 's/Flash Region 2 (Intel ME)\://' |awk '{print $1;}')
     # Check for IFD signature at offset 0 (old descriptors)
-    if [ $(tail -c +0 $1|head -c 4|xxd -ps) == "5aa5f00f" ]; then
+    if [ "$(tail -c +0 $1|head -c 4|xxd -ps)" == "5aa5f00f" ]; then
       BINARY_HAS_FD=1
     fi
     # Check for IFD signature at offset 16 (new descriptors)
-    if [ $(tail -c +17 $1|head -c 4|xxd -ps) == "5aa5f00f" ]; then
+    if [ "$(tail -c +17 $1|head -c 4|xxd -ps)" == "5aa5f00f" ]; then
       BINARY_HAS_FD=1
     fi
     # Check for ME FPT signature at ME offset + 16 (old ME)
-    if [ $(tail -c +$((0x$ME_OFFSET + 17)) $1|head -c 4|tr -d '\0') == "\$FPT" ]; then
+    if [ "$(tail -c +$((0x$ME_OFFSET + 17)) $1|head -c 4|tr -d '\0')" == "\$FPT" ]; then
       BINARY_HAS_ME=1
     fi
     # Check for aa55 signature at ME offset + 4096 (new ME)
-    if [ $(tail -c +$((0x$ME_OFFSET + 4097)) $1|head -c 2|xxd -ps) == "aa55" ]; then
+    if [ "$(tail -c +$((0x$ME_OFFSET + 4097)) $1|head -c 2|xxd -ps)" == "aa55" ]; then
       BINARY_HAS_ME=1
     fi
   fi
@@ -1008,7 +1013,7 @@ force_me_update() {
     print_warning "You have been warned."
   while : ; do
     echo
-    read -r -p "Skip ME flashing and proceed with BIOS/firmware flashing/udpating? (Y|n) " OPTION
+    read -r -p "Skip ME flashing and proceed with BIOS/firmware flashing/updating? (Y|n) " OPTION
     echo
 
     case ${OPTION} in
