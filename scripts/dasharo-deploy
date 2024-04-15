@@ -739,18 +739,24 @@ restore() {
     read -r -p "Enter an option: " OPTION
     echo
 
+    local network_dev=""
+    local mac_addr=""
+    local uuid_string=""
+
     # HCL report should be named as in dasharo-hcl-report so we can find
     # the package based on uuid saved in name, we need to check two options
     # with and without MAC address
-    uuid_string="$(cat /sys/class/net/$(ip route show default | awk '/default/ {print $5}')/address)"
+    network_dev="$(ip route show default | head -1 | awk '/default/ {print $5}')"
+    mac_addr="$(cat /sys/class/net/${network_dev}/address)"
+    uuid_string="$(cat /sys/class/net/)"
     # if above gives error then there is no internet connection and first
     # part of uuid should be blank
     if [ ! $? -eq 0 ]; then
       uuid_string=""
     fi
-    uuid_string+="_$(dmidecode -s system-product-name)"
+    uuid_string="${mac_addr}_$(dmidecode -s system-product-name)"
     uuid_string+="_$(dmidecode -s system-manufacturer)"
-    uuid=`uuidgen -n @x500 -N $uuid_string -s`
+    uuid="$(uuidgen -n @x500 -N $uuid_string -s)"
 
     case ${OPTION} in
       1)

@@ -1257,7 +1257,8 @@ You can find more info about HCL in docs.dasharo.com/glossary\r"
 
 show_ram_inf() {
   # Get the data:
-  local data=$(dmidecode)
+  local data=""
+  data=$(dmidecode)
 
   # Initialize an empty array to store the extracted values:
   local -a memory_devices_array
@@ -1333,7 +1334,8 @@ show_des_credentials() {
 
 show_ssh_info() {
   if systemctl is-active sshd.socket &> /dev/null; then
-    local ip=$(ip -br -f inet a show scope global | grep UP | awk '{ print $3 }' | tr '\n' ' ')
+    local ip=""
+    ip=$(ip -br -f inet a show scope global | grep UP | awk '{ print $3 }' | tr '\n' ' ')
     # Display "check your connection" in red color in IP field in case no IPV4
     # address is assigned, otherwise display IP/PORT:
     if [[ -z "$ip" ]]; then
