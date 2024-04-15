@@ -458,6 +458,7 @@ update_ec() {
 update() {
   local _can_switch_to_heads="false"
 
+  sync_clocks
   check_if_ac
   error_check "Firmware update process interrupted on user request."
 
