@@ -4,6 +4,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+# shellcheck disable=SC2034
 source $DTS_ENV
 
 ### Color functions

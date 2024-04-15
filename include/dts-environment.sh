@@ -4,6 +4,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+# shellcheck disable=SC2034
+
 # Text Reset
 COLOR_OFF='\033[0m'
 RED='\033[0;31m'
