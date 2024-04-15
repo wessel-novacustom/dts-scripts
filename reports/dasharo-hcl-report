@@ -4,7 +4,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+# shellcheck source=../include/dts-environment.sh
 source $DTS_ENV
+# shellcheck source=../include/dts-functions.sh
 source $DTS_FUNCS
 
 update_result() {
@@ -137,8 +139,8 @@ printf '########################                                           |\r'
 # Thread is continued here https://github.com/Dasharo/dasharo-issues/issues/247
 for t in {1..12}
 do
-  SND_HW_FILES=/sys/class/sound/card0/hw*/init_pin_configs
-  SND_CODEC_FILES=/proc/asound/card0/codec#*
+  SND_HW_FILES="/sys/class/sound/card0/hw*/init_pin_configs"
+  SND_CODEC_FILES="/proc/asound/card0/codec#*"
   SND_HW_FILE=`echo $SND_HW_FILES | cut -d ' ' -f 1`
   SND_CODEC_FILE=`echo $SND_CODEC_FILES | cut -d ' ' -f 1`
 
@@ -218,7 +220,7 @@ mkdir -p logs/acpi
 if pushd logs/acpi &> /dev/null; then
   acpixtract -a ../acpidump.log &>/dev/null
   iasl -d ./*.dat &>/dev/null
-  popd &> /dev/null
+  popd &> /dev/null || return 1
 fi
 update_result "ACPI tables" 0 UNKNOWN
 printf '######################################                             |\r'
@@ -239,7 +241,7 @@ update_result "CBMEM table information" logs/cbmem.err.log
 printf '############################################                       |\r'
 
 # echo "Getting TPM information..."
-find `realpath /sys/class/tpm/tpm*` -type f -print -exec cat {} \; > logs/tpm_version.log 2> logs/tpm_version.err.log
+find "$(realpath /sys/class/tpm/tpm*)" -type f -print -exec cat {} \; > logs/tpm_version.log 2> logs/tpm_version.err.log
 update_result "TPM information" logs/tpm_version.err.log
 printf '#############################################                      |\r'
 
@@ -285,14 +287,17 @@ filename+=" $(dmidecode -s bios-version)"
 
 # MAC address of device that is used to connect the internet
 # it could return none only when there is no internet connection but
-# in those cases report will be stored locally only
-uuid_string=`cat /sys/class/net/$(ip route show default | head -1 | awk '/default/ {print $5}')/address`
+# in those cases report will be stored locally only.
+# Ignore "SC2046 (warning): Quote this to prevent word splitting" shellcheck
+# warning:
+# shellcheck disable=SC2046
+uuid_string="$(cat /sys/class/net/$(ip route show default | head -1 | awk '/default/ {print $5}')/address)"
 # next two values are hardware related so they will be always the same
 uuid_string+="_$(dmidecode -s system-product-name)"
 uuid_string+="_$(dmidecode -s system-manufacturer)"
 
 # using values from above should generate the same uuid all the time if only
-# the MAC address will not change
+# the MAC address will not change.
 uuid=`uuidgen -n @x500 -N $uuid_string -s`
 
 filename+="_$uuid"
@@ -303,7 +308,10 @@ if [ $DEPLOY_REPORT = "false" ]; then
   echo "Creating archive with logs..."
 fi
 
-# remove MAC address from logs as sensitive data
+# Remove MAC address from logs as sensitive data.
+# Ignore "SC2046 (warning): Quote this to prevent word splitting" shellcheck
+# warning:
+# shellcheck disable=SC2046
 MAC_ADDR=`cat /sys/class/net/$(ip route show default | head -1 | awk '/default/ {print $5}')/address`
 grep -rl "${MAC_ADDR}" logs > /dev/null && grep -rl "${MAC_ADDR}" logs | xargs sed -i 's/'${MAC_ADDR}'/MAC ADDRESS REMOVED/g'
 tar -zcf "$filename.tar.gz" logs/*
@@ -322,7 +330,7 @@ if [ "$SEND_LOGS" = "true" ]; then
   fi
   cloudsend.sh \
     ${CLOUDSEND_OPTS} \
-    $(readlink -f $filename.tar.gz) \
+    "$(readlink -f $filename.tar.gz)" \
     ${FULL_UPLOAD_URL}
   if [ "$?" -ne "0" ]; then
     echo "Failed to send logs to the cloud"
