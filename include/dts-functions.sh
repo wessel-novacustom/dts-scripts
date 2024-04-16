@@ -719,7 +719,8 @@ check_se_creds() {
   TEST_LOGS_URL="https://cloud.3mdeb.com/index.php/s/${CLOUDSEND_LOGS_URL}/authenticate/showShare"
 
   if [ ! -v BIOS_LINK_DES ] && [ ! -v HEADS_LINK_DES ]; then
-    error_exit "There is no Dasharo Entry Subscription available for your platform!"
+    print_error "There is no Dasharo Entry Subscription available for your platform!"
+    return 1
   fi
 
   if check_network_connection; then
