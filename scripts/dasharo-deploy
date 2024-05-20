@@ -161,17 +161,17 @@ backup() {
   echo "Backing up BIOS firmware and store it locally..."
   echo "Remember that firmware is also backed up in HCL report."
   check_intel_regions
-  if [ $BOARD_HAS_FD_REGION -ne 0 ]; then
+  if [ $BOARD_HAS_FD_REGION -eq 1 ]; then
     # Use safe defaults. Descriptor may contain additional regions not detected
     # by flashrom and will return failure when attempted to be read. BIOS and
     # Flash descriptor regions should always be readable. If not, then we have
     # some ugly case, hard to deal with.
     FLASHROM_ADD_OPT_READ="--ifd -i fd -i bios"
-    if [ $BOARD_HAS_ME_REGION -ne 0 ] && [ $BOARD_ME_REGION_LOCKED -eq 0 ]; then
+    if [ $BOARD_HAS_ME_REGION -eq 1 ] && [ $BOARD_ME_REGION_LOCKED -eq 0 ]; then
       # ME region is not locked, read it as well
       FLASHROM_ADD_OPT_READ+=" -i me"
     fi
-    if [ $BOARD_HAS_GBE_REGION -ne 0 ] && [ $BOARD_GBE_REGION_LOCKED -eq 0 ]; then
+    if [ $BOARD_HAS_GBE_REGION -eq 1 ] && [ $BOARD_GBE_REGION_LOCKED -eq 0 ]; then
       # GBE region is present and not locked, read it as well
       FLASHROM_ADD_OPT_READ+=" -i gbe"
     fi
