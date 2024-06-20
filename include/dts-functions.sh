@@ -794,51 +794,6 @@ check_flash_chip() {
   fi
 }
 
-check_se_creds() {
-  local _check_dwn_req_resp_uefi="0"
-  local _check_dwn_req_resp_heads="0"
-  local _check_logs_req_resp="0"
-  # Ignore "SC2154 (warning): SE_credential_file is referenced but not assigned"
-  # for external variable:
-  # shellcheck disable=SC2154
-  CLOUDSEND_LOGS_URL=$(sed -n '1p' < ${SE_credential_file} | tr -d '\n')
-  CLOUDSEND_DOWNLOAD_URL=$(sed -n '2p' < ${SE_credential_file} | tr -d '\n')
-  CLOUDSEND_PASSWORD=$(sed -n '3p' < ${SE_credential_file} | tr -d '\n')
-  USER_DETAILS="$CLOUDSEND_DOWNLOAD_URL:$CLOUDSEND_PASSWORD"
-  board_config
-  if [ "$?" == "1" ]; then
-    return 1
-  fi
-  TEST_LOGS_URL="https://cloud.3mdeb.com/index.php/s/${CLOUDSEND_LOGS_URL}/authenticate/showShare"
-
-  if [ ! -v BIOS_LINK_DES ] && [ ! -v HEADS_LINK_DES ]; then
-    print_error "There is no Dasharo Entry Subscription available for your platform!"
-    return 1
-  fi
-
-  if check_network_connection; then
-    if [ -v BIOS_LINK_DES ]; then
-      _check_dwn_req_resp_uefi=$(curl -L -I -s -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_LINK_DES" -o /dev/null -w "%{http_code}")
-    fi
-    if [ -v HEADS_LINK_DES ]; then
-      _check_dwn_req_resp_heads=$(curl -L -I -s -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$HEADS_LINK_DES" -o /dev/null -w "%{http_code}")
-    fi
-
-    _check_logs_req_resp=$(curl -L -I -s -f -H "$CLOUD_REQUEST" "$TEST_LOGS_URL" -o /dev/null -w "%{http_code}")
-    if [ ${_check_dwn_req_resp_uefi} -eq 200 ] || [ ${_check_dwn_req_resp_heads} -eq 200 ]; then
-      if [ ${_check_logs_req_resp} -eq 200 ]; then
-        return 0
-      else
-        echo ""
-        return 1
-      fi
-    else
-      echo ""
-      return 1
-    fi
-  fi
-}
-
 compare_versions() {
     # return 1 if ver2 > ver1
     # return 0 otherwise
@@ -1392,6 +1347,9 @@ show_header() {
   echo -e "${NORMAL}\n Dasharo Tools Suite Script ${_os_version} ${NORMAL}"
   echo -e "${NORMAL} (c) Dasharo <contact@dasharo.com> ${NORMAL}"
   echo -e "${NORMAL} Report issues at: https://github.com/Dasharo/dasharo-issues ${NORMAL}"
+}
+
+show_hardsoft_inf() {
   echo -e "${BLUE}*********************************************************${NORMAL}"
   echo -e "${BLUE}**${NORMAL}                HARDWARE INFORMATION ${NORMAL}"
   echo -e "${BLUE}*********************************************************${NORMAL}"

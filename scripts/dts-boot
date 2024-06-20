@@ -9,6 +9,7 @@ FUM_EFIVAR="/sys/firmware/efi/vars/FirmwareUpdateMode-d15b327e-ff2d-4fc1-abf6-c1
 
 export DTS_FUNCS="$SBIN_DIR/dts-functions.sh"
 export DTS_ENV="$SBIN_DIR/dts-environment.sh"
+export DTS_SUBS="$SBIN_DIR/dts-subscription.sh"
 
 if [ -d $FUM_EFIVAR ]; then
     $SBIN_DIR/dasharo-deploy update fum

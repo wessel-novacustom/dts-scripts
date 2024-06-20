@@ -6,27 +6,18 @@
 
 source $DTS_ENV
 source $DTS_FUNCS
+source $DTS_SUBS
 
 trap : 2
 trap : 3
 
 while : ; do
-  # Each time the main menu is displayed, check for DES credentials and export
-  # them, if file exists
-  if [ -e "${SE_credential_file}" ]; then
-    export CLOUDSEND_LOGS_URL=$(sed -n '1p' < ${SE_credential_file} | tr -d '\n')
-    export CLOUDSEND_DOWNLOAD_URL=$(sed -n '2p' < ${SE_credential_file} | tr -d '\n')
-    export CLOUDSEND_PASSWORD=$(sed -n '3p' < ${SE_credential_file} | tr -d '\n')
-    export USER_DETAILS="$CLOUDSEND_DOWNLOAD_URL:$CLOUDSEND_PASSWORD"
-    export DES_IS_LOGGED="true"
-  else
-    export CLOUDSEND_LOGS_URL="$BASE_CLOUDSEND_LOGS_URL"
-    export CLOUDSEND_PASSWORD="$BASE_CLOUDSEND_PASSWORD"
-    unset CLOUDSEND_DOWNLOAD_URL
-    unset DES_IS_LOGGED
-  fi
+
+  # Do some subsccribtion routine each time menu is rendered:
+  subscription_routine
 
   show_header
+  show_hardsoft_inf
   show_des_credentials
   show_ssh_info
   show_menu
@@ -118,33 +109,21 @@ while : ; do
       read -p "Press ENTER to continue."
       ;;
     ${DES_KEYS_OPT})
-      echo ""
-      read -p "Enter logs key:                " 'TMP_CLOUDSEND_LOGS_URL'
-      echo ""
-      read -p "Enter firmware download key:   " 'TMP_CLOUDSEND_DOWNLOAD_URL'
-      echo ""
-      read -p "Enter password:                " 'TMP_CLOUDSEND_PASSWORD'
+      get_des_creds
 
-      echo ${TMP_CLOUDSEND_LOGS_URL} > ${SE_credential_file}
-      echo ${TMP_CLOUDSEND_DOWNLOAD_URL} >> ${SE_credential_file}
-      echo ${TMP_CLOUDSEND_PASSWORD} >> ${SE_credential_file}
+      # Verify credentials, start loop over if there is smth wrong:
+      check_des_creds || continue
 
-      print_ok "Dasharo DES credentials have been saved"
-      echo "Verifying Dasharo DES credentials..."
+      # Try to log in using available DES credentials, start loop over if login
+      # was not successful:
+      login_to_des_server || continue
 
-      check_se_creds
-      if [ $? -eq 0 ]; then
-         print_ok "Verification of the Dasharo DES was successful. They are valid and will be used."
-      else
-        echo -e "Something may be wrong with the DES credentials. Please use option 4 to change the DES keys
-                  \rand make sure that there is no typo."
-        rm ${SE_credential_file}
-        export CLOUDSEND_LOGS_URL="$BASE_CLOUDSEND_LOGS_URL"
-        export CLOUDSEND_PASSWORD="$BASE_CLOUDSEND_PASSWORD"
-        unset CLOUDSEND_DOWNLOAD_URL
-        unset DES_IS_LOGGED
-      fi
-      read -p "Press ENTER to continue."
+      # Check if there is some packages available to install, start loop over if
+      # no packages is available:
+      check_avail_des_packages || continue
+
+      # Download and install available packages:
+      install_all_des_packages
       ;;
     ${SSH_OPT_UP} | ${SSH_OPT_LOW})
       if systemctl is-active sshd.service > /dev/null 2>&1; then

@@ -13,6 +13,12 @@ YELLOW='\033[0;33m'
 GREEN='\033[0;32m'
 BLUE='\033[0;36m'
 
+# DES options:
+DES_SERVER_ADDRESS="https://dl.dasharo.com"
+DES_SERVER_USER_ALIAS="premium"
+DES_PACKAGE_MANAGER_DIR="/var/dasharo-package-manager"
+DES_AVAIL_PACKAGES_LIST="$DES_PACKAGE_MANAGER_DIR/packages-list.json"
+
 # DTS options:
 HCL_REPORT_OPT="1"
 DASHARO_FIRM_OPT="2"
