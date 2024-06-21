@@ -127,6 +127,7 @@ subscription_routine(){
 
 check_dasharo_package_env(){
   [ -d $DES_PACKAGE_MANAGER_DIR ] || mkdir -p $DES_PACKAGE_MANAGER_DIR
+  [ -d $DES_PACKAGES_SCRIPTS_PATH ] || mkdir -p $DES_PACKAGES_SCRIPTS_PATH
 
   return 0
 }
@@ -174,6 +175,8 @@ download_des_package(){
 install_des_package(){
   local package_name=$1
 
+  check_dasharo_package_env
+
   echo "Installing package $package_name..."
 
   update_package_list || return 1
@@ -182,7 +185,7 @@ install_des_package(){
     download_des_package $package_name || return 1
   fi
 
-  rpm -ivh $DES_PACKAGE_MANAGER_DIR/$package_name
+  rpm -ivh --nodeps $DES_PACKAGE_MANAGER_DIR/$package_name
 
   if [ $? -ne 0 ]; then
     rm -f $DES_PACKAGE_MANAGER_DIR/$package_name
@@ -205,6 +208,11 @@ install_all_des_packages(){
   local packages_to_download
   packages_to_download=$(jq -r '.key' "$DES_AVAIL_PACKAGES_LIST")
 
+  if [ -z "$packages_to_download" ]; then
+    echo "No packages to install."
+    return 1
+  fi
+
   echo "$packages_to_download" | while read -r download_link; do
     # Define the local file path:
     local package_name
@@ -223,6 +231,114 @@ check_avail_des_packages(){
   if [ -z "$AVAILABLE_PACKAGES" ]; then
     return 1
   fi
+
+  return 0
+}
+
+parse_for_premium_submenu() {
+  [ -d $DES_PACKAGES_SCRIPTS_PATH ] || return 0
+
+  # Check if the JSON file exists, delete if so. The reason for it is that three
+  # operations can be performed on this file: add new script inf., delete a
+  # script inf., and update already existing script inf.. By deleting the
+  # existing inf. and reparsing - three operations can be replaced with one:
+  # deleting and updating - there is no need to delete or update if its being
+  # recreated every time.
+  [ -f "$DES_SUBMENU_JSON" ] && rm -f "$DES_SUBMENU_JSON"
+
+  # submenu's options start from position 0:
+  local position="1"
+  local json_data='[]'
+
+  # Iterate over bash scripts in the directory:
+  for script in "$DES_PACKAGES_SCRIPTS_PATH"/*; do
+    # Skip if not a script:
+    [ -n "$(file $script | grep 'script, ASCII text executable')" ] || continue
+
+    # Create the JSON file only if any script have been found, this will be a
+    # signal to render premium submenu:
+    [ -f "$DES_SUBMENU_JSON" ] || echo '[]' > "$DES_SUBMENU_JSON"
+
+    local script_name
+    script_name=$(basename "$script")
+
+    # Add a new entry to the JSON file
+    json_data=$(jq --arg name "$script_name" --argjson pos "$position" \
+      '. += [{"file_name": $name, "file_menu_position": $pos}]' <<< "$json_data")
+
+    # Increment highest position for next script
+    position=$((position + 1))
+  done
+
+  # Save updated JSON data
+  [ -f "$DES_SUBMENU_JSON" ] && echo "$json_data" | jq '.' > "$DES_SUBMENU_JSON"
+
+  return 0
+}
+
+show_des_submenu(){
+  # This menu is being rendered dynamically by parsing scripts from
+  # DES_PACKAGES_SCRIPTS_PATH. These scripts are being installed by DES
+  # packages.
+  #
+  # Every script should contain menu_point function which should utilize one
+  # argument. The argument is a menu position (an integer from zero to infinity;
+  # represented by file_menu_position in the JSON file) which signal a position
+  # in graphical submenu.
+
+  echo -e "${BLUE}*********************************************************${NORMAL}"
+
+  local file_menu_position
+
+  # Read JSON data:
+  local json_data
+  json_data=$(jq -c '.[]' "$DES_SUBMENU_JSON")
+
+  # Iterate over each JSON object:
+  while IFS= read -r item; do
+    local script_name
+    script_name=$(jq -r '.file_name' <<< "$item")
+    file_menu_position=$(jq -r '.file_menu_position' <<< "$item")
+
+    local script_path="$DES_PACKAGES_SCRIPTS_PATH/$script_name"
+
+    bash "$script_path" menu_point "$file_menu_position"
+
+  done <<< "$json_data"
+
+  echo -e "${BLUE}**${YELLOW}     ${BACK_TO_MAIN_MENU_UP})${BLUE} Return to main menu${NORMAL}"
+
+  return 0
+}
+
+des_submenu_options(){
+  local OPTION=$1
+  local file_menu_position
+  local script
+
+  # Do not check JSON file if alphabetical option have been provided to not to
+  # cause jq error:
+  if [[ "$OPTION" =~ ^[0-9]+$ ]]; then
+    # Look for option in JSON file;
+    script=$(jq --argjson pos "$OPTION" '.[] | select(.file_menu_position == $pos)' "$DES_SUBMENU_JSON")
+  fi
+
+  # Return to main menu option check:
+  if [ "$OPTION" == "$BACK_TO_MAIN_MENU_UP" ] || [ "$OPTION" == "$BACK_TO_MAIN_MENU_DOWN" ]; then
+    unset DES_SUBMENU_ACTIVE
+    return 0
+  fi
+
+  # Return 1 if no match found:
+  [ -z "$script" ] && return 1
+
+  local script_name
+  script_name=$(jq -r '.file_name' <<< "$script")
+
+  local script_path="$DES_PACKAGES_SCRIPTS_PATH/$script_name"
+
+  # Execute do_work function from the script:
+  bash "$script_path" do_work
 
   return 0
 }

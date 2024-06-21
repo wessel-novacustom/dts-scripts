@@ -12,144 +12,33 @@ trap : 2
 trap : 3
 
 while : ; do
-
-  # Do some subsccribtion routine each time menu is rendered:
+  # Do some subscription routine each time menu is rendered:
   subscription_routine
 
+  # Header should always be printed:
   show_header
-  show_hardsoft_inf
-  show_des_credentials
-  show_ssh_info
-  show_menu
+  if [ -z "$DES_SUBMENU_ACTIVE" ]; then
+    show_hardsoft_inf
+    show_des_credentials
+    show_ssh_info
+    show_main_menu
+  elif [ -n "$DES_SUBMENU_ACTIVE" ]; then
+    show_des_submenu
+  fi
+  show_footer
 
   echo
   read OPTION
   echo
 
-  case ${OPTION} in
-    ${HCL_REPORT_OPT})
-      print_disclaimer
-      read -p "Do you want to support Dasharo development by sending us logs with your hardware configuration? [N/y] "
-      case ${REPLY} in
-          yes|y|Y|Yes|YES)
-          export SEND_LOGS="true"
-          echo "Thank you for contributing to the Dasharo development!"
-          ;;
-          *)
-          export SEND_LOGS="false"
-          echo "Logs will be saved in root directory."
-          echo "Please consider supporting Dasharo by sending the logs next time."
-          ;;
-      esac
-      if [ "${SEND_LOGS}" == "true" ]; then
-          # DEPLOY_REPORT variable is used in dasharo-hcl-report to determine
-          # which logs should be printed in the terminal, in the future whole
-          # dts scripting should get some LOGLEVEL and maybe dumping working
-          # logs to file
-          export DEPLOY_REPORT="false"
-          wait_for_network_connection && ${CMD_DASHARO_HCL_REPORT} && logs_sent="1"
-      else
-          export DEPLOY_REPORT="false"
-          ${CMD_DASHARO_HCL_REPORT}
-      fi
-      read -p "Press ENTER to continue."
-      ;;
-    ${DASHARO_FIRM_OPT})
-      if ! check_if_dasharo; then
-        if wait_for_network_connection; then
-          echo "Preparing ..."
-          if [ -z "${logs_sent}" ]; then
-            export SEND_LOGS="true"
-            export DEPLOY_REPORT="true"
-            if ! ${CMD_DASHARO_HCL_REPORT}; then
-              echo -e "Unable to connect to cloud.3mdeb.com for submitting the
-                        \rHCL report. Please recheck your internet connection."
-            else
-              logs_sent="1"
-            fi
-          fi
-        fi
+  # If OPTION is being matched with smth inside *_options functions the
+  # functions return 0 and loop start over, if not: next *_options function is
+  # being checked:
+  if [ -z "$DES_SUBMENU_ACTIVE" ]; then
+    main_menu_options $OPTION && continue
+  elif [ -n "$DES_SUBMENU_ACTIVE" ]; then
+    des_submenu_options $OPTION && continue
+  fi
 
-        if [ -n "${logs_sent}" ]; then
-          ${CMD_DASHARO_DEPLOY} install
-        fi
-      else
-        # For NovaCustom TGL laptops with Dasharo version lower than 1.3.0,
-        # we shall run the ec_transition script instead. See:
-        # https://docs.dasharo.com/variants/novacustom_nv4x_tgl/releases/#v130-2022-10-18
-        if [ "$SYSTEM_VENDOR" = "Notebook" ]; then
-            case "$SYSTEM_MODEL" in
-              "NS50_70MU"|"NV4XMB,ME,MZ")
-                compare_versions $DASHARO_VERSION 1.3.0
-                if [ $? -eq 1 ]; then
-                # For Dasharo version lesser than 1.3.0
-                  print_warning "Detected NovaCustom hardware with version < 1.3.0"
-                  print_warning "Need to perform EC transition after which the platform will turn off"
-                  print_warning "Then, please power it on and proceed with update again"
-                  print_warning "EC transition procedure will start in 5 seconds"
-                  sleep 5
-                  ${CMD_EC_TRANSITION}
-                  error_check "Could not perform EC transition"
-                fi
-                # Continue with regular update process for Dasharo version
-                #  greater or equal 1.3.0
-                ;;
-            esac
-        fi
-
-        # Use regular update process for everything else
-        ${CMD_DASHARO_DEPLOY} update
-      fi
-      read -p "Press ENTER to continue."
-      ;;
-    ${REST_FIRM_OPT})
-      if check_if_dasharo; then
-        ${CMD_DASHARO_DEPLOY} restore
-      fi
-      read -p "Press ENTER to continue."
-      ;;
-    ${DES_KEYS_OPT})
-      get_des_creds
-
-      # Verify credentials, start loop over if there is smth wrong:
-      check_des_creds || continue
-
-      # Try to log in using available DES credentials, start loop over if login
-      # was not successful:
-      login_to_des_server || continue
-
-      # Check if there is some packages available to install, start loop over if
-      # no packages is available:
-      check_avail_des_packages || continue
-
-      # Download and install available packages:
-      install_all_des_packages
-      ;;
-    ${SSH_OPT_UP} | ${SSH_OPT_LOW})
-      if systemctl is-active sshd.service > /dev/null 2>&1; then
-        print_ok "Turning off the SSH server..."
-        systemctl stop sshd.service
-      else
-        print_warning "Starting SSH server!"
-        print_warning "Now you can log in into the system using root account."
-        print_warning "Stopping server will not drop all connected sessions."
-        systemctl start sshd.service
-        print_ok "Listening on IPs: $(ip -br -f inet a show scope global | grep UP | awk '{ print $3 }' | tr '\n' ' ')"
-      fi
-      read -p "Press ENTER to continue."
-      ;;
-    ${SHELL_OPT_UP} | ${SHELL_OPT_LOW})
-      echo "Entering shell, to leave type exit and press Enter or press LCtrl+D"
-      echo ""
-      ${CMD_SHELL}
-      ;;
-    ${POWEROFF_OPT_UP} | ${POWEROFF_OPT_LOW})
-      ${CMD_POWEROFF}
-      ;;
-    ${REBOOT_OPT_UP} | ${REBOOT_OPT_LOW})
-      ${CMD_REBOOT}
-      ;;
-    *)
-      ;;
-  esac
+  footer_options $OPTION
 done
