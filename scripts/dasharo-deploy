@@ -860,7 +860,7 @@ usage() {
 # for FUM we start in dasharo-deploy so we need to verify that we have internet
 # connection to download shasums in board_config
 if [ "$FUM" == "fum" ]; then
-    check_network_connection
+    wait_for_network_connection
 fi
 
 board_config

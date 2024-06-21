@@ -47,7 +47,7 @@ while : ; do
           # dts scripting should get some LOGLEVEL and maybe dumping working
           # logs to file
           export DEPLOY_REPORT="false"
-          check_network_connection && ${CMD_DASHARO_HCL_REPORT} && logs_sent="1"
+          wait_for_network_connection && ${CMD_DASHARO_HCL_REPORT} && logs_sent="1"
       else
           export DEPLOY_REPORT="false"
           ${CMD_DASHARO_HCL_REPORT}
@@ -56,7 +56,7 @@ while : ; do
       ;;
     ${DASHARO_FIRM_OPT})
       if ! check_if_dasharo; then
-        if check_network_connection; then
+        if wait_for_network_connection; then
           echo "Preparing ..."
           if [ -z "${logs_sent}" ]; then
             export SEND_LOGS="true"

@@ -7,19 +7,6 @@
 source $DTS_ENV
 source $DTS_FUNCS
 
-check_network_connection() {
-  echo 'Waiting for network connection ...'
-  n="5"
-  while : ; do
-    ping -c 3 cloud.3mdeb.com > /dev/null 2>&1 && break
-    n=$((n-1))
-    if [ "${n}" == "0" ]; then
-      error_exit "No network connection to 3mdeb cloud, please recheck Ethernet connection"
-    fi
-    sleep 1
-  done
-}
-
 board_config() {
   case "$SYSTEM_VENDOR" in
     "Notebook")
@@ -68,7 +55,7 @@ check_for_opensource_firmware()
 
 download_files()
 {
-  check_network_connection
+  wait_for_network_connection
   BIOS_UPDATE_FILE="/tmp/biosupdate.rom"
   EC_UPDATE_FILE="/tmp/ecupdate.rom"
   wget -O $EC_UPDATE_FILE $EC_LINK

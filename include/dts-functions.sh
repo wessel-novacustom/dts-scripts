@@ -152,16 +152,26 @@ it5570_shutdown() {
 }
 
 check_network_connection() {
+  if wget --spider cloud.3mdeb.com > /dev/null 2>&1; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+wait_for_network_connection() {
   echo 'Waiting for network connection ...'
   n="10"
+
   while : ; do
-    if wget --spider cloud.3mdeb.com > /dev/null 2>&1; then
-      echo 'Network connection established.'
+    if check_network_connection; then
+      print_ok "Network connection have been established!"
       return 0
     fi
+
     n=$((n-1))
     if [ "${n}" == "0" ]; then
-      echo 'No network connection to 3mdeb cloud, please recheck Ethernet connection'
+      print_error "Could not connect to network, please check network connection!"
       return 1
     fi
     sleep 1
@@ -202,7 +212,7 @@ ask_for_model() {
 board_config() {
   # We download firmwares via network. At this point, the network connection
   # must be up already.
-  check_network_connection
+  wait_for_network_connection
 
   CAN_INSTALL_BIOS="true"
 

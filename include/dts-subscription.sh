@@ -32,7 +32,7 @@ check_des_creds() {
     return 1
   fi
 
-  if check_network_connection; then
+  if wait_for_network_connection; then
     if [ -v BIOS_LINK_DES ]; then
       _check_dwn_req_resp_uefi=$(curl -L -I -s -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_LINK_DES" -o /dev/null -w "%{http_code}")
     fi
