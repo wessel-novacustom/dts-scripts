@@ -883,6 +883,12 @@ usage() {
   echo "  $0 restore  - Restore from a previously saved backup"
 }
 
+if ! check_if_dasharo; then
+  if ! can_install_dasharo; then
+    error_exit "Dasharo cannot be installed on this platform"
+  fi
+fi
+
 # for FUM we start in dasharo-deploy so we need to verify that we have internet
 # connection to download shasums in board_config
 if [ "$FUM" == "fum" ]; then

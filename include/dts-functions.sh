@@ -1728,3 +1728,92 @@ send_dts_logs(){
     unset SEND_LOGS_ACTIVE
   fi
 }
+
+check_if_fused() {
+  file_path="/sys/class/mei/mei0/fw_status"
+
+  if [[ ! -f $file_path ]]; then
+    echo "File not found: $file_path"
+    return 2
+  fi
+
+  hfsts6_value=""
+  line_number=1
+  while IFS= read -r line; do
+    if [[ $line_number -eq 6 ]]; then
+      hfsts6_value=$line
+      break
+    fi
+    ((line_number++))
+  done <"$file_path"
+
+  if [[ -z $hfsts6_value ]]; then
+    echo "Failed to read HFSTS6 value"
+    exit 1
+  fi
+
+  hfsts6_binary=$(echo "ibase=16; obase=2; $hfsts6_value" | bc)
+
+  binary_length=${#hfsts6_binary}
+
+  # Add leading zeros
+  if [ $binary_length -lt 32 ]; then
+    padding=$((32 - $binary_length))
+    zeros=$(printf "%${padding}s" | tr ' ' "0")
+    hfsts6_binary=$zeros$hfsts6_binary
+  fi
+
+  bit_30_value=${hfsts6_binary:1:1}
+
+  if [ $bit_30_value == 0 ]; then
+    return 1
+  else
+    return 0
+  fi
+}
+
+check_if_boot_guard_enabled() {
+  # MSR cannot be read
+  if ! rdmsr 0x13a -0; then
+    return 1
+  fi
+
+  msr_hex=$(rdmsr 0x13a -0 | tr '[:lower:]' '[:upper:]')
+  msr_binary=$(echo "ibase=16; obase=2; $msr_hex" | bc)
+
+  binary_length=${#msr_binary}
+
+  if [ $binary_length -lt 64 ]; then
+    padding=$((64 - $binary_length))
+    zeros=$(printf "%${padding}s" | tr ' ' "0")
+    msr_binary=$zeros$msr_binary
+  fi
+
+  # Bit 4
+  facb_fpf=${msr_binary:59:1}
+
+  # Bit 6
+  verified_boot=${msr_binary:57:1}
+
+  if [ $facb_fpf == 1 ] && [ $verified_boot == 1 ]; then
+    return 0
+  fi
+  return 1
+}
+
+can_install_dasharo() {
+  if check_if_intel; then
+    if check_if_fused && check_if_boot_guard_enabled; then
+      return 1
+    fi
+  fi
+  return 0
+}
+
+check_if_intel() {
+  cpu_vendor=$(cat /proc/cpuinfo | grep "vendor_id" | head -n 1 | sed 's/.*: //')
+  if [ $cpu_vendor == "GenuineIntel" ]; then
+    return 0
+  fi
+  return 1
+}
