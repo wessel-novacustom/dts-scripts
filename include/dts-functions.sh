@@ -1348,7 +1348,7 @@ show_des_credentials() {
 }
 
 show_ssh_info() {
-  if systemctl is-active sshd.socket &> /dev/null; then
+  if systemctl is-active sshd.service &> /dev/null; then
     local ip=""
     ip=$(ip -br -f inet a show scope global | grep UP | awk '{ print $3 }' | tr '\n' ' ')
     # Display "check your connection" in red color in IP field in case no IPV4
@@ -1381,7 +1381,7 @@ show_menu() {
   echo -ne "${RED}${REBOOT_OPT_UP}${NORMAL} to reboot  ${NORMAL}"
   echo -ne "${RED}${POWEROFF_OPT_UP}${NORMAL} to poweroff  ${NORMAL}"
   echo -e "${RED}${SHELL_OPT_UP}${NORMAL} to enter shell  ${NORMAL}"
-  if systemctl is-active sshd.socket &> /dev/null; then
+  if systemctl is-active sshd.service &> /dev/null; then
     echo -ne "${RED}${SSH_OPT_UP}${NORMAL} to stop SSH server  ${NORMAL}"
   else
     echo -ne "${RED}${SSH_OPT_UP}${NORMAL} to launch SSH server  ${NORMAL}"
