@@ -750,59 +750,23 @@ check_se_creds() {
 compare_versions() {
     # return 1 if ver2 > ver1
     # return 0 otherwise
+    local ver1=
+    local ver2=
+    local compare=
+    # convert version ending with '-rc<x>' to '-rc.<x>' where <x> is number
+    # as semantic versioning compares whole 'rc<x>' as alphanumeric identifier
+    # which results in rc2 > rc12. More information at https://semver.org/
+    ver1=$(sed -r "s/-rc([0-9]+)$/-rc.\1/" <<< "$1")
+    ver2=$(sed -r "s/-rc([0-9]+)$/-rc.\1/" <<< "$2")
 
-    # Use awk to drop any suffixes (-devX or -rcY) from the version strings, so
-    # that only the major, minor, and patch versions are compared. If the
-    # resulting versions are the same (ver1 equals ver2), then the one without
-    # any suffix is considered to be the newer version.
-    local ver1 ver2 suffix1 suffix2
-    ver1="$(echo $1 | awk -F '-' '{print $1}')"
-    ver2="$(echo $2 | awk -F '-' '{print $1}')"
-    suffix1="$(echo $1 | sed 's/^[0-9]*\.[0-9]*\.[0-9]*-*//')"
-    suffix2="$(echo $2 | sed 's/^[0-9]*\.[0-9]*\.[0-9]*-*//')"
-
-    if [[ $ver1 =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] && [[ $ver2 =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-      IFS='.' read -r -a arr_ver1 <<< "$ver1"
-      IFS='.' read -r -a arr_ver2 <<< "$ver2"
-
-      if [ ${arr_ver2[0]} -lt ${arr_ver1[0]} ]; then
-          return 0
-      fi
-
-      if [ ${arr_ver2[0]} -gt ${arr_ver1[0]} ]; then
-          return 1
-      fi
-
-      if [ ${arr_ver2[0]} -eq ${arr_ver1[0]} ]; then
-          if [ ${arr_ver2[1]} -lt ${arr_ver1[1]} ]; then
-              return 0
-          fi
-
-          if [ ${arr_ver2[1]} -gt ${arr_ver1[1]} ]; then
-              return 1
-          fi
-
-          if [ ${arr_ver2[1]} -eq ${arr_ver1[1]} ]; then
-              if [ ${arr_ver2[2]} -lt ${arr_ver1[2]} ]; then
-                return 0
-              fi
-
-              if [ ${arr_ver2[2]} -gt ${arr_ver1[2]} ]; then
-                return 1
-              fi
-
-              # check suffixes
-              if [ ! -z "$suffix2" ] && [ -z "$suffix1" ]; then
-                return 0
-              fi
-
-              if [ -z "$suffix2" ] && [ ! -z "$suffix1" ]; then
-                return 1
-              fi
-          fi
-      fi
-    else
+    if ! python3 -m semver check "$ver1" || ! python3 -m semver check "$ver2"; then
       error_exit "Incorrect version format"
+    fi
+    compare=$(python3 -m semver compare "$ver1" "$ver2")
+    if [ "$compare" -eq -1 ]; then
+      return 1
+    else
+      return 0
     fi
 }
 
