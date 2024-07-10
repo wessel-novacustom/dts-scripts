@@ -322,6 +322,56 @@ board_config() {
             fi
           fi
           ;;
+        "V54x_6x_TU")
+          case $BOARD_MODEL in
+            "V540TU")
+              DASHARO_REL_NAME="novacustom_nv54x_mtl"
+              DASHARO_REL_VER="2.0.0"
+              BIOS_LINK_COMM="$FW_STORE_URL/$DASHARO_REL_NAME/v$DASHARO_REL_VER/${DASHARO_REL_NAME}_v${DASHARO_REL_VER}.rom"
+              EC_LINK_COMM="$FW_STORE_URL/$DASHARO_REL_NAME/v$DASHARO_REL_VER/${DASHARO_REL_NAME}_ec_v${DASHARO_REL_VER}.rom"
+              HAVE_EC="true"
+              NEED_EC_RESET="true"
+              COMPATIBLE_EC_FW_VERSION="TODO"
+              EC_HASH_LINK_COMM="$EC_LINK_COMM.sha256"
+              BIOS_HASH_LINK_COMM="$BIOS_LINK_COMM.sha256"
+              EC_SIGN_LINK_COMM="$EC_LINK_COMM.sha256.sig"
+              BIOS_SIGN_LINK_COMM="$BIOS_LINK_COMM.sha256.sig"
+              PLATFORM_SIGN_KEY="customer-keys/novacustom/novacustom-open-source-firmware-release-1.x-key.asc \
+                customer-keys/novacustom/dasharo-release-0.9.x-for-novacustom-signing-key.asc"
+              NEED_SMBIOS_MIGRATION="false"
+              NEED_SMMSTORE_MIGRATION="true"
+              NEED_BOOTSPLASH_MIGRATION="true"
+              NEED_BLOB_TRANSMISSION="false"
+              PROGRAMMER_BIOS="internal"
+              PROGRAMMER_EC="ite_ec:boardmismatch=force,romsize=128K,autoload=disable"
+              ;;
+            "V560TU")
+              DASHARO_REL_NAME="novacustom_nv56x_mtl"
+              DASHARO_REL_VER="2.0.0"
+              BIOS_LINK_COMM="$FW_STORE_URL/$DASHARO_REL_NAME/v$DASHARO_REL_VER/${DASHARO_REL_NAME}_v${DASHARO_REL_VER}.rom"
+              EC_LINK_COMM="$FW_STORE_URL/$DASHARO_REL_NAME/v$DASHARO_REL_VER/${DASHARO_REL_NAME}_ec_v${DASHARO_REL_VER}.rom"
+              HAVE_EC="true"
+              NEED_EC_RESET="true"
+              COMPATIBLE_EC_FW_VERSION="TODO"
+              EC_HASH_LINK_COMM="$EC_LINK_COMM.sha256"
+              BIOS_HASH_LINK_COMM="$BIOS_LINK_COMM.sha256"
+              EC_SIGN_LINK_COMM="$EC_LINK_COMM.sha256.sig"
+              BIOS_SIGN_LINK_COMM="$BIOS_LINK_COMM.sha256.sig"
+              PLATFORM_SIGN_KEY="customer-keys/novacustom/novacustom-open-source-firmware-release-1.x-key.asc \
+                customer-keys/novacustom/dasharo-release-0.9.x-for-novacustom-signing-key.asc"
+              NEED_SMBIOS_MIGRATION="false"
+              NEED_SMMSTORE_MIGRATION="true"
+              NEED_BOOTSPLASH_MIGRATION="true"
+              NEED_BLOB_TRANSMISSION="false"
+              PROGRAMMER_BIOS="internal"
+              PROGRAMMER_EC="ite_ec:boardmismatch=force,romsize=128K,autoload=disable"
+              ;;
+            *)
+              print_error "Board model $BOARD_MODEL is currently not supported"
+              return 1
+              ;;
+          esac
+          ;;
         *)
           print_error "Board model $SYSTEM_MODEL is currently not supported"
           return 1
