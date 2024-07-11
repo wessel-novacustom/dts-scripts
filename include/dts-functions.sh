@@ -1382,7 +1382,7 @@ show_ssh_info() {
 
 show_menu() {
   echo -e "${BLUE}**${YELLOW}     ${HCL_REPORT_OPT})${BLUE} Dasharo HCL report${NORMAL}"
-  if ! check_if_dasharo; then
+  if check_if_dasharo; then
     echo -e "${BLUE}**${YELLOW}     ${DASHARO_FIRM_OPT})${BLUE} Update Dasharo Firmware${NORMAL}"
   else
     echo -e "${BLUE}**${YELLOW}     ${DASHARO_FIRM_OPT})${BLUE} Install Dasharo Firmware${NORMAL}"
