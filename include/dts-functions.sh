@@ -175,6 +175,8 @@ board_config() {
   # must be up already.
   check_network_connection
 
+  CAN_INSTALL_BIOS="true"
+
   echo "Checking if board is Dasharo compatible."
   case "$SYSTEM_VENDOR" in
     "Notebook")
@@ -344,6 +346,7 @@ board_config() {
               NEED_BLOB_TRANSMISSION="false"
               PROGRAMMER_BIOS="internal"
               PROGRAMMER_EC="ite_ec:boardmismatch=force,romsize=128K,autoload=disable"
+              CAN_INSTALL_BIOS="false"
               ;;
             "V560TU")
               DASHARO_REL_NAME="novacustom_nv56x_mtl"
@@ -365,6 +368,7 @@ board_config() {
               NEED_BLOB_TRANSMISSION="false"
               PROGRAMMER_BIOS="internal"
               PROGRAMMER_EC="ite_ec:boardmismatch=force,romsize=128K,autoload=disable"
+              CAN_INSTALL_BIOS="false"
               ;;
             *)
               print_error "Board model $BOARD_MODEL is currently not supported"
@@ -820,8 +824,7 @@ compare_versions() {
     fi
 }
 
-download_artifacts() {
-  echo -n "Downloading Dasharo firmware..."
+download_bios() {
   if [ -v BIOS_LINK_COMM ] && [ ${BIOS_LINK} == ${BIOS_LINK_COMM} ]; then
     curl -s -L -f "$BIOS_LINK" -o $BIOS_UPDATE_FILE
     error_check "Cannot access $FW_STORE_URL while downloading binary. Please
@@ -832,6 +835,22 @@ download_artifacts() {
     curl -s -L -f "$BIOS_SIGN_LINK" -o $BIOS_SIGN_FILE
     error_check "Cannot access $FW_STORE_URL while downloading signature. Please
    check your internet connection"
+  else
+    USER_DETAILS="$CLOUDSEND_DOWNLOAD_URL:$CLOUDSEND_PASSWORD"
+    curl -s -L -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_LINK" -o $BIOS_UPDATE_FILE
+    error_check "Cannot access $FW_STORE_URL_DES while downloading binary.
+   Please check your internet connection"
+    curl -s -L -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_HASH_LINK" -o $BIOS_HASH_FILE
+    error_check "Cannot access $FW_STORE_URL_DES while downloading signature.
+   Please check your internet connection"
+    curl -s -L -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_SIGN_LINK" -o $BIOS_SIGN_FILE
+    error_check "Cannot access $FW_STORE_URL_DES while downloading signature.
+   Please check your internet connection"
+  fi
+}
+
+download_ec() {
+  if [ -v BIOS_LINK_COMM ] && [ ${BIOS_LINK} == ${BIOS_LINK_COMM} ]; then
     if [ "$HAVE_EC" == "true" ] && [ -v EC_LINK ]; then
       curl -s -L -f "$EC_LINK" -o "$EC_UPDATE_FILE"
       error_check "Cannot access $FW_STORE_URL while downloading binary. Please
@@ -844,16 +863,6 @@ download_artifacts() {
      check your internet connection"
     fi
   else
-    USER_DETAILS="$CLOUDSEND_DOWNLOAD_URL:$CLOUDSEND_PASSWORD"
-    curl -s -L -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_LINK" -o $BIOS_UPDATE_FILE
-    error_check "Cannot access $FW_STORE_URL_DES while downloading binary.
-   Please check your internet connection"
-    curl -s -L -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_HASH_LINK" -o $BIOS_HASH_FILE
-    error_check "Cannot access $FW_STORE_URL_DES while downloading signature.
-   Please check your internet connection"
-    curl -s -L -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_SIGN_LINK" -o $BIOS_SIGN_FILE
-    error_check "Cannot access $FW_STORE_URL_DES while downloading signature.
-   Please check your internet connection"
     if [ "$HAVE_EC" == "true" ] && [ -v EC_LINK ]; then
       if [ -v EC_LINK_COMM ] && [ ${EC_LINK} == ${EC_LINK_COMM} ]; then
         curl -s -L -f "$EC_LINK" -o "$EC_UPDATE_FILE"
@@ -878,6 +887,12 @@ download_artifacts() {
      fi
     fi
   fi
+}
+
+download_artifacts() {
+  echo -n "Downloading Dasharo firmware..."
+  download_bios
+  download_ec
   print_ok "Done"
 }
 

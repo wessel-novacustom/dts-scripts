@@ -136,6 +136,11 @@ display_flashing_warning() {
         echo
     else
         echo
+        if [ "$CAN_INSTALL_BIOS" == "false" ] && [ "$SYSTEM_VENDOR" == "Notebook" ]; then
+          echo "Notebook supports installation of only EC firmware!"
+          echo "Dasharo BIOS will have to be flashed manually. More on:"
+          echo "https://docs.dasharo.com/unified/novacustom/initial-deployment/"
+        fi
         read -r -p "Do you want to install Dasharo firmware on your hardware? (Y|n) " OPTION
         echo
     fi
@@ -372,15 +377,21 @@ install_ec() {
 
 install() {
   ask_for_version
-  download_artifacts
-  display_flashing_warning
-  check_flash_lock
-  verify_artifacts bios
+  if [ "$CAN_INSTALL_BIOS" == "false" ]; then
+    download_ec
+    unset BIOS_HASH_LINK
+    display_flashing_warning
+  else
+    download_artifacts
+    display_flashing_warning
+    check_flash_lock
+    verify_artifacts bios
 
-  check_intel_regions
-  check_blobs_in_binary $BIOS_UPDATE_FILE
-  check_if_me_disabled
-  set_intel_regions_update_params "-N --ifd -i bios"
+    check_intel_regions
+    check_blobs_in_binary $BIOS_UPDATE_FILE
+    check_if_me_disabled
+    set_intel_regions_update_params "-N --ifd -i bios"
+  fi
 
   if [ "$HAVE_EC" == "true" ]; then
     echo "Checking for Open Source Embedded Controller firmware"
@@ -396,32 +407,34 @@ install() {
     fi
   fi
 
-  cbfstool "$BIOS_UPDATE_FILE" extract -r COREBOOT -n config -f "$BIOS_UPDATE_CONFIG_FILE"
-  grep "CONFIG_VBOOT=y" "$BIOS_UPDATE_CONFIG_FILE"
-  HAVE_VBOOT="$?"
+  if [ "$CAN_INSTALL_BIOS" == "true" ]; then
+    cbfstool "$BIOS_UPDATE_FILE" extract -r COREBOOT -n config -f "$BIOS_UPDATE_CONFIG_FILE"
+    grep "CONFIG_VBOOT=y" "$BIOS_UPDATE_CONFIG_FILE"
+    HAVE_VBOOT="$?"
 
-  if [ "$NEED_ROMHOLE_MIGRATION" = "true" ]; then
-    romhole_migration
+    if [ "$NEED_ROMHOLE_MIGRATION" = "true" ]; then
+      romhole_migration
+    fi
+
+    if [ "$NEED_BOOTSPLASH_MIGRATION" = "true" ]; then
+      bootsplash_migration
+    fi
+
+    if [ "$NEED_SMBIOS_MIGRATION" = "true" ]; then
+      smbios_migration
+      resign_binary
+    fi
+
+    if [ "$NEED_BLOB_TRANSMISSION" = "true" ]; then
+      blob_transmission
+    fi
+
+    echo "Installing Dasharo firmware..."
+    $FLASHROM -p "$PROGRAMMER_BIOS" ${FLASH_CHIP_SELECT} ${FLASHROM_ADD_OPT_REGIONS} -w "$BIOS_UPDATE_FILE" >> $FLASHROM_LOG_FILE 2>> $ERR_LOG_FILE
+    error_check "Failed to install Dasharo firmware"
+
+    print_ok "Successfully installed Dasharo firmware"
   fi
-
-  if [ "$NEED_BOOTSPLASH_MIGRATION" = "true" ]; then
-    bootsplash_migration
-  fi
-
-  if [ "$NEED_SMBIOS_MIGRATION" = "true" ]; then
-    smbios_migration
-    resign_binary
-  fi
-
-  if [ "$NEED_BLOB_TRANSMISSION" = "true" ]; then
-    blob_transmission
-  fi
-
-  echo "Installing Dasharo firmware..."
-  $FLASHROM -p "$PROGRAMMER_BIOS" ${FLASH_CHIP_SELECT} ${FLASHROM_ADD_OPT_REGIONS} -w "$BIOS_UPDATE_FILE" >> $FLASHROM_LOG_FILE 2>> $ERR_LOG_FILE
-  error_check "Failed to install Dasharo firmware"
-
-  print_ok "Successfully installed Dasharo firmware"
 
   echo -n "Syncing disks... "
   sync
