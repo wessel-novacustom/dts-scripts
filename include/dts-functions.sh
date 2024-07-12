@@ -1137,7 +1137,7 @@ handle_fw_switching() {
       while : ; do
         echo
         print_warning 'If you are running heads firmware variant and want to update, say "n" here.'
-        print_warning 'You will be asked for heads udpate confirmation in a moment.'
+        print_warning 'You will be asked for heads update confirmation in a moment.'
         print_warning 'Say "Y" only if you want to migrate from heads to UEFI firmware variant.'
         read -r -p "Would you like to switch back to the regular (UEFI) Dasharo firmware variant? (Y|n) " OPTION
         echo
