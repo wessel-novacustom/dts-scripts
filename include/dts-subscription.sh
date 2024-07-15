@@ -185,7 +185,7 @@ install_des_package(){
     download_des_package $package_name || return 1
   fi
 
-  rpm -ivh --nodeps $DES_PACKAGE_MANAGER_DIR/$package_name
+  dnf --assumeyes install $DES_PACKAGE_MANAGER_DIR/$package_name
 
   if [ $? -ne 0 ]; then
     rm -f $DES_PACKAGE_MANAGER_DIR/$package_name
