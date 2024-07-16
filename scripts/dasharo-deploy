@@ -61,6 +61,7 @@ ask_for_version() {
           if [ -v EC_HASH_LINK_DES ]; then
             EC_LINK=$EC_LINK_DES
             EC_HASH_LINK=$EC_HASH_LINK_DES
+            # shellcheck disable=SC2034
             EC_SIGN_LINK=$EC_SIGN_LINK_DES
           fi
           echo "Dasharo Entry Subscription version selected"
