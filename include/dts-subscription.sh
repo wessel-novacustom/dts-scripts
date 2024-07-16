@@ -8,8 +8,11 @@
 # shellcheck source=../include/dts-environment.sh
 source $DTS_ENV
 
-check_des_creds() {
-  echo "Verifying Dasharo DES credentials..."
+check_for_dasharo_firmware() {
+  # This function checks if Dasharo firmware is available for the current
+  # platform, returns 1 if there is no firmware available, returns 0 otherwise.
+
+  echo "Checking for Dasharo firmware..."
 
   local _check_dwn_req_resp_uefi="0"
   local _check_dwn_req_resp_heads="0"
@@ -21,17 +24,20 @@ check_des_creds() {
   CLOUDSEND_DOWNLOAD_URL=$(sed -n '2p' < ${SE_credential_file} | tr -d '\n')
   CLOUDSEND_PASSWORD=$(sed -n '3p' < ${SE_credential_file} | tr -d '\n')
   USER_DETAILS="$CLOUDSEND_DOWNLOAD_URL:$CLOUDSEND_PASSWORD"
+
+  # Check the board information:
   board_config
-  if [ "$?" == "1" ]; then
-    return 1
-  fi
+
+  # Create links for logs to be sent to:
   TEST_LOGS_URL="https://cloud.3mdeb.com/index.php/s/${CLOUDSEND_LOGS_URL}/authenticate/showShare"
 
+  # If board_config function has not set firmware links - exit with warning:
   if [ ! -v BIOS_LINK_DES ] && [ ! -v HEADS_LINK_DES ]; then
-    print_error "There is no Dasharo Entry Subscription available for your platform!"
+    print_warning "There is no Dasharo Firmware available for your platform."
     return 1
   fi
 
+  # Check for firmware binaries:
   if wait_for_network_connection; then
     if [ -v BIOS_LINK_DES ]; then
       _check_dwn_req_resp_uefi=$(curl -L -I -s -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_LINK_DES" -o /dev/null -w "%{http_code}")
@@ -41,21 +47,20 @@ check_des_creds() {
     fi
 
     _check_logs_req_resp=$(curl -L -I -s -f -H "$CLOUD_REQUEST" "$TEST_LOGS_URL" -o /dev/null -w "%{http_code}")
+
+    # Return 0 if any of Dasharo Firmware binaries is available:
     if [ ${_check_dwn_req_resp_uefi} -eq 200 ] || [ ${_check_dwn_req_resp_heads} -eq 200 ]; then
       if [ ${_check_logs_req_resp} -eq 200 ]; then
-        print_ok "Verification of the Dasharo DES was successful. They are valid and will be used."
+        print_ok "A Dasharo Firmware binary has been found for your platform!"
         return 0
       fi
     fi
   fi
 
-  print_error "Something may be wrong with the DES credentials. Please use option 4 to change the DES keys
-           \rand make sure that there is no typo."
-  rm ${SE_credential_file}
-  export CLOUDSEND_LOGS_URL="$BASE_CLOUDSEND_LOGS_URL"
-  export CLOUDSEND_PASSWORD="$BASE_CLOUDSEND_PASSWORD"
-  unset CLOUDSEND_DOWNLOAD_URL
-  unset DES_IS_LOGGED
+  print_warning "Something may be wrong with the DES credentials or you may not\n
+		have access to Dasharo Firmware. If so, consider getting Dasharo\n
+		Entry Subscription and improving security of your platform!"
+
   read -p "Press ENTER to continue"
   return 1
 }

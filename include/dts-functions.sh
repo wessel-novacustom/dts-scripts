@@ -1514,8 +1514,9 @@ main_menu_options(){
     "${DES_KEYS_OPT}")
       get_des_creds
 
-      # Verify credentials, start loop over if there is smth wrong:
-      check_des_creds || return 0
+      # Check for Dasharo Firmware for the current platform, continue to
+      # packages after checking:
+      check_for_dasharo_firmware
 
       # Try to log in using available DES credentials, start loop over if login
       # was not successful:
