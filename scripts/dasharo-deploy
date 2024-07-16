@@ -24,11 +24,11 @@ ask_for_version() {
     if [ -v BIOS_HASH_LINK_COMM ]; then
       echo "  c) Community version"
     fi
-    if [ -v BIOS_HASH_LINK_DES ]; then
-      if [ -v DES_IS_LOGGED ]; then
-        echo "  d) DES version"
+    if [ -v BIOS_HASH_LINK_DPP ]; then
+      if [ -v DPP_IS_LOGGED ]; then
+        echo "  d) DPP version"
       else
-        echo "  DES version available, if you are interested, please visit https://shop.3mdeb.com/product-category/dasharo-entry-subscription/"
+        echo "  DPP version available, if you are interested, please visit https://shop.3mdeb.com/product-category/dasharo-entry-subscription/"
       fi
     fi
     echo "  b) Back to main menu"
@@ -53,18 +53,18 @@ ask_for_version() {
           error_exit "Bad option or resignation. Returning to main menu..."
         fi
         ;;
-      d|D|des|DES|Des)
-        if [ -v BIOS_HASH_LINK_DES ]; then
-          BIOS_LINK=$BIOS_LINK_DES
-          BIOS_HASH_LINK=$BIOS_HASH_LINK_DES
-          BIOS_SIGN_LINK=$BIOS_SIGN_LINK_DES
-          if [ -v EC_HASH_LINK_DES ]; then
-            EC_LINK=$EC_LINK_DES
-            EC_HASH_LINK=$EC_HASH_LINK_DES
+      d|D|dpp|DPP|Dpp)
+        if [ -v BIOS_HASH_LINK_DPP ]; then
+          BIOS_LINK=$BIOS_LINK_DPP
+          BIOS_HASH_LINK=$BIOS_HASH_LINK_DPP
+          BIOS_SIGN_LINK=$BIOS_SIGN_LINK_DPP
+          if [ -v EC_HASH_LINK_DPP ]; then
+            EC_LINK=$EC_LINK_DPP
+            EC_HASH_LINK=$EC_HASH_LINK_DPP
             # shellcheck disable=SC2034
-            EC_SIGN_LINK=$EC_SIGN_LINK_DES
+            EC_SIGN_LINK=$EC_SIGN_LINK_DPP
           fi
-          echo "Dasharo Entry Subscription version selected"
+          echo "Dasharo Subscription version selected"
           break
         else
           error_exit "Bad option. Returning to main menu..."
@@ -482,14 +482,14 @@ update() {
 
   echo "Checking for the latest Dasharo update available..."
   echo "Current Dasharo version: $DASHARO_VERSION"
-  if [ -v DES_IS_LOGGED ]; then
-    if [ -v DASHARO_REL_VER_DES ]; then
+  if [ -v DPP_IS_LOGGED ]; then
+    if [ -v DASHARO_REL_VER_DPP ]; then
       if [ "$DASHARO_FLAVOR" != "Dasharo (coreboot+heads)" ]; then
-        echo "Latest available Dasharo version: $DASHARO_REL_VER_DES"
+        echo "Latest available Dasharo version: $DASHARO_REL_VER_DPP"
       fi
-      curl -sfI -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_LINK_DES" -o /dev/null
+      curl -sfI -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_LINK_DPP" -o /dev/null
       if [ $? -ne 0 ]; then
-        echo "Current DES credentials do not match the current platform/firmware flavor."
+        echo "Current DPP credentials do not match the current platform/firmware flavor."
         echo "Latest possible and available update is $DASHARO_REL_VER"
         BIOS_HASH_LINK=$BIOS_HASH_LINK_COMM
         BIOS_SIGN_LINK=$BIOS_SIGN_LINK_COMM
@@ -501,15 +501,15 @@ update() {
         fi
         UPDATE_VERSION=$DASHARO_REL_VER
       else
-        BIOS_HASH_LINK=$BIOS_HASH_LINK_DES
-        BIOS_SIGN_LINK=$BIOS_SIGN_LINK_DES
-        BIOS_LINK=$BIOS_LINK_DES
+        BIOS_HASH_LINK=$BIOS_HASH_LINK_DPP
+        BIOS_SIGN_LINK=$BIOS_SIGN_LINK_DPP
+        BIOS_LINK=$BIOS_LINK_DPP
         if [ "$HAVE_EC" == "true" ]; then
-          EC_HASH_LINK=$EC_HASH_LINK_DES
-          EC_SIGN_LINK=$EC_SIGN_LINK_DES
-          EC_LINK=$EC_LINK_DES
+          EC_HASH_LINK=$EC_HASH_LINK_DPP
+          EC_SIGN_LINK=$EC_SIGN_LINK_DPP
+          EC_LINK=$EC_LINK_DPP
         fi
-        UPDATE_VERSION=$DASHARO_REL_VER_DES
+        UPDATE_VERSION=$DASHARO_REL_VER_DPP
       fi
     else
       if [ "$DASHARO_FLAVOR" != "Dasharo (coreboot+heads)" ]; then
@@ -526,9 +526,9 @@ update() {
       UPDATE_VERSION=$DASHARO_REL_VER
     fi
     if [ -v HAVE_HEADS_FW ] && [ "$DASHARO_FLAVOR" != "Dasharo (coreboot+heads)" ]; then
-      # Check if given SE credentials give access to heads, if not,
-      # then it means DES is for regular releases
-      curl -sfI -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$HEADS_LINK_DES" -o /dev/null
+      # Check if given DPP credentials give access to heads, if not,
+      # then it means DPP is for regular releases
+      curl -sfI -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$HEADS_LINK_DPP" -o /dev/null
       if [ $? -ne 0 ]; then
         print_warning "Dasharo Heads firmware version is available, but your"
         print_warning "subscription does not give you the access to this firmware."
@@ -541,12 +541,12 @@ update() {
       fi
     elif [ -v HAVE_HEADS_FW ] && [ "$DASHARO_FLAVOR" == "Dasharo (coreboot+heads)" ]; then
       # Set the switch flag to offer switch back
-      echo "Latest available Dasharo version: $HEADS_REL_VER_DES"
+      echo "Latest available Dasharo version: $HEADS_REL_VER_DPP"
       _can_switch_to_heads="true"
     fi
   else
-    if [ -v DASHARO_REL_VER_DES ]; then
-      print_ok "DES version available, if you are interested"
+    if [ -v DASHARO_REL_VER_DPP ]; then
+      print_ok "DPP version available, if you are interested"
       print_ok "please visit https://shop.3mdeb.com/product-category/dasharo-entry-subscription/"
     fi
     if [ "$DASHARO_FLAVOR" != "Dasharo (coreboot+heads)" ]; then
@@ -743,7 +743,7 @@ restore() {
     echo "Please select one of available options."
 
     echo "  1) Check for HCL report stored locally"
-    if [ -n "${DES_IS_LOGGED}" ]; then
+    if [ -n "${DPP_IS_LOGGED}" ]; then
       echo "  2) Check for HCL report stored on 3mdeb cloud"
     fi
     echo "  b) Back to main menu"

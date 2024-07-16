@@ -17,12 +17,12 @@ check_for_dasharo_firmware() {
   local _check_dwn_req_resp_uefi="0"
   local _check_dwn_req_resp_heads="0"
   local _check_logs_req_resp="0"
-  # Ignore "SC2154 (warning): SE_credential_file is referenced but not assigned"
+  # Ignore "SC2154 (warning): DPP_credential_file is referenced but not assigned"
   # for external variable:
   # shellcheck disable=SC2154
-  CLOUDSEND_LOGS_URL=$(sed -n '1p' < ${SE_credential_file} | tr -d '\n')
-  CLOUDSEND_DOWNLOAD_URL=$(sed -n '2p' < ${SE_credential_file} | tr -d '\n')
-  CLOUDSEND_PASSWORD=$(sed -n '3p' < ${SE_credential_file} | tr -d '\n')
+  CLOUDSEND_LOGS_URL=$(sed -n '1p' < ${DPP_credential_file} | tr -d '\n')
+  CLOUDSEND_DOWNLOAD_URL=$(sed -n '2p' < ${DPP_credential_file} | tr -d '\n')
+  CLOUDSEND_PASSWORD=$(sed -n '3p' < ${DPP_credential_file} | tr -d '\n')
   USER_DETAILS="$CLOUDSEND_DOWNLOAD_URL:$CLOUDSEND_PASSWORD"
 
   # Check the board information:
@@ -32,18 +32,18 @@ check_for_dasharo_firmware() {
   TEST_LOGS_URL="https://cloud.3mdeb.com/index.php/s/${CLOUDSEND_LOGS_URL}/authenticate/showShare"
 
   # If board_config function has not set firmware links - exit with warning:
-  if [ ! -v BIOS_LINK_DES ] && [ ! -v HEADS_LINK_DES ]; then
+  if [ ! -v BIOS_LINK_DPP ] && [ ! -v HEADS_LINK_DPP ]; then
     print_warning "There is no Dasharo Firmware available for your platform."
     return 1
   fi
 
   # Check for firmware binaries:
   if wait_for_network_connection; then
-    if [ -v BIOS_LINK_DES ]; then
-      _check_dwn_req_resp_uefi=$(curl -L -I -s -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_LINK_DES" -o /dev/null -w "%{http_code}")
+    if [ -v BIOS_LINK_DPP ]; then
+      _check_dwn_req_resp_uefi=$(curl -L -I -s -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_LINK_DPP" -o /dev/null -w "%{http_code}")
     fi
-    if [ -v HEADS_LINK_DES ]; then
-      _check_dwn_req_resp_heads=$(curl -L -I -s -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$HEADS_LINK_DES" -o /dev/null -w "%{http_code}")
+    if [ -v HEADS_LINK_DPP ]; then
+      _check_dwn_req_resp_heads=$(curl -L -I -s -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$HEADS_LINK_DPP" -o /dev/null -w "%{http_code}")
     fi
 
     _check_logs_req_resp=$(curl -L -I -s -f -H "$CLOUD_REQUEST" "$TEST_LOGS_URL" -o /dev/null -w "%{http_code}")
@@ -57,15 +57,15 @@ check_for_dasharo_firmware() {
     fi
   fi
 
-  print_warning "Something may be wrong with the DES credentials or you may not\n
+  print_warning "Something may be wrong with the DPP credentials or you may not\n
 		have access to Dasharo Firmware. If so, consider getting Dasharo\n
-		Entry Subscription and improving security of your platform!"
+		Subscription and improving security of your platform!"
 
   read -p "Press ENTER to continue"
   return 1
 }
 
-get_des_creds() {
+get_dpp_creds() {
   echo ""
   read -p "Enter logs key:                " 'TMP_CLOUDSEND_LOGS_URL'
   echo ""
@@ -76,19 +76,19 @@ get_des_creds() {
   # Export DPP creds to a file for future use. Currently these are being used
   # for both: MinIO (and its mc CLI) and cloudsend (deprecated, all DPP
   # sibscribtions will be megrated to MinIO):
-  echo ${TMP_CLOUDSEND_LOGS_URL} > ${SE_credential_file}
-  echo ${TMP_CLOUDSEND_DOWNLOAD_URL} >> ${SE_credential_file}
-  echo ${TMP_CLOUDSEND_PASSWORD} >> ${SE_credential_file}
+  echo ${TMP_CLOUDSEND_LOGS_URL} > ${DPP_credential_file}
+  echo ${TMP_CLOUDSEND_DOWNLOAD_URL} >> ${DPP_credential_file}
+  echo ${TMP_CLOUDSEND_PASSWORD} >> ${DPP_credential_file}
 
-  print_ok "Dasharo DES credentials have been saved"
+  print_ok "Dasharo DPP credentials have been saved"
 }
 
-login_to_des_server(){
+login_to_dpp_server(){
   # Check if the user is already logged in, log in if not:
   if [ -z "$(mc alias list | grep ${CLOUDSEND_DOWNLOAD_URL})" ]; then
-    mc alias set $DES_SERVER_USER_ALIAS $DES_SERVER_ADDRESS $CLOUDSEND_DOWNLOAD_URL $CLOUDSEND_PASSWORD || return 1
+    mc alias set $DPP_SERVER_USER_ALIAS $DPP_SERVER_ADDRESS $CLOUDSEND_DOWNLOAD_URL $CLOUDSEND_PASSWORD || return 1
     if [ $? -ne 0 ]; then
-      print_error "Error while logging in to DES server!"
+      print_error "Error while logging in to DPP server!"
       return 1
     fi
   fi
@@ -108,31 +108,31 @@ subscription_routine(){
   export CLOUDSEND_DOWNLOAD_URL
   export CLOUDSEND_PASSWORD
 
-  # Each time the main menu is rendered, check for DES credentials and export
+  # Each time the main menu is rendered, check for DPP credentials and export
   # them, if file exists
-  if [ -e "${SE_credential_file}" ]; then
-    CLOUDSEND_LOGS_URL=$(sed -n '1p' < ${SE_credential_file} | tr -d '\n')
-    CLOUDSEND_DOWNLOAD_URL=$(sed -n '2p' < ${SE_credential_file} | tr -d '\n')
-    CLOUDSEND_PASSWORD=$(sed -n '3p' < ${SE_credential_file} | tr -d '\n')
+  if [ -e "${DPP_credential_file}" ]; then
+    CLOUDSEND_LOGS_URL=$(sed -n '1p' < ${DPP_credential_file} | tr -d '\n')
+    CLOUDSEND_DOWNLOAD_URL=$(sed -n '2p' < ${DPP_credential_file} | tr -d '\n')
+    CLOUDSEND_PASSWORD=$(sed -n '3p' < ${DPP_credential_file} | tr -d '\n')
     export USER_DETAILS="$CLOUDSEND_DOWNLOAD_URL:$CLOUDSEND_PASSWORD"
-    export DES_IS_LOGGED="true"
+    export DPP_IS_LOGGED="true"
   else
     CLOUDSEND_LOGS_URL="$BASE_CLOUDSEND_LOGS_URL"
     CLOUDSEND_PASSWORD="$BASE_CLOUDSEND_PASSWORD"
     unset CLOUDSEND_DOWNLOAD_URL
-    unset DES_IS_LOGGED
+    unset DPP_IS_LOGGED
     return 1
   fi
 
   # Network connection may not be available on boot, do not connect if so:
-  check_network_connection && login_to_des_server || return 0
+  check_network_connection && login_to_dpp_server || return 0
 
   return 0
 }
 
 check_dasharo_package_env(){
-  [ -d $DES_PACKAGE_MANAGER_DIR ] || mkdir -p $DES_PACKAGE_MANAGER_DIR
-  [ -d $DES_PACKAGES_SCRIPTS_PATH ] || mkdir -p $DES_PACKAGES_SCRIPTS_PATH
+  [ -d $DPP_PACKAGE_MANAGER_DIR ] || mkdir -p $DPP_PACKAGE_MANAGER_DIR
+  [ -d $DPP_PACKAGES_SCRIPTS_PATH ] || mkdir -p $DPP_PACKAGES_SCRIPTS_PATH
 
   return 0
 }
@@ -140,7 +140,7 @@ check_dasharo_package_env(){
 update_package_list(){
   check_dasharo_package_env
 
-  mc find --json --name "*.rpm" $DES_SERVER_USER_ALIAS > $DES_AVAIL_PACKAGES_LIST
+  mc find --json --name "*.rpm" $DPP_SERVER_USER_ALIAS > $DPP_AVAIL_PACKAGES_LIST
 
   if [ $? -ne 0 ]; then
     print_error "Unable to get package list!"
@@ -149,7 +149,7 @@ update_package_list(){
   return 0
 }
 
-download_des_package(){
+download_dpp_package(){
   local package_name=$1
 
   # Make sure all paths exist:
@@ -159,7 +159,7 @@ download_des_package(){
 
   # Get package link:
   local download_link
-  download_link=$(jq -r '.key' "$DES_AVAIL_PACKAGES_LIST" | grep "$package_name")
+  download_link=$(jq -r '.key' "$DPP_AVAIL_PACKAGES_LIST" | grep "$package_name")
 
   if [ -z "$download_link" ]; then
     print_error "No package $package_name found!"
@@ -168,7 +168,7 @@ download_des_package(){
 
   # TODO: this will overwrite file with name package_name if its exists, a place
   # for improvements:
-  local local_path="$DES_PACKAGE_MANAGER_DIR/$package_name"
+  local local_path="$DPP_PACKAGE_MANAGER_DIR/$package_name"
   mc get --quiet "$download_link" "$local_path"
 
   [ $? -ne 0 ] && return 1
@@ -177,7 +177,7 @@ download_des_package(){
   return 0
 }
 
-install_des_package(){
+install_dpp_package(){
   local package_name=$1
 
   check_dasharo_package_env
@@ -186,32 +186,32 @@ install_des_package(){
 
   update_package_list || return 1
 
-  if [ ! -f "$DES_PACKAGE_MANAGER_DIR/$package_name" ]; then
-    download_des_package $package_name || return 1
+  if [ ! -f "$DPP_PACKAGE_MANAGER_DIR/$package_name" ]; then
+    download_dpp_package $package_name || return 1
   fi
 
-  dnf --assumeyes install $DES_PACKAGE_MANAGER_DIR/$package_name
+  dnf --assumeyes install $DPP_PACKAGE_MANAGER_DIR/$package_name
 
   if [ $? -ne 0 ]; then
-    rm -f $DES_PACKAGE_MANAGER_DIR/$package_name
+    rm -f $DPP_PACKAGE_MANAGER_DIR/$package_name
     print_error "Could not install package $package_name!"
     return 1
   fi
 
-  rm -f $DES_PACKAGE_MANAGER_DIR/$package_name
+  rm -f $DPP_PACKAGE_MANAGER_DIR/$package_name
 
   print_ok "Package $package_name have been installed successfully!"
   return 0
 }
 
-install_all_des_packages(){
-  echo "Installing available DES packages..."
+install_all_dpp_packages(){
+  echo "Installing available DPP packages..."
 
   update_package_list || return 1
 
   # Strip out exact packages download links from the .json data:
   local packages_to_download
-  packages_to_download=$(jq -r '.key' "$DES_AVAIL_PACKAGES_LIST")
+  packages_to_download=$(jq -r '.key' "$DPP_AVAIL_PACKAGES_LIST")
 
   if [ -z "$packages_to_download" ]; then
     echo "No packages to install."
@@ -223,15 +223,15 @@ install_all_des_packages(){
     local package_name
     package_name=$(basename "$download_link")
 
-    install_des_package $package_name
+    install_dpp_package $package_name
   done
 
   return 0
 }
 
-check_avail_des_packages(){
-  echo "Checking for available DES packages..."
-  AVAILABLE_PACKAGES=$(mc find --name "*.rpm" $DES_SERVER_USER_ALIAS)
+check_avail_dpp_packages(){
+  echo "Checking for available DPP packages..."
+  AVAILABLE_PACKAGES=$(mc find --name "*.rpm" $DPP_SERVER_USER_ALIAS)
 
   if [ -z "$AVAILABLE_PACKAGES" ]; then
     return 1
@@ -241,7 +241,7 @@ check_avail_des_packages(){
 }
 
 parse_for_premium_submenu() {
-  [ -d $DES_PACKAGES_SCRIPTS_PATH ] || return 0
+  [ -d $DPP_PACKAGES_SCRIPTS_PATH ] || return 0
 
   # Check if the JSON file exists, delete if so. The reason for it is that three
   # operations can be performed on this file: add new script inf., delete a
@@ -249,20 +249,20 @@ parse_for_premium_submenu() {
   # existing inf. and reparsing - three operations can be replaced with one:
   # deleting and updating - there is no need to delete or update if its being
   # recreated every time.
-  [ -f "$DES_SUBMENU_JSON" ] && rm -f "$DES_SUBMENU_JSON"
+  [ -f "$DPP_SUBMENU_JSON" ] && rm -f "$DPP_SUBMENU_JSON"
 
   # submenu's options start from position 0:
   local position="1"
   local json_data='[]'
 
   # Iterate over bash scripts in the directory:
-  for script in "$DES_PACKAGES_SCRIPTS_PATH"/*; do
+  for script in "$DPP_PACKAGES_SCRIPTS_PATH"/*; do
     # Skip if not a script:
     [ -n "$(file $script | grep 'script, ASCII text executable')" ] || continue
 
     # Create the JSON file only if any script have been found, this will be a
     # signal to render premium submenu:
-    [ -f "$DES_SUBMENU_JSON" ] || echo '[]' > "$DES_SUBMENU_JSON"
+    [ -f "$DPP_SUBMENU_JSON" ] || echo '[]' > "$DPP_SUBMENU_JSON"
 
     local script_name
     script_name=$(basename "$script")
@@ -276,14 +276,14 @@ parse_for_premium_submenu() {
   done
 
   # Save updated JSON data
-  [ -f "$DES_SUBMENU_JSON" ] && echo "$json_data" | jq '.' > "$DES_SUBMENU_JSON"
+  [ -f "$DPP_SUBMENU_JSON" ] && echo "$json_data" | jq '.' > "$DPP_SUBMENU_JSON"
 
   return 0
 }
 
-show_des_submenu(){
+show_dpp_submenu(){
   # This menu is being rendered dynamically by parsing scripts from
-  # DES_PACKAGES_SCRIPTS_PATH. These scripts are being installed by DES
+  # DPP_PACKAGES_SCRIPTS_PATH. These scripts are being installed by DPP
   # packages.
   #
   # Every script should contain menu_point function which should utilize one
@@ -297,7 +297,7 @@ show_des_submenu(){
 
   # Read JSON data:
   local json_data
-  json_data=$(jq -c '.[]' "$DES_SUBMENU_JSON")
+  json_data=$(jq -c '.[]' "$DPP_SUBMENU_JSON")
 
   # Iterate over each JSON object:
   while IFS= read -r item; do
@@ -305,7 +305,7 @@ show_des_submenu(){
     script_name=$(jq -r '.file_name' <<< "$item")
     file_menu_position=$(jq -r '.file_menu_position' <<< "$item")
 
-    local script_path="$DES_PACKAGES_SCRIPTS_PATH/$script_name"
+    local script_path="$DPP_PACKAGES_SCRIPTS_PATH/$script_name"
 
     bash "$script_path" menu_point "$file_menu_position"
 
@@ -316,7 +316,7 @@ show_des_submenu(){
   return 0
 }
 
-des_submenu_options(){
+dpp_submenu_options(){
   local OPTION=$1
   local file_menu_position
   local script
@@ -325,12 +325,12 @@ des_submenu_options(){
   # cause jq error:
   if [[ "$OPTION" =~ ^[0-9]+$ ]]; then
     # Look for option in JSON file;
-    script=$(jq --argjson pos "$OPTION" '.[] | select(.file_menu_position == $pos)' "$DES_SUBMENU_JSON")
+    script=$(jq --argjson pos "$OPTION" '.[] | select(.file_menu_position == $pos)' "$DPP_SUBMENU_JSON")
   fi
 
   # Return to main menu option check:
   if [ "$OPTION" == "$BACK_TO_MAIN_MENU_UP" ] || [ "$OPTION" == "$BACK_TO_MAIN_MENU_DOWN" ]; then
-    unset DES_SUBMENU_ACTIVE
+    unset DPP_SUBMENU_ACTIVE
     return 0
   fi
 
@@ -340,7 +340,7 @@ des_submenu_options(){
   local script_name
   script_name=$(jq -r '.file_name' <<< "$script")
 
-  local script_path="$DES_PACKAGES_SCRIPTS_PATH/$script_name"
+  local script_path="$DPP_PACKAGES_SCRIPTS_PATH/$script_name"
 
   # Execute do_work function from the script:
   bash "$script_path" do_work

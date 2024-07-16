@@ -325,8 +325,8 @@ board_config() {
         "NV4xPZ")
           DASHARO_REL_NAME="novacustom_nv4x_adl"
           DASHARO_REL_VER="1.7.2"
-          HEADS_REL_VER_DES="0.9.1"
-          HEADS_LINK_DES="${FW_STORE_URL_DES}/${DASHARO_REL_NAME}/v${HEADS_REL_VER_DES}/${DASHARO_REL_NAME}_v${HEADS_REL_VER_DES}_heads.rom"
+          HEADS_REL_VER_DPP="0.9.1"
+          HEADS_LINK_DPP="${FW_STORE_URL_DPP}/${DASHARO_REL_NAME}/v${HEADS_REL_VER_DPP}/${DASHARO_REL_NAME}_v${HEADS_REL_VER_DPP}_heads.rom"
           HEADS_SWITCH_FLASHROM_OPT_OVERRIDE="--ifd -i bios"
           BIOS_LINK_COMM="$FW_STORE_URL/$DASHARO_REL_NAME/v$DASHARO_REL_VER/${DASHARO_REL_NAME}_v${DASHARO_REL_VER}.rom"
           EC_LINK_COMM="$FW_STORE_URL/$DASHARO_REL_NAME/v$DASHARO_REL_VER/${DASHARO_REL_NAME}_ec_v${DASHARO_REL_VER}.rom"
@@ -438,19 +438,19 @@ board_config() {
             "PRO Z690-A WIFI DDR4(MS-7D25)" | "PRO Z690-A DDR4(MS-7D25)")
               DASHARO_REL_NAME="msi_ms7d25"
               DASHARO_REL_VER="1.1.1"
-              DASHARO_REL_VER_DES="1.1.3"
+              DASHARO_REL_VER_DPP="1.1.3"
               BIOS_LINK_COMM="${FW_STORE_URL}/${DASHARO_REL_NAME}/v${DASHARO_REL_VER}/${DASHARO_REL_NAME}_v${DASHARO_REL_VER}_ddr4.rom"
-              BIOS_LINK_DES="${FW_STORE_URL_DES}/MS-7D25/v${DASHARO_REL_VER_DES}/${DASHARO_REL_NAME}_v${DASHARO_REL_VER_DES}_ddr4.rom"
+              BIOS_LINK_DPP="${FW_STORE_URL_DPP}/MS-7D25/v${DASHARO_REL_VER_DPP}/${DASHARO_REL_NAME}_v${DASHARO_REL_VER_DPP}_ddr4.rom"
               HAVE_HEADS_FW="true"
-              HEADS_REL_VER_DES="0.9.0"
-              HEADS_LINK_DES="${FW_STORE_URL_DES}/MS-7D25/v${HEADS_REL_VER_DES}/${DASHARO_REL_NAME}_v${HEADS_REL_VER_DES}_ddr4_heads.rom"
+              HEADS_REL_VER_DPP="0.9.0"
+              HEADS_LINK_DPP="${FW_STORE_URL_DPP}/MS-7D25/v${HEADS_REL_VER_DPP}/${DASHARO_REL_NAME}_v${HEADS_REL_VER_DPP}_ddr4_heads.rom"
               HEADS_SWITCH_FLASHROM_OPT_OVERRIDE="--ifd -i bios"
               HAVE_EC="false"
               NEED_EC_RESET="false"
               BIOS_HASH_LINK_COMM="${BIOS_LINK_COMM}.sha256"
-              BIOS_HASH_LINK_DES="${BIOS_LINK_DES}.sha256"
+              BIOS_HASH_LINK_DPP="${BIOS_LINK_DPP}.sha256"
               BIOS_SIGN_LINK_COMM="${BIOS_LINK_COMM}.sha256.sig"
-              BIOS_SIGN_LINK_DES="${BIOS_LINK_DES}.sha256.sig"
+              BIOS_SIGN_LINK_DPP="${BIOS_LINK_DPP}.sha256.sig"
               PLATFORM_SIGN_KEY="dasharo/msi_ms7d25/dasharo-release-1.x-compatible-with-msi-ms-7d25-signing-key.asc \
                  dasharo/msi_ms7d25/dasharo-release-0.x-compatible-with-msi-ms-7d25-signing-key.asc"
               NEED_SMBIOS_MIGRATION="true"
@@ -477,19 +477,19 @@ board_config() {
             "PRO Z690-A WIFI (MS-7D25)" | "PRO Z690-A (MS-7D25)")
               DASHARO_REL_NAME="msi_ms7d25"
               DASHARO_REL_VER="1.1.1"
-              DASHARO_REL_VER_DES="1.1.3"
+              DASHARO_REL_VER_DPP="1.1.3"
               BIOS_LINK_COMM="${FW_STORE_URL}/${DASHARO_REL_NAME}/v${DASHARO_REL_VER}/${DASHARO_REL_NAME}_v${DASHARO_REL_VER}_ddr5.rom"
-              BIOS_LINK_DES="${FW_STORE_URL_DES}/MS-7D25/v${DASHARO_REL_VER_DES}/${DASHARO_REL_NAME}_v${DASHARO_REL_VER_DES}_ddr5.rom"
+              BIOS_LINK_DPP="${FW_STORE_URL_DPP}/MS-7D25/v${DASHARO_REL_VER_DPP}/${DASHARO_REL_NAME}_v${DASHARO_REL_VER_DPP}_ddr5.rom"
               HAVE_HEADS_FW="true"
-              HEADS_REL_VER_DES="0.9.0"
-              HEADS_LINK_DES="${FW_STORE_URL_DES}/MS-7D25/v${HEADS_REL_VER_DES}/${DASHARO_REL_NAME}_v${HEADS_REL_VER_DES}_ddr5_heads.rom"
+              HEADS_REL_VER_DPP="0.9.0"
+              HEADS_LINK_DPP="${FW_STORE_URL_DPP}/MS-7D25/v${HEADS_REL_VER_DPP}/${DASHARO_REL_NAME}_v${HEADS_REL_VER_DPP}_ddr5_heads.rom"
               HEADS_SWITCH_FLASHROM_OPT_OVERRIDE="--ifd -i bios"
               HAVE_EC="false"
               NEED_EC_RESET="false"
               BIOS_HASH_LINK_COMM="${BIOS_LINK_COMM}.sha256"
-              BIOS_HASH_LINK_DES="${BIOS_LINK_DES}.sha256"
+              BIOS_HASH_LINK_DPP="${BIOS_LINK_DPP}.sha256"
               BIOS_SIGN_LINK_COMM="${BIOS_LINK_COMM}.sha256.sig"
-              BIOS_SIGN_LINK_DES="${BIOS_LINK_DES}.sha256.sig"
+              BIOS_SIGN_LINK_DPP="${BIOS_LINK_DPP}.sha256.sig"
               PLATFORM_SIGN_KEY="dasharo/msi_ms7d25/dasharo-release-1.x-compatible-with-msi-ms-7d25-signing-key.asc \
                  dasharo/msi_ms7d25/dasharo-release-0.x-compatible-with-msi-ms-7d25-signing-key.asc"
               NEED_SMBIOS_MIGRATION="true"
@@ -524,19 +524,19 @@ board_config() {
             "PRO Z790-P WIFI DDR4(MS-7E06)" | "PRO Z790-P DDR4(MS-7E06)" | "PRO Z790-P WIFI DDR4 (MS-7E06)" | "PRO Z790-P DDR4 (MS-7E06)")
               DASHARO_REL_NAME="msi_ms7e06"
               #DASHARO_REL_VER=""
-              DASHARO_REL_VER_DES="0.9.1"
+              DASHARO_REL_VER_DPP="0.9.1"
               #BIOS_LINK_COMM="$FW_STORE_URL/$DASHARO_REL_NAME/v$DASHARO_REL_VER/${DASHARO_REL_NAME}_v${DASHARO_REL_VER}_ddr4.rom"
-              BIOS_LINK_DES="${FW_STORE_URL_DES}/MS-7E06/v${DASHARO_REL_VER_DES}/${DASHARO_REL_NAME}_v${DASHARO_REL_VER_DES}_ddr4.rom"
+              BIOS_LINK_DPP="${FW_STORE_URL_DPP}/MS-7E06/v${DASHARO_REL_VER_DPP}/${DASHARO_REL_NAME}_v${DASHARO_REL_VER_DPP}_ddr4.rom"
               HAVE_HEADS_FW="true"
-              HEADS_REL_VER_DES="0.9.0"
-              HEADS_LINK_DES="${FW_STORE_URL_DES}/MS-7E06/v${HEADS_REL_VER_DES}/${DASHARO_REL_NAME}_v${HEADS_REL_VER_DES}_ddr4_heads.rom"
+              HEADS_REL_VER_DPP="0.9.0"
+              HEADS_LINK_DPP="${FW_STORE_URL_DPP}/MS-7E06/v${HEADS_REL_VER_DPP}/${DASHARO_REL_NAME}_v${HEADS_REL_VER_DPP}_ddr4_heads.rom"
               HEADS_SWITCH_FLASHROM_OPT_OVERRIDE="--ifd -i bios"
               HAVE_EC="false"
               NEED_EC_RESET="false"
               #BIOS_HASH_LINK_COMM="${BIOS_LINK_COMM}.sha256"
-              BIOS_HASH_LINK_DES="${BIOS_LINK_DES}.sha256"
+              BIOS_HASH_LINK_DPP="${BIOS_LINK_DPP}.sha256"
               #BIOS_SIGN_LINK_COMM="${BIOS_LINK_COMM}.sha256.sig"
-              BIOS_SIGN_LINK_DES="${BIOS_LINK_DES}.sha256.sig"
+              BIOS_SIGN_LINK_DPP="${BIOS_LINK_DPP}.sha256.sig"
               PLATFORM_SIGN_KEY="dasharo/msi_ms7e06/dasharo-release-0.x-compatible-with-msi-ms-7e06-signing-key.asc"
               NEED_SMBIOS_MIGRATION="false"
               NEED_SMMSTORE_MIGRATION="true"
@@ -562,19 +562,19 @@ board_config() {
             "PRO Z790-P WIFI (MS-7E06)" | "PRO Z790-P (MS-7E06)")
               DASHARO_REL_NAME="msi_ms7e06"
               #DASHARO_REL_VER=""
-              DASHARO_REL_VER_DES="0.9.1"
+              DASHARO_REL_VER_DPP="0.9.1"
               #BIOS_LINK_COMM="$FW_STORE_URL/$DASHARO_REL_NAME/v$DASHARO_REL_VER/${DASHARO_REL_NAME}_v${DASHARO_REL_VER}_ddr5.rom"
-              BIOS_LINK_DES="${FW_STORE_URL_DES}/MS-7E06/v${DASHARO_REL_VER_DES}/${DASHARO_REL_NAME}_v${DASHARO_REL_VER_DES}_ddr5.rom"
+              BIOS_LINK_DPP="${FW_STORE_URL_DPP}/MS-7E06/v${DASHARO_REL_VER_DPP}/${DASHARO_REL_NAME}_v${DASHARO_REL_VER_DPP}_ddr5.rom"
               HAVE_HEADS_FW="true"
-              HEADS_REL_VER_DES="0.9.0"
-              HEADS_LINK_DES="${FW_STORE_URL_DES}/MS-7E06/v${HEADS_REL_VER_DES}/${DASHARO_REL_NAME}_v${HEADS_REL_VER_DES}_ddr5_heads.rom"
+              HEADS_REL_VER_DPP="0.9.0"
+              HEADS_LINK_DPP="${FW_STORE_URL_DPP}/MS-7E06/v${HEADS_REL_VER_DPP}/${DASHARO_REL_NAME}_v${HEADS_REL_VER_DPP}_ddr5_heads.rom"
               HEADS_SWITCH_FLASHROM_OPT_OVERRIDE="--ifd -i bios"
               HAVE_EC="false"
               NEED_EC_RESET="false"
               #BIOS_HASH_LINK_COMM="${BIOS_LINK_COMM}.sha256"
-              BIOS_HASH_LINK_DES="${BIOS_LINK_DES}.sha256"
+              BIOS_HASH_LINK_DPP="${BIOS_LINK_DPP}.sha256"
               #BIOS_SIGN_LINK_COMM="${BIOS_LINK_COMM}.sha256.sig"
-              BIOS_SIGN_LINK_DES="${BIOS_LINK_DES}.sha256.sig"
+              BIOS_SIGN_LINK_DPP="${BIOS_LINK_DPP}.sha256.sig"
               PLATFORM_SIGN_KEY="dasharo/msi_ms7e06/dasharo-release-0.x-compatible-with-msi-ms-7e06-signing-key.asc"
               NEED_SMBIOS_MIGRATION="false"
               NEED_SMMSTORE_MIGRATION="true"
@@ -704,48 +704,48 @@ board_config() {
       case "$SYSTEM_MODEL" in
         "APU2")
           DASHARO_REL_NAME="pcengines_apu2"
-          DASHARO_REL_VER_DES="0.9.0"
+          DASHARO_REL_VER_DPP="0.9.0"
           HAVE_EC="false"
           NEED_EC_RESET="false"
-          BIOS_LINK_DES="${FW_STORE_URL_DES}/pcengines_apu2/v${DASHARO_REL_VER_DES}/${DASHARO_REL_NAME}_v${DASHARO_REL_VER_DES}.rom"
-          BIOS_HASH_LINK_DES="${BIOS_LINK_DES}.sha256"
-          BIOS_SIGN_LINK_DES="${BIOS_LINK_DES}.sha256.sig"
+          BIOS_LINK_DPP="${FW_STORE_URL_DPP}/pcengines_apu2/v${DASHARO_REL_VER_DPP}/${DASHARO_REL_NAME}_v${DASHARO_REL_VER_DPP}.rom"
+          BIOS_HASH_LINK_DPP="${BIOS_LINK_DPP}.sha256"
+          BIOS_SIGN_LINK_DPP="${BIOS_LINK_DPP}.sha256.sig"
           PROGRAMMER_BIOS="internal:boardmismatch=force"
           NEED_SMMSTORE_MIGRATION="true"
           NEED_BOOTSPLASH_MIGRATION="true"
           ;;
         "APU3")
           DASHARO_REL_NAME="pcengines_apu3"
-          DASHARO_REL_VER_DES="0.9.0"
+          DASHARO_REL_VER_DPP="0.9.0"
           HAVE_EC="false"
           NEED_EC_RESET="false"
-          BIOS_LINK_DES="${FW_STORE_URL_DES}/pcengines_apu2/v${DASHARO_REL_VER_DES}/${DASHARO_REL_NAME}_v${DASHARO_REL_VER_DES}.rom"
-          BIOS_HASH_LINK_DES="${BIOS_LINK_DES}.sha256"
-          BIOS_SIGN_LINK_DES="${BIOS_LINK_DES}.sha256.sig"
+          BIOS_LINK_DPP="${FW_STORE_URL_DPP}/pcengines_apu2/v${DASHARO_REL_VER_DPP}/${DASHARO_REL_NAME}_v${DASHARO_REL_VER_DPP}.rom"
+          BIOS_HASH_LINK_DPP="${BIOS_LINK_DPP}.sha256"
+          BIOS_SIGN_LINK_DPP="${BIOS_LINK_DPP}.sha256.sig"
           PROGRAMMER_BIOS="internal:boardmismatch=force"
           NEED_SMMSTORE_MIGRATION="true"
           NEED_BOOTSPLASH_MIGRATION="true"
           ;;
         "APU4")
           DASHARO_REL_NAME="pcengines_apu4"
-          DASHARO_REL_VER_DES="0.9.0"
+          DASHARO_REL_VER_DPP="0.9.0"
           HAVE_EC="false"
           NEED_EC_RESET="false"
-          BIOS_LINK_DES="${FW_STORE_URL_DES}/pcengines_apu2/v${DASHARO_REL_VER_DES}/${DASHARO_REL_NAME}_v${DASHARO_REL_VER_DES}.rom"
-          BIOS_HASH_LINK_DES="${BIOS_LINK_DES}.sha256"
-          BIOS_SIGN_LINK_DES="${BIOS_LINK_DES}.sha256.sig"
+          BIOS_LINK_DPP="${FW_STORE_URL_DPP}/pcengines_apu2/v${DASHARO_REL_VER_DPP}/${DASHARO_REL_NAME}_v${DASHARO_REL_VER_DPP}.rom"
+          BIOS_HASH_LINK_DPP="${BIOS_LINK_DPP}.sha256"
+          BIOS_SIGN_LINK_DPP="${BIOS_LINK_DPP}.sha256.sig"
           PROGRAMMER_BIOS="internal:boardmismatch=force"
           NEED_SMMSTORE_MIGRATION="true"
           NEED_BOOTSPLASH_MIGRATION="true"
           ;;
         "APU6")
           DASHARO_REL_NAME="pcengines_apu6"
-          DASHARO_REL_VER_DES="0.9.0"
+          DASHARO_REL_VER_DPP="0.9.0"
           HAVE_EC="false"
           NEED_EC_RESET="false"
-          BIOS_LINK_DES="${FW_STORE_URL_DES}/pcengines_apu2/v${DASHARO_REL_VER_DES}/${DASHARO_REL_NAME}_v${DASHARO_REL_VER_DES}.rom"
-          BIOS_HASH_LINK_DES="${BIOS_LINK_DES}.sha256"
-          BIOS_SIGN_LINK_DES="${BIOS_LINK_DES}.sha256.sig"
+          BIOS_LINK_DPP="${FW_STORE_URL_DPP}/pcengines_apu2/v${DASHARO_REL_VER_DPP}/${DASHARO_REL_NAME}_v${DASHARO_REL_VER_DPP}.rom"
+          BIOS_HASH_LINK_DPP="${BIOS_LINK_DPP}.sha256"
+          BIOS_SIGN_LINK_DPP="${BIOS_LINK_DPP}.sha256.sig"
           PROGRAMMER_BIOS="internal:boardmismatch=force"
           NEED_SMMSTORE_MIGRATION="true"
           NEED_BOOTSPLASH_MIGRATION="true"
@@ -842,13 +842,13 @@ download_bios() {
   else
     USER_DETAILS="$CLOUDSEND_DOWNLOAD_URL:$CLOUDSEND_PASSWORD"
     curl -s -L -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_LINK" -o $BIOS_UPDATE_FILE
-    error_check "Cannot access $FW_STORE_URL_DES while downloading binary.
+    error_check "Cannot access $FW_STORE_URL_DPP while downloading binary.
    Please check your internet connection"
     curl -s -L -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_HASH_LINK" -o $BIOS_HASH_FILE
-    error_check "Cannot access $FW_STORE_URL_DES while downloading signature.
+    error_check "Cannot access $FW_STORE_URL_DPP while downloading signature.
    Please check your internet connection"
     curl -s -L -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_SIGN_LINK" -o $BIOS_SIGN_FILE
-    error_check "Cannot access $FW_STORE_URL_DES while downloading signature.
+    error_check "Cannot access $FW_STORE_URL_DPP while downloading signature.
    Please check your internet connection"
   fi
 }
@@ -1175,11 +1175,11 @@ handle_fw_switching() {
 
       case ${OPTION} in
         yes|y|Y|Yes|YES)
-          UPDATE_VERSION=$HEADS_REL_VER_DES
+          UPDATE_VERSION=$HEADS_REL_VER_DPP
           FLASHROM_ADD_OPT_UPDATE_OVERRIDE=$HEADS_SWITCH_FLASHROM_OPT_OVERRIDE
-          BIOS_HASH_LINK="${HEADS_LINK_DES}.sha256"
-          BIOS_SIGN_LINK="${HEADS_LINK_DES}.sha256.sig"
-          BIOS_LINK=$HEADS_LINK_DES
+          BIOS_HASH_LINK="${HEADS_LINK_DPP}.sha256"
+          BIOS_SIGN_LINK="${HEADS_LINK_DPP}.sha256.sig"
+          BIOS_LINK=$HEADS_LINK_DPP
           export SWITCHING_TO="heads"
           echo
           echo "Switching to Dasharo heads firmware v$UPDATE_VERSION"
@@ -1197,11 +1197,11 @@ handle_fw_switching() {
           ;;
       esac
     done
-  elif [ -v DES_IS_LOGGED ] && [ -v HEADS_LINK_DES ]; then
-    local _heads_des=1
-    curl -sfI -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$HEADS_LINK_DES" -o /dev/null
-    _heads_des=$?
-    # We are on heads, offer switch back or perform update if DES gives access to heads
+  elif [ -v DPP_IS_LOGGED ] && [ -v HEADS_LINK_DPP ]; then
+    local _heads_dpp=1
+    curl -sfI -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$HEADS_LINK_DPP" -o /dev/null
+    _heads_dpp=$?
+    # We are on heads, offer switch back or perform update if DPP gives access to heads
     if [ "$DASHARO_FLAVOR" == "Dasharo (coreboot+heads)" ]; then
       while : ; do
         echo
@@ -1221,19 +1221,19 @@ handle_fw_switching() {
             break
             ;;
           n|N)
-            if [ $_heads_des -ne 0 ]; then
+            if [ $_heads_dpp -ne 0 ]; then
               error_exit "No update available for your machine"
             fi
-            UPDATE_VERSION=$HEADS_REL_VER_DES
+            UPDATE_VERSION=$HEADS_REL_VER_DPP
             compare_versions $DASHARO_VERSION $UPDATE_VERSION
             if [ $? -ne 1 ]; then
               error_exit "No update available for your machine"
             fi
             echo "Will not switch back to regular Dasharo firmware. Proceeding with Dasharo heads firmware update to $UPDATE_VERSION."
             FLASHROM_ADD_OPT_UPDATE_OVERRIDE="--ifd -i bios"
-            BIOS_HASH_LINK="${HEADS_LINK_DES}.sha256"
-            BIOS_SIGN_LINK="${HEADS_LINK_DES}.sha256.sig"
-            BIOS_LINK=$HEADS_LINK_DES
+            BIOS_HASH_LINK="${HEADS_LINK_DPP}.sha256"
+            BIOS_SIGN_LINK="${HEADS_LINK_DPP}.sha256.sig"
+            BIOS_LINK=$HEADS_LINK_DPP
             break
             ;;
           *)
@@ -1241,15 +1241,15 @@ handle_fw_switching() {
         esac
       done
     fi
-  elif [ ! -v DES_IS_LOGGED ] && [ "$DASHARO_FLAVOR" == "Dasharo (coreboot+heads)" ]; then
-    # Not logged with DES and we are on heads, offer switch back
-    compare_versions $DASHARO_VERSION $HEADS_REL_VER_DES
+  elif [ ! -v DPP_IS_LOGGED ] && [ "$DASHARO_FLAVOR" == "Dasharo (coreboot+heads)" ]; then
+    # Not logged with DPP and we are on heads, offer switch back
+    compare_versions $DASHARO_VERSION $HEADS_REL_VER_DPP
     if [ $? -eq 1 ]; then
-      print_warning "You are running heads firmware, but did not provide DES credentials."
-      print_warning "There are updates available if you provide DES credentials in main DTS menu."
+      print_warning "You are running heads firmware, but did not provide DPP credentials."
+      print_warning "There are updates available if you provide DPP credentials in main DTS menu."
     fi
     echo
-    echo "Latest available Dasharo version: $HEADS_REL_VER_DES"
+    echo "Latest available Dasharo version: $HEADS_REL_VER_DPP"
     echo
     while : ; do
       echo
@@ -1375,9 +1375,9 @@ show_hardsoft_inf() {
   echo -e "${BLUE}*********************************************************${NORMAL}"
 }
 
-show_des_credentials() {
-  if [ -n "${DES_IS_LOGGED}" ]; then
-    echo -e "${BLUE}**${NORMAL}                DES credentials ${NORMAL}"
+show_dpp_credentials() {
+  if [ -n "${DPP_IS_LOGGED}" ]; then
+    echo -e "${BLUE}**${NORMAL}                DPP credentials ${NORMAL}"
     echo -e "${BLUE}*********************************************************${NORMAL}"
     echo -e "${BLUE}**${YELLOW}       Logs key: ${NORMAL}${CLOUDSEND_LOGS_URL}"
     echo -e "${BLUE}**${YELLOW}   Download key: ${NORMAL}${CLOUDSEND_DOWNLOAD_URL}"
@@ -1410,13 +1410,13 @@ show_main_menu() {
     echo -e "${BLUE}**${YELLOW}     ${DASHARO_FIRM_OPT})${BLUE} Install Dasharo Firmware${NORMAL}"
   fi
   echo -e "${BLUE}**${YELLOW}     ${REST_FIRM_OPT})${BLUE} Restore firmware from Dasharo HCL report${NORMAL}"
-  if [ -n "${DES_IS_LOGGED}" ]; then
-    echo -e "${BLUE}**${YELLOW}     ${DES_KEYS_OPT})${BLUE} Edit your DES keys${NORMAL}"
+  if [ -n "${DPP_IS_LOGGED}" ]; then
+    echo -e "${BLUE}**${YELLOW}     ${DPP_KEYS_OPT})${BLUE} Edit your DPP keys${NORMAL}"
   else
-    echo -e "${BLUE}**${YELLOW}     ${DES_KEYS_OPT})${BLUE} Load your DES keys${NORMAL}"
+    echo -e "${BLUE}**${YELLOW}     ${DPP_KEYS_OPT})${BLUE} Load your DPP keys${NORMAL}"
   fi
-  if [ -f "${DES_SUBMENU_JSON}" ]; then
-    echo -e "${BLUE}**${YELLOW}     ${DES_SUBMENU_OPT})${BLUE} Premium options${NORMAL}"
+  if [ -f "${DPP_SUBMENU_JSON}" ]; then
+    echo -e "${BLUE}**${YELLOW}     ${DPP_SUBMENU_OPT})${BLUE} Premium options${NORMAL}"
   fi
 }
 
@@ -1511,24 +1511,24 @@ main_menu_options(){
 
       return 0
       ;;
-    "${DES_KEYS_OPT}")
-      get_des_creds
+    "${DPP_KEYS_OPT}")
+      get_dpp_creds
 
       # Check for Dasharo Firmware for the current platform, continue to
       # packages after checking:
       check_for_dasharo_firmware
 
-      # Try to log in using available DES credentials, start loop over if login
+      # Try to log in using available DPP credentials, start loop over if login
       # was not successful:
-      login_to_des_server || return 0
+      login_to_dpp_server || return 0
 
       # Check if there is some packages available to install, start loop over if
       # no packages is available:
-      check_avail_des_packages || return 0
+      check_avail_dpp_packages || return 0
 
       # Download and install available packages, start loop over if there is
       # no packages tto install:
-      install_all_des_packages || return 0
+      install_all_dpp_packages || return 0
 
       # Parse installed packages for premium submenus:
       parse_for_premium_submenu
@@ -1536,9 +1536,9 @@ main_menu_options(){
       read -p "Press ENTER to continue."
       return 0
       ;;
-    "${DES_SUBMENU_OPT}")
-      [ -f "$DES_SUBMENU_JSON" ] || return 0
-      export DES_SUBMENU_ACTIVE="true"
+    "${DPP_SUBMENU_OPT}")
+      [ -f "$DPP_SUBMENU_JSON" ] || return 0
+      export DPP_SUBMENU_ACTIVE="true"
       return 0
       ;;
   esac
@@ -1587,7 +1587,7 @@ footer_options(){
 
       # If in submenu before going to shell - return to main menu after exiting
       # shell:
-      unset DES_SUBMENU_ACTIVE
+      unset DPP_SUBMENU_ACTIVE
       ;;
     "${POWEROFF_OPT_UP}" | "${POWEROFF_OPT_LOW}")
       ${CMD_POWEROFF}

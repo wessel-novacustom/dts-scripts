@@ -13,20 +13,20 @@ YELLOW='\033[0;33m'
 GREEN='\033[0;32m'
 BLUE='\033[0;36m'
 
-# DES options:
-DES_SERVER_ADDRESS="https://dl.dasharo.com"
-DES_SERVER_USER_ALIAS="premium"
-DES_PACKAGE_MANAGER_DIR="/var/dasharo-package-manager"
-DES_AVAIL_PACKAGES_LIST="$DES_PACKAGE_MANAGER_DIR/packages-list.json"
-DES_PACKAGES_SCRIPTS_PATH="$DES_PACKAGE_MANAGER_DIR/packages-scripts"
-DES_SUBMENU_JSON="$DES_PACKAGES_SCRIPTS_PATH/submenu.json"
+# DPP options:
+DPP_SERVER_ADDRESS="https://dl.dasharo.com"
+DPP_SERVER_USER_ALIAS="premium"
+DPP_PACKAGE_MANAGER_DIR="/var/dasharo-package-manager"
+DPP_AVAIL_PACKAGES_LIST="$DPP_PACKAGE_MANAGER_DIR/packages-list.json"
+DPP_PACKAGES_SCRIPTS_PATH="$DPP_PACKAGE_MANAGER_DIR/packages-scripts"
+DPP_SUBMENU_JSON="$DPP_PACKAGES_SCRIPTS_PATH/submenu.json"
 
 # DTS options:
 HCL_REPORT_OPT="1"
 DASHARO_FIRM_OPT="2"
 REST_FIRM_OPT="3"
-DES_KEYS_OPT="4"
-DES_SUBMENU_OPT="5"
+DPP_KEYS_OPT="4"
+DPP_SUBMENU_OPT="5"
 BACK_TO_MAIN_MENU_UP="Q"
 BACK_TO_MAIN_MENU_DOWN="$(echo $BACK_TO_MAIN_MENU_UP | awk '{print tolower($0)}')"
 REBOOT_OPT_UP="R"
@@ -106,9 +106,9 @@ DASHARO_NAME="Dasharo"
 FLASH_CHIP_LIST="W25Q64BV/W25Q64CV/W25Q64FV W25Q64JV-.Q W25Q128.V..M"
 
 # Dasharo Supporters Entrance variables
-SE_credential_file="/etc/cloud-pass"
+DPP_credential_file="/etc/cloud-pass"
 FW_STORE_URL="${FW_STORE_URL_DEV:-https://dl.3mdeb.com/open-source-firmware/Dasharo}"
-FW_STORE_URL_DES="https://cloud.3mdeb.com/public.php/webdav"
+FW_STORE_URL_DPP="https://cloud.3mdeb.com/public.php/webdav"
 CLOUD_REQUEST="X-Requested-With: XMLHttpRequest"
 
 ## base values
