@@ -168,6 +168,35 @@ check_network_connection() {
   done
 }
 
+ask_for_model() {
+  local model=( "$@" )
+  if [ $# -lt 1 ]; then
+    BOARD_MODEL=""
+    return
+  fi
+
+  while :; do
+    echo "Choose your board model:"
+    echo "  0. None below"
+    for ((i=0; i < $#; i++)); do
+      echo "  $((i + 1)): ${model[$i]}"
+    done
+
+    echo
+    read -r -p "Enter an option: " OPTION
+    echo
+
+    if [ "$OPTION" -eq 0 ]; then
+      BOARD_MODEL=""
+      return
+    fi
+    if [ "$OPTION" -gt 0 ] && [ "$OPTION" -le $# ]; then
+      BOARD_MODEL="${model[$((OPTION - 1))]}"
+      return
+    fi
+  done
+}
+
 ## Supported boards configuration
 
 board_config() {
@@ -325,6 +354,12 @@ board_config() {
           fi
           ;;
         "V54x_6x_TU")
+          if ! dasharo_ectool info 2>/dev/null; then
+            ask_for_model V540TU V560TU
+          else
+            BOARD_MODEL=$(dasharo_ectool info | grep "board:" |
+              sed -r 's|.*novacustom/(.*)|\1|' | awk '{print toupper($1)}')
+          fi
           case $BOARD_MODEL in
             "V540TU")
               DASHARO_REL_NAME="novacustom_nv54x_mtl"
