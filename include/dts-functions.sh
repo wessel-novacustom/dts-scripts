@@ -354,7 +354,10 @@ board_config() {
           fi
           ;;
         "V54x_6x_TU")
-          if ! dasharo_ectool info 2>/dev/null; then
+          # Dasharo 0.9.0-rc10 and higher have board model in baseboard-version
+          if check_if_dasharo && compare_versions "$DASHARO_VERSION" 0.9.0-rc10; then
+            BOARD_MODEL="$(dmidecode -s baseboard-version)"
+          elif ! dasharo_ectool info 2>/dev/null; then
             ask_for_model V540TU V560TU
           else
             BOARD_MODEL=$(dasharo_ectool info | grep "board:" |
