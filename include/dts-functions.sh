@@ -362,7 +362,7 @@ board_config() {
           fi
           case $BOARD_MODEL in
             "V540TU")
-              DASHARO_REL_NAME="novacustom_nv54x_mtl"
+              DASHARO_REL_NAME="novacustom_v54x_mtl"
               DASHARO_REL_VER="2.0.0"
               BIOS_LINK_COMM="$FW_STORE_URL/$DASHARO_REL_NAME/v$DASHARO_REL_VER/${DASHARO_REL_NAME}_v${DASHARO_REL_VER}.rom"
               EC_LINK_COMM="$FW_STORE_URL/$DASHARO_REL_NAME/v$DASHARO_REL_VER/${DASHARO_REL_NAME}_ec_v${DASHARO_REL_VER}.rom"
@@ -384,7 +384,7 @@ board_config() {
               CAN_INSTALL_BIOS="false"
               ;;
             "V560TU")
-              DASHARO_REL_NAME="novacustom_nv56x_mtl"
+              DASHARO_REL_NAME="novacustom_v56x_mtl"
               DASHARO_REL_VER="2.0.0"
               BIOS_LINK_COMM="$FW_STORE_URL/$DASHARO_REL_NAME/v$DASHARO_REL_VER/${DASHARO_REL_NAME}_v${DASHARO_REL_VER}.rom"
               EC_LINK_COMM="$FW_STORE_URL/$DASHARO_REL_NAME/v$DASHARO_REL_VER/${DASHARO_REL_NAME}_ec_v${DASHARO_REL_VER}.rom"
