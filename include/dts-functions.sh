@@ -1566,14 +1566,14 @@ footer_options(){
     "${SSH_OPT_UP}" | "${SSH_OPT_LOW}")
       wait_for_network_connection || return 0
 
-      if systemctl is-active sshd.socket > /dev/null 2>&1; then
+      if systemctl is-active sshd.service> /dev/null 2>&1; then
         print_ok "Turning off the SSH server..."
-        systemctl stop sshd.socket
+        systemctl stop sshd.service
       else
         print_warning "Starting SSH server!"
         print_warning "Now you can log in into the system using root account."
         print_warning "Stopping server will not drop all connected sessions."
-        systemctl start sshd.socket
+        systemctl start sshd.service
         print_ok "Listening on IPs: $(ip -br -f inet a show scope global | grep UP | awk '{ print $3 }' | tr '\n' ' ')"
       fi
       read -p "Press ENTER to continue."
