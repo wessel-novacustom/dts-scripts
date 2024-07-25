@@ -65,7 +65,7 @@ check_for_dasharo_firmware() {
 		have access to Dasharo Firmware. If so, consider getting Dasharo\n
 		Subscription and improving security of your platform!"
 
-  read -p "Press ENTER to continue"
+  read -p "Press any key to continue"
   return 1
 }
 

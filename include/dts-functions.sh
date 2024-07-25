@@ -1465,7 +1465,7 @@ main_menu_options(){
           export DEPLOY_REPORT="false"
           ${CMD_DASHARO_HCL_REPORT}
       fi
-      read -p "Press ENTER to continue."
+      read -p "Press any key to continue."
 
       return 0
       ;;
@@ -1515,7 +1515,7 @@ main_menu_options(){
         # Use regular update process for everything else
         ${CMD_DASHARO_DEPLOY} update
       fi
-      read -p "Press ENTER to continue."
+      read -p "Press any key to continue."
 
       return 0
       ;;
@@ -1523,7 +1523,7 @@ main_menu_options(){
       if check_if_dasharo; then
         ${CMD_DASHARO_DEPLOY} restore
       fi
-      read -p "Press ENTER to continue."
+      read -p "Press any key to continue."
 
       return 0
       ;;
@@ -1549,7 +1549,7 @@ main_menu_options(){
       # Parse installed packages for premium submenus:
       parse_for_premium_submenu
 
-      read -p "Press ENTER to continue."
+      read -p "Press any key to continue."
       return 0
       ;;
     "${DPP_SUBMENU_OPT}")
@@ -1592,7 +1592,7 @@ footer_options(){
         systemctl start sshd.service
         print_ok "Listening on IPs: $(ip -br -f inet a show scope global | grep UP | awk '{ print $3 }' | tr '\n' ' ')"
       fi
-      read -p "Press ENTER to continue."
+      read -p "Press any key to continue."
 
       return 0
       ;;

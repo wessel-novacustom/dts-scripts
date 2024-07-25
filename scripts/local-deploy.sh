@@ -12,6 +12,6 @@ scp -P ${PORT} \
   include/* \
   reports/* \
   scripts/* \
-  unit_tests/* \
+  tests/* \
   dts-profile.sh \
   root@${IP_ADDR}:/usr/sbin
