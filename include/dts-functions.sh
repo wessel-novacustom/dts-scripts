@@ -710,6 +710,10 @@ board_config() {
           BIOS_LINK_DPP="${FW_STORE_URL_DPP}/pcengines_apu2/v${DASHARO_REL_VER_DPP}/${DASHARO_REL_NAME}_v${DASHARO_REL_VER_DPP}.rom"
           BIOS_HASH_LINK_DPP="${BIOS_LINK_DPP}.sha256"
           BIOS_SIGN_LINK_DPP="${BIOS_LINK_DPP}.sha256.sig"
+          DASHARO_REL_VER_DPP_SEABIOS="24.05.00.01"
+          BIOS_LINK_DPP_SEABIOS="${FW_STORE_URL_DPP}/pcengines_apu2/v${DASHARO_REL_VER_DPP_SEABIOS}/${DASHARO_REL_NAME}_seabios_v${DASHARO_REL_VER_DPP_SEABIOS}.rom"
+          BIOS_HASH_LINK_DPP_SEABIOS="${BIOS_LINK_DPP_SEABIOS}.sha256"
+          BIOS_SIGN_LINK_DPP_SEABIOS="${BIOS_LINK_DPP_SEABIOS}.sha256.sig"
           PROGRAMMER_BIOS="internal:boardmismatch=force"
           NEED_SMMSTORE_MIGRATION="true"
           NEED_BOOTSPLASH_MIGRATION="true"
@@ -722,6 +726,10 @@ board_config() {
           BIOS_LINK_DPP="${FW_STORE_URL_DPP}/pcengines_apu2/v${DASHARO_REL_VER_DPP}/${DASHARO_REL_NAME}_v${DASHARO_REL_VER_DPP}.rom"
           BIOS_HASH_LINK_DPP="${BIOS_LINK_DPP}.sha256"
           BIOS_SIGN_LINK_DPP="${BIOS_LINK_DPP}.sha256.sig"
+          DASHARO_REL_VER_DPP_SEABIOS="24.05.00.01"
+          BIOS_LINK_DPP_SEABIOS="${FW_STORE_URL_DPP}/pcengines_apu2/v${DASHARO_REL_VER_DPP_SEABIOS}/${DASHARO_REL_NAME}_seabios_v${DASHARO_REL_VER_DPP_SEABIOS}.rom"
+          BIOS_HASH_LINK_DPP_SEABIOS="${BIOS_LINK_DPP_SEABIOS}.sha256"
+          BIOS_SIGN_LINK_DPP_SEABIOS="${BIOS_LINK_DPP_SEABIOS}.sha256.sig"
           PROGRAMMER_BIOS="internal:boardmismatch=force"
           NEED_SMMSTORE_MIGRATION="true"
           NEED_BOOTSPLASH_MIGRATION="true"
@@ -734,6 +742,10 @@ board_config() {
           BIOS_LINK_DPP="${FW_STORE_URL_DPP}/pcengines_apu2/v${DASHARO_REL_VER_DPP}/${DASHARO_REL_NAME}_v${DASHARO_REL_VER_DPP}.rom"
           BIOS_HASH_LINK_DPP="${BIOS_LINK_DPP}.sha256"
           BIOS_SIGN_LINK_DPP="${BIOS_LINK_DPP}.sha256.sig"
+          DASHARO_REL_VER_DPP_SEABIOS="24.05.00.01"
+          BIOS_LINK_DPP_SEABIOS="${FW_STORE_URL_DPP}/pcengines_apu2/v${DASHARO_REL_VER_DPP_SEABIOS}/${DASHARO_REL_NAME}_seabios_v${DASHARO_REL_VER_DPP_SEABIOS}.rom"
+          BIOS_HASH_LINK_DPP_SEABIOS="${BIOS_LINK_DPP_SEABIOS}.sha256"
+          BIOS_SIGN_LINK_DPP_SEABIOS="${BIOS_LINK_DPP_SEABIOS}.sha256.sig"
           PROGRAMMER_BIOS="internal:boardmismatch=force"
           NEED_SMMSTORE_MIGRATION="true"
           NEED_BOOTSPLASH_MIGRATION="true"
@@ -746,6 +758,10 @@ board_config() {
           BIOS_LINK_DPP="${FW_STORE_URL_DPP}/pcengines_apu2/v${DASHARO_REL_VER_DPP}/${DASHARO_REL_NAME}_v${DASHARO_REL_VER_DPP}.rom"
           BIOS_HASH_LINK_DPP="${BIOS_LINK_DPP}.sha256"
           BIOS_SIGN_LINK_DPP="${BIOS_LINK_DPP}.sha256.sig"
+          DASHARO_REL_VER_DPP_SEABIOS="24.05.00.01"
+          BIOS_LINK_DPP_SEABIOS="${FW_STORE_URL_DPP}/pcengines_apu2/v${DASHARO_REL_VER_DPP_SEABIOS}/${DASHARO_REL_NAME}_seabios_v${DASHARO_REL_VER_DPP_SEABIOS}.rom"
+          BIOS_HASH_LINK_DPP_SEABIOS="${BIOS_LINK_DPP_SEABIOS}.sha256"
+          BIOS_SIGN_LINK_DPP_SEABIOS="${BIOS_LINK_DPP_SEABIOS}.sha256.sig"
           PROGRAMMER_BIOS="internal:boardmismatch=force"
           NEED_SMMSTORE_MIGRATION="true"
           NEED_BOOTSPLASH_MIGRATION="true"
@@ -843,13 +859,13 @@ download_bios() {
     USER_DETAILS="$CLOUDSEND_DOWNLOAD_URL:$CLOUDSEND_PASSWORD"
     curl -s -L -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_LINK" -o $BIOS_UPDATE_FILE
     error_check "Cannot access $FW_STORE_URL_DPP while downloading binary.
-   Please check your internet connection"
+   Please check your internet connection and credentials"
     curl -s -L -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_HASH_LINK" -o $BIOS_HASH_FILE
     error_check "Cannot access $FW_STORE_URL_DPP while downloading signature.
-   Please check your internet connection"
+   Please check your internet connection and credentials"
     curl -s -L -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_SIGN_LINK" -o $BIOS_SIGN_FILE
     error_check "Cannot access $FW_STORE_URL_DPP while downloading signature.
-   Please check your internet connection"
+   Please check your internet connection and credentials"
   fi
 }
 
@@ -858,13 +874,13 @@ download_ec() {
     if [ "$HAVE_EC" == "true" ]; then
       curl -s -L -f "$EC_LINK" -o "$EC_UPDATE_FILE"
       error_check "Cannot access $FW_STORE_URL while downloading binary. Please
-     check your internet connection"
+     check your internet connection and credentials"
       curl -s -L -f "$EC_HASH_LINK" -o $EC_HASH_FILE
       error_check "Cannot access $FW_STORE_URL while downloading signature. Please
-     check your internet connection"
+     check your internet connection and credentials"
       curl -s -L -f "$EC_SIGN_LINK" -o $EC_SIGN_FILE
       error_check "Cannot access $FW_STORE_URL while downloading signature. Please
-     check your internet connection"
+     check your internet connection and credentials"
     fi
   else
     if [ "$HAVE_EC" == "true" ]; then
@@ -1444,7 +1460,7 @@ main_menu_options(){
           # dts scripting should get some LOGLEVEL and maybe dumping working
           # logs to file
           export DEPLOY_REPORT="false"
-          wait_for_network_connection && ${CMD_DASHARO_HCL_REPORT} && logs_sent="1"
+          wait_for_network_connection && ${CMD_DASHARO_HCL_REPORT} && LOGS_SENT="1"
       else
           export DEPLOY_REPORT="false"
           ${CMD_DASHARO_HCL_REPORT}
@@ -1457,19 +1473,19 @@ main_menu_options(){
       if ! check_if_dasharo; then
         if wait_for_network_connection; then
           echo "Preparing ..."
-          if [ -z "${logs_sent}" ]; then
+          if [ -z "${LOGS_SENT}" ]; then
             export SEND_LOGS="true"
             export DEPLOY_REPORT="true"
             if ! ${CMD_DASHARO_HCL_REPORT}; then
               echo -e "Unable to connect to cloud.3mdeb.com for submitting the
                         \rHCL report. Please recheck your internet connection."
             else
-              logs_sent="1"
+              LOGS_SENT="1"
             fi
           fi
         fi
 
-        if [ -n "${logs_sent}" ]; then
+        if [ -n "${LOGS_SENT}" ]; then
           ${CMD_DASHARO_DEPLOY} install
         fi
       else
@@ -1548,7 +1564,6 @@ main_menu_options(){
 
 show_footer(){
   echo -e "${BLUE}*********************************************************${NORMAL}"
-  echo -e "${YELLOW}Select a menu option or${NORMAL}"
   echo -ne "${RED}${REBOOT_OPT_UP}${NORMAL} to reboot  ${NORMAL}"
   echo -ne "${RED}${POWEROFF_OPT_UP}${NORMAL} to poweroff  ${NORMAL}"
   echo -e "${RED}${SHELL_OPT_UP}${NORMAL} to enter shell  ${NORMAL}"
@@ -1557,6 +1572,7 @@ show_footer(){
   else
     echo -ne "${RED}${SSH_OPT_UP}${NORMAL} to launch SSH server  ${NORMAL}"
   fi
+  echo -ne "${YELLOW}\nEnter an option:${NORMAL}"
 }
 
 footer_options(){

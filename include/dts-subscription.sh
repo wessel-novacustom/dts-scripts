@@ -16,6 +16,7 @@ check_for_dasharo_firmware() {
 
   local _check_dwn_req_resp_uefi="0"
   local _check_dwn_req_resp_heads="0"
+  local _check_dwn_req_resp_seabios="0"
   local _check_logs_req_resp="0"
   # Ignore "SC2154 (warning): DPP_credential_file is referenced but not assigned"
   # for external variable:
@@ -32,7 +33,7 @@ check_for_dasharo_firmware() {
   TEST_LOGS_URL="https://cloud.3mdeb.com/index.php/s/${CLOUDSEND_LOGS_URL}/authenticate/showShare"
 
   # If board_config function has not set firmware links - exit with warning:
-  if [ ! -v BIOS_LINK_DPP ] && [ ! -v HEADS_LINK_DPP ]; then
+  if [ ! -v BIOS_LINK_DPP ] && [ ! -v HEADS_LINK_DPP ] && [ ! -v BIOS_LINK_DPP_SEABIOS ]; then
     print_warning "There is no Dasharo Firmware available for your platform."
     return 1
   fi
@@ -45,11 +46,14 @@ check_for_dasharo_firmware() {
     if [ -v HEADS_LINK_DPP ]; then
       _check_dwn_req_resp_heads=$(curl -L -I -s -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$HEADS_LINK_DPP" -o /dev/null -w "%{http_code}")
     fi
+    if [ -v BIOS_LINK_DPP_SEABIOS ]; then
+      _check_dwn_req_resp_seabios=$(curl -L -I -s -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_LINK_DPP_SEABIOS" -o /dev/null -w "%{http_code}")
+    fi
 
     _check_logs_req_resp=$(curl -L -I -s -f -H "$CLOUD_REQUEST" "$TEST_LOGS_URL" -o /dev/null -w "%{http_code}")
 
     # Return 0 if any of Dasharo Firmware binaries is available:
-    if [ ${_check_dwn_req_resp_uefi} -eq 200 ] || [ ${_check_dwn_req_resp_heads} -eq 200 ]; then
+    if [ ${_check_dwn_req_resp_uefi} -eq 200 ] || [ ${_check_dwn_req_resp_heads} -eq 200 ] || [ ${_check_dwn_req_resp_seabios} -eq 200 ]; then
       if [ ${_check_logs_req_resp} -eq 200 ]; then
         print_ok "A Dasharo Firmware binary has been found for your platform!"
         return 0
