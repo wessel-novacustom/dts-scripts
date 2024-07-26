@@ -1432,7 +1432,7 @@ show_main_menu() {
     echo -e "${BLUE}**${YELLOW}     ${DPP_KEYS_OPT})${BLUE} Load your DPP keys${NORMAL}"
   fi
   if [ -f "${DPP_SUBMENU_JSON}" ]; then
-    echo -e "${BLUE}**${YELLOW}     ${DPP_SUBMENU_OPT})${BLUE} Premium options${NORMAL}"
+    echo -e "${BLUE}**${YELLOW}     ${DPP_SUBMENU_OPT})${BLUE} DTS extensions${NORMAL}"
   fi
 }
 
