@@ -32,11 +32,11 @@ robot -L TRACE -v config:qemu -v rte_ip:127.0.0.1 -v snipeit:no dts/dts-tests.ro
 ### Running manually
 
 1. Boot the latest DTS image in QEMU. Recommended steps:
-    - start QEMU according to
-    [OSFV documentation](https://github.com/Dasharo/open-source-firmware-validation/blob/develop/docs/qemu.md#booting)
+    + start QEMU according to [OSFV
+    documentation](https://github.com/Dasharo/open-source-firmware-validation/blob/develop/docs/qemu.md#booting)
     (use `os` switch, not `firmware`)
-    - enable network boot and boot into DTS via iPXE
-    - enable SSH server (option `8` in main menu)
+    + enable network boot and boot into DTS via iPXE
+    + enable SSH server (option `8` in main menu)
 
 1. Deploy updated scripts and tests into qemu
 
@@ -46,7 +46,7 @@ robot -L TRACE -v config:qemu -v rte_ip:127.0.0.1 -v snipeit:no dts/dts-tests.ro
 
 1. Execute desired test as described in below section. E.g.:
 
-    ```shell
+    ```bash
     ssh -p 5222 root@127.0.0.1
     export BOARD_VENDOR="Notebook" SYSTEM_MODEL="NV4xPZ" BOARD_MODEL="NV4xPZ"
     export BIOS_VERSION="Dasharo (coreboot+UEFI) v1.7.2" TEST_DES=y DES_TYPE="heads" && dts-boot
@@ -76,7 +76,7 @@ export BOARD_VENDOR="Notebook" SYSTEM_MODEL="NV4xPZ" BOARD_MODEL="NV4xPZ"
     ```
 
     Expected output:
-    - heads fw should be offered
+    + heads fw should be offered
 
 1. Dasharo v1.7.2 on NV4x_PZ eligible for updates to heads without DES
    (regular update only):
@@ -86,7 +86,7 @@ export BOARD_VENDOR="Notebook" SYSTEM_MODEL="NV4xPZ" BOARD_MODEL="NV4xPZ"
     ```
 
     Expected output:
-    - no update should be offered
+    + no update should be offered
 
 1. Dasharo v1.6.0 on NV4x_PZ not eligible for updates to heads with heads DES
    (regular update only):
@@ -96,8 +96,8 @@ export BOARD_VENDOR="Notebook" SYSTEM_MODEL="NV4xPZ" BOARD_MODEL="NV4xPZ"
     ```
 
     Expected output:
-    - UEFI fw update should be offered (this is too old release to transition to
-    heads directly, need to flash latest UEFI fw first)
+    + UEFI fw update should be offered (this is too old release to transition to
+      heads directly, need to flash latest UEFI fw first)
 
 1. Dasharo v1.6.0 on NV4x_PZ not eligible for updates to heads without heads
    DES (regular update only):
@@ -107,7 +107,7 @@ export BOARD_VENDOR="Notebook" SYSTEM_MODEL="NV4xPZ" BOARD_MODEL="NV4xPZ"
     ```
 
     Expected output:
-    - UEFI fw update should be offered
+    + UEFI fw update should be offered
 
 1. Dasharo heads v0.9.0 on NV4x_PZ eligible for updates to heads with heads
    DES and switch back (heads updates):
@@ -117,8 +117,8 @@ export BOARD_VENDOR="Notebook" SYSTEM_MODEL="NV4xPZ" BOARD_MODEL="NV4xPZ"
     ```
 
     Expected output:
-    - migration to UEFI should be offered first
-    - if we say `n` to switch, heads update should be offered
+    + migration to UEFI should be offered first
+    + if we say `n` to switch, heads update should be offered
 
 1. Dasharo heads v0.9.0 on NV4x_PZ without DES switch back, no heads updates:
 
@@ -127,8 +127,8 @@ export BOARD_VENDOR="Notebook" SYSTEM_MODEL="NV4xPZ" BOARD_MODEL="NV4xPZ"
     ```
 
     Expected output:
-    - migration to UEFI should be offered first
-    - if we say `n` to switch, no heads update should be offered
+    + migration to UEFI should be offered first
+    + if we say `n` to switch, no heads update should be offered
 
 Another case is to edit `dts-functions.sh` and set `DASHARO_REL_VER` to
 `v1.7.3` to detect possible regular firmware updates and `HEADS_REL_VER_DES`
@@ -206,8 +206,8 @@ export BOARD_VENDOR="Micro-Star International Co., Ltd." SYSTEM_MODEL="MS-7E06" 
     ```
 
     Expected output:
-    - migration to UEFI should be offered first
-    - if we say `n` to switch, no heads (no more recent update available yet)
+    + migration to UEFI should be offered first
+    + if we say `n` to switch, no heads (no more recent update available yet)
 
 1. Dasharo heads v0.9.0 on MS-7E06 without DES switch back, no heads updates
    (regular update and switch-back only through regular DES, no community
@@ -218,8 +218,8 @@ export BOARD_VENDOR="Micro-Star International Co., Ltd." SYSTEM_MODEL="MS-7E06" 
     ```
 
     Expected output:
-    - should print info on DES availability in the shop
-    - migration to UEFI should be offered
+    + should print info on DES availability in the shop
+    + migration to UEFI should be offered
 
 ### PC Engines
 
@@ -234,8 +234,8 @@ export BOARD_VENDOR="PC Engines" SYSTEM_MODEL="APU2" BOARD_MODEL="APU2"
     ```
 
     Expected output:
-    - no DES - no deployment should be offered
-    - info on DES availailbity in the shop should be shown
+    + no DES - no deployment should be offered
+    + info on DES availailbity in the shop should be shown
 
 1. Initial deployment from legacy firmware (UEFI DES credentials)
 
@@ -244,8 +244,8 @@ export BOARD_VENDOR="PC Engines" SYSTEM_MODEL="APU2" BOARD_MODEL="APU2"
     ```
 
     Expected output:
-    - UEFI deployment should be offered
-    - info on DES availailbity in the shop should not be shown
+    + UEFI deployment should be offered
+    + info on DES availailbity in the shop should not be shown
 
 1. Initial deployment from legacy firmware (seabios DES credentials)
 
@@ -254,8 +254,8 @@ export BOARD_VENDOR="PC Engines" SYSTEM_MODEL="APU2" BOARD_MODEL="APU2"
     ```
 
     Expected output:
-    - Seabios deployment should be offered
-    - info on DES availailbity in the shop should not be shown
+    + Seabios deployment should be offered
+    + info on DES availailbity in the shop should not be shown
 
 1. Initial deployment from legacy firmware (correct DES credentials)
 
@@ -264,5 +264,5 @@ export BOARD_VENDOR="PC Engines" SYSTEM_MODEL="APU2" BOARD_MODEL="APU2"
     ```
 
     Expected output:
-    - seabios deployment should be offered
-    - info on DES availailbity in the shop should not be shown
+    + seabios deployment should be offered
+    + info on DES availailbity in the shop should not be shown
