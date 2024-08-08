@@ -7,6 +7,7 @@
 # shellcheck disable=SC2034
 # shellcheck source=../include/dts-environment.sh
 source $DTS_ENV
+# shellcheck source=../include/dts-subscription.sh
 source $DTS_SUBS
 
 ### Color functions:

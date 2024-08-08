@@ -4,7 +4,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+# shellcheck source=../include/dts-environment.sh
 source $DTS_ENV
+# shellcheck source=../include/dts-functions.sh
 source $DTS_FUNCS
 
 board_config() {
