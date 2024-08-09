@@ -818,11 +818,7 @@ board_config() {
       shopt -u nocasematch
       ;;
     "HARDKERNEL")
-      HAVE_EC="false"
-      NEED_EC_RESET="false"
       NEED_SMBIOS_MIGRATION="true"
-      NEED_BLOB_TRANSMISSION="false"
-      PROGRAMMER_BIOS="internal"
 
       case "$SYSTEM_MODEL" in
         "ODROID-H4")
@@ -837,9 +833,52 @@ board_config() {
       esac
 
       BIOS_LINK_DPP="$FW_STORE_URL_DPP/$DASHARO_REL_NAME/v$DASHARO_REL_VER_DPP/${DASHARO_REL_NAME}_v$DASHARO_REL_VER_DPP.rom"
-      BIOS_HASH_LINK_DPP="${BIOS_LINK_DPP}.sha256"
-      BIOS_SIGN_LINK_DPP="${BIOS_LINK_DPP}.sha256.sig"
       ;;
+    "Emulation")
+      case "$SYSTEM_MODEL" in
+        "QEMU x86 q35/ich9")
+          case "$BOARD_MODEL" in
+	    "QEMU x86 q35/ich9")
+	      # Update type:
+	      USE_CAPSULE_UPDATE="true"
+              # Download and versioning variables:
+              DASHARO_REL_NAME="qemu_q35"
+              DASHARO_REL_VER="v0.2.0"
+	      # Only community version is supported for now:
+              DASHARO_REL_VER_DPP=""
+              BIOS_LINK_COMM="${FW_STORE_URL}/${DASHARO_REL_NAME}/${DASHARO_REL_VER}/${DASHARO_REL_NAME}_${DASHARO_REL_VER}.rom"
+              BIOS_HASH_LINK_COMM="${BIOS_LINK_COMM}.sha256"
+              BIOS_SIGN_LINK_COMM="${BIOS_LINK_COMM}.sha256.sig"
+	      # Only community version is supported for now:
+              BIOS_LINK_DPP=""
+              BIOS_HASH_LINK_DPP=""
+              BIOS_SIGN_LINK_DPP=""
+
+	      # Platform configuration variables:
+              HAVE_HEADS_FW="false"
+              HAVE_EC="false"
+              NEED_EC_RESET="false"
+              # Migrations should be handled by capsule drivers. FIXME: this
+	      # should be rechecked and appropriate migration functions should
+	      # be modified so not to migrate the below regions if capsule
+	      # update is being used.
+              NEED_SMBIOS_MIGRATION="false"
+              NEED_SMMSTORE_MIGRATION="false"
+              NEED_BOOTSPLASH_MIGRATION="false"
+              NEED_BLOB_TRANSMISSION="false"
+              NEED_ROMHOLE_MIGRATION="false"
+	      # Capsule update is being used for this platform, no need to set
+	      # programmers for flashrom. TODO: maybe flashromm will be used for
+	      # backing up firmware to .rom files before applying the updates.
+              PROGRAMMER_BIOS=""
+              PROGRAMMER_EC=""
+              ;;
+            *)
+              print_error "Board model $BOARD_MODEL is currently not supported"
+              return 1
+              ;;
+          esac
+          ;;
     *)
       print_error "Board vendor: $SYSTEM_VENDOR is currently not supported"
       return 1
