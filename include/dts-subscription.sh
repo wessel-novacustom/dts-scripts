@@ -18,12 +18,12 @@ check_for_dasharo_firmware() {
   local _check_dwn_req_resp_heads="0"
   local _check_dwn_req_resp_seabios="0"
   local _check_logs_req_resp="0"
-  # Ignore "SC2154 (warning): DPP_credential_file is referenced but not assigned"
+  # Ignore "SC2154 (warning): DPP_CREDENTIAL_FILE is referenced but not assigned"
   # for external variable:
   # shellcheck disable=SC2154
-  CLOUDSEND_LOGS_URL=$(sed -n '1p' < ${DPP_credential_file} | tr -d '\n')
-  CLOUDSEND_DOWNLOAD_URL=$(sed -n '2p' < ${DPP_credential_file} | tr -d '\n')
-  CLOUDSEND_PASSWORD=$(sed -n '3p' < ${DPP_credential_file} | tr -d '\n')
+  CLOUDSEND_LOGS_URL=$(sed -n '1p' < ${DPP_CREDENTIAL_FILE} | tr -d '\n')
+  CLOUDSEND_DOWNLOAD_URL=$(sed -n '2p' < ${DPP_CREDENTIAL_FILE} | tr -d '\n')
+  CLOUDSEND_PASSWORD=$(sed -n '3p' < ${DPP_CREDENTIAL_FILE} | tr -d '\n')
   USER_DETAILS="$CLOUDSEND_DOWNLOAD_URL:$CLOUDSEND_PASSWORD"
 
   # Check the board information:
@@ -80,9 +80,9 @@ get_dpp_creds() {
   # Export DPP creds to a file for future use. Currently these are being used
   # for both: MinIO (and its mc CLI) and cloudsend (deprecated, all DPP
   # sibscribtions will be megrated to MinIO):
-  echo ${TMP_CLOUDSEND_LOGS_URL} > ${DPP_credential_file}
-  echo ${TMP_CLOUDSEND_DOWNLOAD_URL} >> ${DPP_credential_file}
-  echo ${TMP_CLOUDSEND_PASSWORD} >> ${DPP_credential_file}
+  echo ${TMP_CLOUDSEND_LOGS_URL} > ${DPP_CREDENTIAL_FILE}
+  echo ${TMP_CLOUDSEND_DOWNLOAD_URL} >> ${DPP_CREDENTIAL_FILE}
+  echo ${TMP_CLOUDSEND_PASSWORD} >> ${DPP_CREDENTIAL_FILE}
 
   print_ok "Dasharo DPP credentials have been saved"
 }
@@ -116,10 +116,10 @@ subscription_routine(){
 
   # Each time the main menu is rendered, check for DPP credentials and export
   # them, if file exists
-  if [ -e "${DPP_credential_file}" ]; then
-    CLOUDSEND_LOGS_URL=$(sed -n '1p' < ${DPP_credential_file} | tr -d '\n')
-    CLOUDSEND_DOWNLOAD_URL=$(sed -n '2p' < ${DPP_credential_file} | tr -d '\n')
-    CLOUDSEND_PASSWORD=$(sed -n '3p' < ${DPP_credential_file} | tr -d '\n')
+  if [ -e "${DPP_CREDENTIAL_FILE}" ]; then
+    CLOUDSEND_LOGS_URL=$(sed -n '1p' < ${DPP_CREDENTIAL_FILE} | tr -d '\n')
+    CLOUDSEND_DOWNLOAD_URL=$(sed -n '2p' < ${DPP_CREDENTIAL_FILE} | tr -d '\n')
+    CLOUDSEND_PASSWORD=$(sed -n '3p' < ${DPP_CREDENTIAL_FILE} | tr -d '\n')
     export USER_DETAILS="$CLOUDSEND_DOWNLOAD_URL:$CLOUDSEND_PASSWORD"
     export DPP_IS_LOGGED="true"
   else
