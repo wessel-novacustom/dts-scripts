@@ -21,17 +21,17 @@ ask_for_version() {
     echo "Please, select Dasharo firmware version to install"
 
     # -v: True if the shell variable varname is set (has been assigned a value).
-    if [ -v BIOS_HASH_LINK_COMM ]; then
+    if [ -v BIOS_LINK_COMM ]; then
       echo "  c) Community version"
     fi
-    if [ -v BIOS_HASH_LINK_DPP ]; then
+    if [ -v BIOS_LINK_DPP ]; then
       if [ -v DPP_IS_LOGGED ]; then
         echo "  d) DPP version (coreboot + UEFI)"
       else
         echo "  DPP version (coreboot + UEFI) available, if you are interested, please visit https://shop.3mdeb.com/product-category/dasharo-entry-subscription/"
       fi
     fi
-    if [ -v BIOS_HASH_LINK_DPP_SEABIOS ]; then
+    if [ -v BIOS_LINK_DPP_SEABIOS ]; then
       if [ -v DPP_IS_LOGGED ]; then
         echo "  s) DPP version (coreboot + SeaBIOS)"
       else
@@ -45,11 +45,11 @@ ask_for_version() {
 
     case ${OPTION} in
       c|C|comm|community|COMMUNITY|COMM|Community)
-        if [ -v BIOS_HASH_LINK_COMM ]; then
+        if [ -v BIOS_LINK_COMM ]; then
           BIOS_LINK=$BIOS_LINK_COMM
           BIOS_HASH_LINK=$BIOS_HASH_LINK_COMM
           BIOS_SIGN_LINK=$BIOS_SIGN_LINK_COMM
-          if [ -v EC_HASH_LINK_COMM ]; then
+          if [ -v EC_LINK_COMM ]; then
             EC_LINK=$EC_LINK_COMM
             EC_HASH_LINK=$EC_HASH_LINK_COMM
             EC_SIGN_LINK=$EC_SIGN_LINK_COMM
@@ -61,11 +61,11 @@ ask_for_version() {
         fi
         ;;
       d|D|dpp|DPP|Dpp)
-        if [ -v BIOS_HASH_LINK_DPP ]; then
+        if [ -v BIOS_LINK_DPP ]; then
           BIOS_LINK=$BIOS_LINK_DPP
           BIOS_HASH_LINK=$BIOS_HASH_LINK_DPP
           BIOS_SIGN_LINK=$BIOS_SIGN_LINK_DPP
-          if [ -v EC_HASH_LINK_DPP ]; then
+          if [ -v EC_LINK_DPP ]; then
             EC_LINK=$EC_LINK_DPP
             EC_HASH_LINK=$EC_HASH_LINK_DPP
             # shellcheck disable=SC2034
@@ -78,7 +78,7 @@ ask_for_version() {
         fi
         ;;
       s|S|sea|seabios|SeaBIOS)
-        if [ -v BIOS_HASH_LINK_DPP_SEABIOS ]; then
+        if [ -v BIOS_LINK_DPP_SEABIOS ]; then
           BIOS_LINK=$BIOS_LINK_DPP_SEABIOS
           BIOS_HASH_LINK=$BIOS_HASH_LINK_DPP_SEABIOS
           BIOS_SIGN_LINK=$BIOS_SIGN_LINK_DPP_SEABIOS
@@ -132,14 +132,14 @@ display_flashing_warning() {
 
   while : ; do
     echo "Following firmware will be used to install Dasharo"
-    if [ -v BIOS_HASH_LINK ]; then
+    if [ -v BIOS_LINK ]; then
       local _bios_hash
       _bios_hash="$(cat $BIOS_HASH_FILE | cut -d ' ' -f 1)"
       echo "Dasharo BIOS firmware:"
       echo "  - link: $BIOS_LINK"
       echo "  - hash: $_bios_hash"
     fi
-    if [ -v EC_HASH_LINK ]; then
+    if [ -v EC_LINK ]; then
       local _ec_hash
       _ec_hash="$(cat $EC_HASH_FILE | cut -d ' ' -f 1)"
       echo "Dasharo EC firmware:"
