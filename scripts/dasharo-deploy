@@ -21,18 +21,18 @@ ask_for_version() {
     echo "Please, select Dasharo firmware version to install"
 
     # -v: True if the shell variable varname is set (has been assigned a value).
-    if [ -v BIOS_LINK_COMM ]; then
+    if [ -n "$BIOS_LINK_COMM" ]; then
       echo "  c) Community version"
     fi
-    if [ -v BIOS_LINK_DPP ]; then
-      if [ -v DPP_IS_LOGGED ]; then
+    if [ -n "$BIOS_LINK_DPP" ]; then
+      if [ -n "$DPP_IS_LOGGED" ]; then
         echo "  d) DPP version (coreboot + UEFI)"
       else
         echo "  DPP version (coreboot + UEFI) available, if you are interested, please visit https://shop.3mdeb.com/product-category/dasharo-entry-subscription/"
       fi
     fi
-    if [ -v BIOS_LINK_DPP_SEABIOS ]; then
-      if [ -v DPP_IS_LOGGED ]; then
+    if [ -n "$BIOS_LINK_DPP_SEABIOS" ]; then
+      if [ -n "$DPP_IS_LOGGED" ]; then
         echo "  s) DPP version (coreboot + SeaBIOS)"
       else
         echo "  DPP version (coreboot + SeaBIOS) available, if you are interested, please visit https://shop.3mdeb.com/product-category/dasharo-entry-subscription/"
@@ -45,11 +45,11 @@ ask_for_version() {
 
     case ${OPTION} in
       c|C|comm|community|COMMUNITY|COMM|Community)
-        if [ -v BIOS_LINK_COMM ]; then
+        if [ -n "$BIOS_LINK_COMM" ]; then
           BIOS_LINK=$BIOS_LINK_COMM
           BIOS_HASH_LINK=$BIOS_HASH_LINK_COMM
           BIOS_SIGN_LINK=$BIOS_SIGN_LINK_COMM
-          if [ -v EC_LINK_COMM ]; then
+          if [ -n "$EC_LINK_COMM" ]; then
             EC_LINK=$EC_LINK_COMM
             EC_HASH_LINK=$EC_HASH_LINK_COMM
             EC_SIGN_LINK=$EC_SIGN_LINK_COMM
@@ -61,11 +61,11 @@ ask_for_version() {
         fi
         ;;
       d|D|dpp|DPP|Dpp)
-        if [ -v BIOS_LINK_DPP ]; then
+        if [ -n "$BIOS_LINK_DPP" ]; then
           BIOS_LINK=$BIOS_LINK_DPP
           BIOS_HASH_LINK=$BIOS_HASH_LINK_DPP
           BIOS_SIGN_LINK=$BIOS_SIGN_LINK_DPP
-          if [ -v EC_LINK_DPP ]; then
+          if [ -n "$EC_LINK_DPP" ]; then
             EC_LINK=$EC_LINK_DPP
             EC_HASH_LINK=$EC_HASH_LINK_DPP
             # shellcheck disable=SC2034
@@ -78,7 +78,7 @@ ask_for_version() {
         fi
         ;;
       s|S|sea|seabios|SeaBIOS)
-        if [ -v BIOS_LINK_DPP_SEABIOS ]; then
+        if [ -n "$BIOS_LINK_DPP_SEABIOS" ]; then
           BIOS_LINK=$BIOS_LINK_DPP_SEABIOS
           BIOS_HASH_LINK=$BIOS_HASH_LINK_DPP_SEABIOS
           BIOS_SIGN_LINK=$BIOS_SIGN_LINK_DPP_SEABIOS
@@ -104,13 +104,13 @@ display_flashing_warning() {
     print_warning "Please verify detected hardware!"
     echo
 
-    if [ -v SYSTEM_VENDOR ]; then
+    if [ -n "$SYSTEM_VENDOR" ]; then
       echo "Board vendor: $SYSTEM_VENDOR"
     fi
-    if [ -v SYSTEM_MODEL ]; then
+    if [ -n "$SYSTEM_MODEL" ]; then
       echo "System model: $SYSTEM_MODEL"
     fi
-    if [ -v BOARD_MODEL ]; then
+    if [ -n "$BOARD_MODEL" ]; then
       echo "Board model: $BOARD_MODEL"
     fi
     echo
@@ -132,14 +132,14 @@ display_flashing_warning() {
 
   while : ; do
     echo "Following firmware will be used to install Dasharo"
-    if [ -v BIOS_LINK ]; then
+    if [ -n "$BIOS_LINK" ]; then
       local _bios_hash
       _bios_hash="$(cat $BIOS_HASH_FILE | cut -d ' ' -f 1)"
       echo "Dasharo BIOS firmware:"
       echo "  - link: $BIOS_LINK"
       echo "  - hash: $_bios_hash"
     fi
-    if [ -v EC_LINK ]; then
+    if [ -n "$EC_LINK" ]; then
       local _ec_hash
       _ec_hash="$(cat $EC_HASH_FILE | cut -d ' ' -f 1)"
       echo "Dasharo EC firmware:"
@@ -507,8 +507,8 @@ update() {
 
   echo "Checking for the latest Dasharo update available..."
   echo "Current Dasharo version: $DASHARO_VERSION"
-  if [ -v DPP_IS_LOGGED ]; then
-    if [ -v DASHARO_REL_VER_DPP ]; then
+  if [ -n "$DPP_IS_LOGGED" ]; then
+    if [ -n "$DASHARO_REL_VER_DPP" ]; then
       if [ "$DASHARO_FLAVOR" != "Dasharo (coreboot+heads)" ]; then
         echo "Latest available Dasharo version: $DASHARO_REL_VER_DPP"
       fi
@@ -550,7 +550,7 @@ update() {
       fi
       UPDATE_VERSION=$DASHARO_REL_VER
     fi
-    if [ -v HAVE_HEADS_FW ] && [ "$DASHARO_FLAVOR" != "Dasharo (coreboot+heads)" ]; then
+    if [ -n "$HAVE_HEADS_FW" ] && [ "$DASHARO_FLAVOR" != "Dasharo (coreboot+heads)" ]; then
       # Check if given DPP credentials give access to heads, if not,
       # then it means DPP is for regular releases
       curl -sfI -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$HEADS_LINK_DPP" -o /dev/null
@@ -564,13 +564,13 @@ update() {
         print_ok "Dasharo Heads firmware version is available and your subscription"
         print_ok "gives you access to this firmware."
       fi
-    elif [ -v HAVE_HEADS_FW ] && [ "$DASHARO_FLAVOR" == "Dasharo (coreboot+heads)" ]; then
+    elif [ -n "$HAVE_HEADS_FW" ] && [ "$DASHARO_FLAVOR" == "Dasharo (coreboot+heads)" ]; then
       # Set the switch flag to offer switch back
       echo "Latest available Dasharo version: $HEADS_REL_VER_DPP"
       _can_switch_to_heads="true"
     fi
   else
-    if [ -v DASHARO_REL_VER_DPP ]; then
+    if [ -n "$DASHARO_REL_VER_DPP" ]; then
       print_green "DPP version (coreboot + UEFI) available, if you are interested"
       print_ok "please visit https://shop.3mdeb.com/product-category/dasharo-entry-subscription/"
     fi
@@ -588,11 +588,11 @@ update() {
       EC_LINK=$EC_LINK_COMM
     fi
     UPDATE_VERSION=$DASHARO_REL_VER
-    if [ -v HAVE_HEADS_FW ] && [ "$DASHARO_FLAVOR" != "Dasharo (coreboot+heads)" ]; then
+    if [ -n "$HAVE_HEADS_FW" ] && [ "$DASHARO_FLAVOR" != "Dasharo (coreboot+heads)" ]; then
       print_ok "Dasharo heads firmware version is available. If you are interested,"
       print_ok "please provide your subscription credentials in the main DTS menu"
       print_ok "and select 'Update Dasharo firmware' again to check if you are eligible."
-    elif [ -v HAVE_HEADS_FW ] && [ "$DASHARO_FLAVOR" == "Dasharo (coreboot+heads)" ]; then
+    elif [ -n "$HAVE_HEADS_FW" ] && [ "$DASHARO_FLAVOR" == "Dasharo (coreboot+heads)" ]; then
       # Set the switch flag to offer switch back
       _can_switch_to_heads="true"
     fi
@@ -670,7 +670,7 @@ update() {
 
   # FLASHROM_ADD_OPT_UPDATE_OVERRIDE takes priority over auto-detected update params.
   # It set only by platform-specific and firmware version-specific conditions
-  if [ -v FLASHROM_ADD_OPT_UPDATE_OVERRIDE ]; then
+  if [ -n "$FLASHROM_ADD_OPT_UPDATE_OVERRIDE" ]; then
     # To standardize the operation of the FLASHROM_ADD_OPT_UPDATE_OVERRIDE flag,
     # by default it contains only the bios section, below we verify the
     # downloaded binary and add more sections when they were detected after
@@ -897,7 +897,7 @@ fi
 
 board_config
 check_flash_chip
-if [ -v PLATFORM_SIGN_KEY ]; then
+if [ -n "$PLATFORM_SIGN_KEY" ]; then
     get_signing_keys
 fi
 

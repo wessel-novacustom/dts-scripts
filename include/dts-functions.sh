@@ -770,7 +770,7 @@ compare_versions() {
 }
 
 download_bios() {
-  if [ -v BIOS_LINK_COMM ] && [ ${BIOS_LINK} == ${BIOS_LINK_COMM} ]; then
+  if [ -n "$BIOS_LINK_COMM" ] && [ ${BIOS_LINK} == ${BIOS_LINK_COMM} ]; then
     curl -s -L -f "$BIOS_LINK" -o $BIOS_UPDATE_FILE
     error_check "Cannot access $FW_STORE_URL while downloading binary. Please
    check your internet connection"
@@ -795,7 +795,7 @@ download_bios() {
 }
 
 download_ec() {
-  if [ -v BIOS_LINK_COMM ] && [ ${BIOS_LINK} == ${BIOS_LINK_COMM} ]; then
+  if [ -n "$BIOS_LINK_COMM" ] && [ ${BIOS_LINK} == ${BIOS_LINK_COMM} ]; then
     if [ "$HAVE_EC" == "true" ]; then
       curl -s -L -f "$EC_LINK" -o "$EC_UPDATE_FILE"
       error_check "Cannot access $FW_STORE_URL while downloading binary. Please
@@ -809,7 +809,7 @@ download_ec() {
     fi
   else
     if [ "$HAVE_EC" == "true" ]; then
-      if [ -v EC_LINK_COMM ] && [ ${EC_LINK} == ${EC_LINK_COMM} ]; then
+      if [ -n "$EC_LINK_COMM" ] && [ ${EC_LINK} == ${EC_LINK_COMM} ]; then
         curl -s -L -f "$EC_LINK" -o "$EC_UPDATE_FILE"
         error_check "Cannot access $FW_STORE_URL while downloading binary. Please
           check your internet connection"
@@ -888,7 +888,7 @@ verify_artifacts() {
   sha256sum --check <(echo "$(cat $_hash_file | cut -d ' ' -f 1)" $_update_file) >> $ERR_LOG_FILE 2>&1
   error_check "Failed to verify $_name firmware checksum"
   print_ok "Verified."
-  if [ -v PLATFORM_SIGN_KEY ]; then
+  if [ -n "$PLATFORM_SIGN_KEY" ]; then
     echo -n "Checking $_name firmware signature... "
     _sig_result="$(cat $_hash_file | gpg --verify $_sign_file - >> $ERR_LOG_FILE 2>&1)"
     error_check "Failed to verify $_name firmware signature.$'\n'$_sig_result"
@@ -1138,7 +1138,7 @@ handle_fw_switching() {
           ;;
       esac
     done
-  elif [ -v DPP_IS_LOGGED ] && [ -v HEADS_LINK_DPP ]; then
+  elif [ -n "$DPP_IS_LOGGED" ] && [ -n "$HEADS_LINK_DPP" ]; then
     local _heads_dpp=1
     curl -sfI -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$HEADS_LINK_DPP" -o /dev/null
     _heads_dpp=$?
@@ -1182,7 +1182,7 @@ handle_fw_switching() {
         esac
       done
     fi
-  elif [ ! -v DPP_IS_LOGGED ] && [ "$DASHARO_FLAVOR" == "Dasharo (coreboot+heads)" ]; then
+  elif [ -z "$DPP_IS_LOGGED" ] && [ "$DASHARO_FLAVOR" == "Dasharo (coreboot+heads)" ]; then
     # Not logged with DPP and we are on heads, offer switch back
     compare_versions $DASHARO_VERSION $HEADS_REL_VER_DPP
     if [ $? -eq 1 ]; then

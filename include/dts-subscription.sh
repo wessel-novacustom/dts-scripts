@@ -33,20 +33,20 @@ check_for_dasharo_firmware() {
   TEST_LOGS_URL="https://cloud.3mdeb.com/index.php/s/${CLOUDSEND_LOGS_URL}/authenticate/showShare"
 
   # If board_config function has not set firmware links - exit with warning:
-  if [ ! -v BIOS_LINK_DPP ] && [ ! -v HEADS_LINK_DPP ] && [ ! -v BIOS_LINK_DPP_SEABIOS ]; then
+  if [ -z "$BIOS_LINK_DPP" ] && [ -z "$HEADS_LINK_DPP" ] && [ -z "$BIOS_LINK_DPP_SEABIOS" ] && [ -z "$BIOS_LINK_DPP_CAP" ]; then
     print_warning "There is no Dasharo Firmware available for your platform."
     return 1
   fi
 
   # Check for firmware binaries:
   if wait_for_network_connection; then
-    if [ -v BIOS_LINK_DPP ]; then
+    if [ -n "$BIOS_LINK_DPP" ]; then
       _check_dwn_req_resp_uefi=$(curl -L -I -s -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_LINK_DPP" -o /dev/null -w "%{http_code}")
     fi
-    if [ -v HEADS_LINK_DPP ]; then
+    if [ -n "$HEADS_LINK_DPP" ]; then
       _check_dwn_req_resp_heads=$(curl -L -I -s -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$HEADS_LINK_DPP" -o /dev/null -w "%{http_code}")
     fi
-    if [ -v BIOS_LINK_DPP_SEABIOS ]; then
+    if [ -n "$BIOS_LINK_DPP_SEABIOS" ]; then
       _check_dwn_req_resp_seabios=$(curl -L -I -s -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_LINK_DPP_SEABIOS" -o /dev/null -w "%{http_code}")
     fi
 
