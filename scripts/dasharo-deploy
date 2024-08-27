@@ -486,6 +486,7 @@ install() {
   if [ "$NEED_EC_RESET" = "true" ]; then
     it5570_shutdown
   else
+    send_dts_logs
     ${CMD_REBOOT}
   fi
 }
@@ -755,6 +756,7 @@ update() {
     sleep 0.5
     echo "Rebooting"
     sleep 1
+    send_dts_logs
     ${CMD_REBOOT}
   fi
 }

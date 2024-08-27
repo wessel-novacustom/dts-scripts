@@ -37,6 +37,10 @@ SHELL_OPT_UP="S"
 SHELL_OPT_LOW="$(echo $SHELL_OPT_UP | awk '{print tolower($0)}')"
 SSH_OPT_UP="K"
 SSH_OPT_LOW="$(echo $SSH_OPT_UP | awk '{print tolower($0)}')"
+SEND_LOGS_OPT="L"
+SEND_LOGS_OPT_LOW="$(echo $SEND_LOGS_OPT | awk '{print tolower($0)}')"
+VERBOSE_OPT="V"
+VERBOSE_OPT_LOW="$(echo $VERBOSE_OPT | awk '{print tolower($0)}')"
 
 SYSTEM_VENDOR="${SYSTEM_VENDOR:-$(dmidecode -s system-manufacturer)}"
 SYSTEM_MODEL="${SYSTEM_MODEL:-$(dmidecode -s system-product-name)}"
@@ -116,6 +120,9 @@ CLOUD_REQUEST="X-Requested-With: XMLHttpRequest"
 BASE_CLOUDSEND_LOGS_URL="39d4biH4SkXD8Zm"
 BASE_CLOUDSEND_PASSWORD="1{\[\k6G"
 DEPLOY_REPORT="false"
+
+BASE_DTS_LOGS_URL="xjBCYbzFdyq3WLt"
+DTS_LOGS_PASSWORD="/w\J&<y1"
 
 # set custom localization for PGP keys
 if [ -d /home/root/.dasharo-gnupg ]; then

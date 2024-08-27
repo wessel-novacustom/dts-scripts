@@ -1572,6 +1572,16 @@ show_footer(){
   else
     echo -ne "${RED}${SSH_OPT_UP}${NORMAL} to launch SSH server  ${NORMAL}"
   fi
+  if [ "${SEND_LOGS_ACTIVE}" == "true" ]; then
+    echo -ne "${RED}${SEND_LOGS_OPT}${NORMAL} to disable sending DTS logs ${NORMAL}"
+  else
+    echo -ne "${RED}${SEND_LOGS_OPT}${NORMAL} to enable sending DTS logs ${NORMAL}"
+  fi
+  if [ "${VERBOSE_ACTIVE}" == "true" ]; then
+    echo -ne "${RED}${VERBOSE_OPT}${NORMAL} to disable verbose mode ${NORMAL}"
+  else
+    echo -ne "${RED}${VERBOSE_OPT}${NORMAL} to enable verbose mode ${NORMAL}"
+  fi
   echo -ne "${YELLOW}\nEnter an option:${NORMAL}"
 }
 
@@ -1599,6 +1609,9 @@ footer_options(){
     "${SHELL_OPT_UP}" | "${SHELL_OPT_LOW}")
       echo "Entering shell, to leave type exit and press Enter or press LCtrl+D"
       echo ""
+      send_dts_logs
+      set +x
+      unset VERBOSE_ACTIVE
       ${CMD_SHELL}
 
       # If in submenu before going to shell - return to main menu after exiting
@@ -1606,12 +1619,46 @@ footer_options(){
       unset DPP_SUBMENU_ACTIVE
       ;;
     "${POWEROFF_OPT_UP}" | "${POWEROFF_OPT_LOW}")
+      send_dts_logs
       ${CMD_POWEROFF}
       ;;
     "${REBOOT_OPT_UP}" | "${REBOOT_OPT_LOW}")
+      send_dts_logs
       ${CMD_REBOOT}
+      ;;
+    "${SEND_LOGS_OPT}" | "${SEND_LOGS_OPT_LOW}")
+      if [ "${SEND_LOGS_ACTIVE}" == "true" ]; then
+        unset SEND_LOGS_ACTIVE
+      else
+        SEND_LOGS_ACTIVE="true"
+      fi
+      ;;
+    "${VERBOSE_OPT}" | "${VERBOSE_OPT_LOW}")
+      if [ "${VERBOSE_ACTIVE}" == "true" ]; then
+        unset VERBOSE_ACTIVE
+        set +x
+      else
+        VERBOSE_ACTIVE="true"
+        set -x
+      fi
       ;;
   esac
 
   return 1
+}
+
+send_dts_logs(){
+  if [ "${SEND_LOGS_ACTIVE}" == "true" ]; then
+    FULL_DTS_URL="https://cloud.3mdeb.com/index.php/s/"${BASE_DTS_LOGS_URL}
+    CLOUDSEND_PASSWORD=${DTS_LOGS_PASSWORD} cloudsend.sh \
+      "-e" \
+      "${DTS_LOG_FILE}" \
+      "${FULL_DTS_URL}" \
+
+    if [ "$?" -ne "0" ]; then
+      echo "Failed to send logs to the cloud"
+      return 1
+    fi
+    unset SEND_LOGS_ACTIVE
+  fi
 }
