@@ -611,7 +611,7 @@ board_config() {
       ;;
     "Dell Inc.")
       DASHARO_REL_NAME="dell_optiplex_9010"
-      DASHARO_REL_VER="0.1.0"
+      DASHARO_REL_VER="0.1.0-rc1"
       BIOS_LINK_COMM="$FW_STORE_URL/$DASHARO_REL_NAME/v$DASHARO_REL_VER.rom"
       HAVE_EC="false"
       NEED_EC_RESET="false"
