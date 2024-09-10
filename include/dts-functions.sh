@@ -861,40 +861,57 @@ get_signing_keys() {
 }
 
 verify_artifacts() {
-  local _type="$1"
+# This function checks downloaded files, the files that are being downloaded
+# should have hashes provided on the server too. The hashes will ben downloaded
+# and the binaries will be verified upon them.
+#
+# In case of .rom files it will be enough but capsules have additional
+# protection layer built in, the binaries they provide will be verified by
+# drivers, so no need to implement it here.
   local _update_file=""
   local _hash_file=""
   local _sign_file=""
   local _name=""
   local _sig_result=""
 
-  case ${_type} in
-    ec)
-    _update_file=$EC_UPDATE_FILE
-    _hash_file=$EC_HASH_FILE
-    _sign_file=$EC_SIGN_FILE
-    _name="Dasharo EC"
-    ;;
-    bios)
-    _update_file=$BIOS_UPDATE_FILE
-    _hash_file=$BIOS_HASH_FILE
-    _sign_file=$BIOS_SIGN_FILE
-    _name="Dasharo"
-    ;;
-    *)
-    ;;
-  esac
-  echo -n "Checking $_name firmware checksum... "
-  sha256sum --check <(echo "$(cat $_hash_file | cut -d ' ' -f 1)" $_update_file) >> $ERR_LOG_FILE 2>&1
-  error_check "Failed to verify $_name firmware checksum"
-  print_ok "Verified."
-  if [ -n "$PLATFORM_SIGN_KEY" ]; then
-    echo -n "Checking $_name firmware signature... "
-    _sig_result="$(cat $_hash_file | gpg --verify $_sign_file - >> $ERR_LOG_FILE 2>&1)"
-    error_check "Failed to verify $_name firmware signature.$'\n'$_sig_result"
+  while [[ $# -gt 0 ]]; do
+    local _type="$1"
+
+    case $_type in
+      ec)
+        _update_file=$EC_UPDATE_FILE
+        _hash_file=$EC_HASH_FILE
+        _sign_file=$EC_SIGN_FILE
+        _name="Dasharo EC"
+	shift
+        ;;
+      bios)
+        _update_file=$BIOS_UPDATE_FILE
+        _hash_file=$BIOS_HASH_FILE
+        _sign_file=$BIOS_SIGN_FILE
+        _name="Dasharo"
+	shift
+        ;;
+      *)
+        error_exit "Unknown artifact type: $_type"
+        ;;
+    esac
+
+    echo -n "Checking $_name firmware checksum... "
+    sha256sum --check <(echo "$(cat $_hash_file | cut -d ' ' -f 1)" $_update_file) >> $ERR_LOG_FILE 2>&1
+    error_check "Failed to verify $_name firmware checksum"
     print_ok "Verified."
-  fi
-  echo "$_sig_result"
+
+    if [ -n "$PLATFORM_SIGN_KEY" ]; then
+      echo -n "Checking $_name firmware signature... "
+      _sig_result="$(cat $_hash_file | gpg --verify $_sign_file - >> $ERR_LOG_FILE 2>&1)"
+      error_check "Failed to verify $_name firmware signature.$'\n'$_sig_result"
+      print_ok "Verified."
+    fi
+    echo "$_sig_result"
+  done
+
+  return 0
 }
 
 check_intel_regions() {
