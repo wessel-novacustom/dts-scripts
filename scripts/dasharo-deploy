@@ -149,7 +149,11 @@ ask_for_version() {
   done
 }
 
-display_flashing_warning() {
+display_warning() {
+# This function shows user some inf. about platform and binaries and asks if the
+# deployment process should be continued.
+  local _option
+
   while : ; do
     echo
     print_warning "Please verify detected hardware!"
@@ -164,15 +168,16 @@ display_flashing_warning() {
     if [ -n "$BOARD_MODEL" ]; then
       echo "Board model: $BOARD_MODEL"
     fi
+
     echo
-    read -r -p "Does it match your actual specification? (Y|n) " OPTION
+    read -r -p "Does it match your actual specification? (Y|n) " _option
     echo
 
-    case ${OPTION} in
+    case ${_option} in
       ""|yes|y|Y|Yes|YES)
         break
         ;;
-      n|N)
+      n|N|no|NO|No)
         echo "Returning to main menu..."
         exit 0
         ;;
@@ -182,7 +187,8 @@ display_flashing_warning() {
   done
 
   while : ; do
-    echo "Following firmware will be used to install Dasharo"
+    echo "Following firmware will be used to deploy Dasharo:"
+
     if [ -n "$BIOS_LINK" ]; then
       local _bios_hash
       _bios_hash="$(cat $BIOS_HASH_FILE | cut -d ' ' -f 1)"
@@ -190,6 +196,7 @@ display_flashing_warning() {
       echo "  - link: $BIOS_LINK"
       echo "  - hash: $_bios_hash"
     fi
+
     if [ -n "$EC_LINK" ]; then
       local _ec_hash
       _ec_hash="$(cat $EC_HASH_FILE | cut -d ' ' -f 1)"
@@ -197,29 +204,27 @@ display_flashing_warning() {
       echo "  - link: $EC_LINK"
       echo "  - hash: $_ec_hash"
     fi
+
     echo
     echo "You can learn more about this release on: https://docs.dasharo.com/"
 
-    if check_if_dasharo; then
-        echo
-        read -r -p "Do you want to update Dasharo firmware on your hardware? (Y|n) " OPTION
-        echo
-    else
-        echo
-        if [ "$CAN_INSTALL_BIOS" == "false" ] && [ "$SYSTEM_VENDOR" == "Notebook" ]; then
-          echo "Notebook supports installation of only EC firmware!"
-          echo "Dasharo BIOS will have to be flashed manually. More on:"
-          echo "https://docs.dasharo.com/unified/novacustom/initial-deployment/"
-        fi
-        read -r -p "Do you want to install Dasharo firmware on your hardware? (Y|n) " OPTION
-        echo
+    if ! check_if_dasharo && \
+	    [ "$CAN_INSTALL_BIOS" = "false" ] && \
+	    [ "$HAVE_EC" = "true" ]; then
+      print_warning "$SYSTEM_VENDOR $SYSTEM_MODEL supports only EC firmware deployment!"
+      print_warning "Dasharo BIOS will have to be flashed manually. More on:"
+      print_warning "https://docs.dasharo.com/unified/novacustom/initial-deployment/"
     fi
 
-    case ${OPTION} in
+    echo
+    read -r -p "Do you want to deploy this Dasharo Firmware on your platform (Y|n) " _option
+    echo
+
+    case ${_option} in
       ""|yes|y|Y|Yes|YES)
         break
         ;;
-      n|N)
+      n|N|no|NO|No)
         echo "Returning to main menu..."
         exit 0
         ;;
@@ -227,6 +232,8 @@ display_flashing_warning() {
         ;;
     esac
   done
+
+  return 0
 }
 
 backup() {
@@ -450,10 +457,10 @@ install() {
   if [ "$CAN_INSTALL_BIOS" == "false" ]; then
     download_ec
     unset BIOS_HASH_LINK
-    display_flashing_warning
+    display_warning
   else
     download_artifacts
-    display_flashing_warning
+    display_warning
     check_flash_lock
     verify_artifacts bios
 
@@ -462,6 +469,9 @@ install() {
     check_if_me_disabled
     set_intel_regions_update_params "-N --ifd -i bios"
   fi
+
+    # Ask user for confirmation:
+  display_warning
 
   if [ "$HAVE_EC" == "true" ]; then
     echo "Checking for Open Source Embedded Controller firmware"
@@ -686,7 +696,7 @@ update() {
 
   download_artifacts
   if [ ! "$FUM" == "fum" ]; then
-    display_flashing_warning
+    display_warning
   fi
   check_flash_lock
 
