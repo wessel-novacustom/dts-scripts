@@ -15,6 +15,57 @@ source $DTS_FUNCS
 CMD="$1"
 FUM="$2"
 
+check_for_firmware_access() {
+# DPP credentials are being provided outside of this script, this script only
+# has to check whether the credentials give access to appropriate firmware.
+
+  local _firm_ver_to_check
+  _firm_ver_to_check=$1
+
+  case ${_firm_ver_to_check} in
+    community)
+      # Always available.
+      ;;
+    community_cap)
+      # Always available.
+      ;;
+    dpp)
+      # This firmware type require user to provide creds:
+      [ "$DPP_IS_LOGGED" == "true" ] || return 1
+
+      curl -sfI -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_LINK_DPP" -o /dev/null
+
+      [ $? -ne 0 ] && return 1
+      ;;
+    dpp_cap)
+      # This firmware type require user to provide creds:
+      [ "$DPP_IS_LOGGED" == "true" ] || return 1
+
+      curl -sfI -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_LINK_DPP_CAP" -o /dev/null
+
+      [ $? -ne 0 ] && return 1
+      ;;
+    seabios)
+      # This firmware type require user to provide creds:
+      [ "$DPP_IS_LOGGED" == "true" ] || return 1
+
+      curl -sfI -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_LINK_DPP_SEABIOS" -o /dev/null
+
+      [ $? -ne 0 ] && return 1
+      ;;
+    heads)
+      # This firmware type require user to provide creds:
+      [ "$DPP_IS_LOGGED" == "true" ] || return 1
+
+      curl -sfI -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$HEADS_LINK_DPP" -o /dev/null
+
+      [ $? -ne 0 ] && return 1
+      ;;
+  esac
+
+  return 0
+}
+
 ask_for_version() {
   while : ; do
     echo
