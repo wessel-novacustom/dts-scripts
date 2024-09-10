@@ -12,12 +12,18 @@ source $DTS_FUNCS
 [ -z "$SYSTEM_VENDOR" ] && error_exit "SYSTEM_VENDOR not given"
 [ -z "$SYSTEM_MODEL" ] && error_exit "SYSTEM_MODEL not given"
 
+# Variables used in this script:
+# Currently following firmware versions are available: community, dpp, seabios,
+# and heads:
+declare FIRMWARE_VERSION
+declare CAN_SWITCH_TO_HEADS
 CMD="$1"
 FUM="$2"
 
 check_for_firmware_access() {
 # DPP credentials are being provided outside of this script, this script only
-# has to check whether the credentials give access to appropriate firmware.
+# has to check whether the credentials give access to appropriate firmware. The
+# appropriate firmware are defined by FIRMWARE_VERSION variable.
 
   local _firm_ver_to_check
   _firm_ver_to_check=$1
@@ -67,78 +73,81 @@ check_for_firmware_access() {
 }
 
 ask_for_version() {
+# Available firmware versions are defined by FIRMWARE_VERSION variable
+  local _option
+  local _might_be_comm
+  local _might_be_dpp
+  local _might_be_seabios
+
   while : ; do
     echo
-    echo "Please, select Dasharo firmware version to install"
+    echo "Please, select Dasharo firmware version to install:"
 
-    # -v: True if the shell variable varname is set (has been assigned a value).
+    # Here we check if user has access to a certain version of Dasharo Firmware.
+    # The check consists of two stages:
+    # * does user platform support the fimware - BIOS_LINK_* variables are being
+    # checked;
+    # * does user has access rights to the blobs of the supported fimware - a
+    # call to the server with binaries is done, to check if user can download
+    # the blobs.
     if [ -n "$BIOS_LINK_COMM" ]; then
-      echo "  c) Community version"
+      if check_for_firmware_access community; then
+        echo "  c) Community version"
+        _might_be_comm="true"
+      fi
     fi
+
     if [ -n "$BIOS_LINK_DPP" ]; then
-      if [ -n "$DPP_IS_LOGGED" ]; then
+      if check_for_firmware_access dpp; then
         echo "  d) DPP version (coreboot + UEFI)"
+	_might_be_dpp="true"
       else
-        echo "  DPP version (coreboot + UEFI) available, if you are interested, please visit https://shop.3mdeb.com/product-category/dasharo-entry-subscription/"
+        echo "  DPP version (coreboot + UEFI) available but you don't have access"
+        echo "  to it, if you are interested, please visit"
+        echo "  https://shop.3mdeb.com/product-category/dasharo-pro-package/"
       fi
     fi
+
     if [ -n "$BIOS_LINK_DPP_SEABIOS" ]; then
-      if [ -n "$DPP_IS_LOGGED" ]; then
+      if check_for_firmware_access seabios; then
         echo "  s) DPP version (coreboot + SeaBIOS)"
+	_might_be_seabios="true"
       else
-        echo "  DPP version (coreboot + SeaBIOS) available, if you are interested, please visit https://shop.3mdeb.com/product-category/dasharo-entry-subscription/"
+        echo "  DPP version (coreboot + SeaBIOS) available but you don't have access"
+        echo "  to it, if you are interested, please visit"
+        echo "  https://shop.3mdeb.com/product-category/dasharo-pro-package/"
       fi
     fi
+
     echo "  b) Back to main menu"
     echo
-    read -r -p "Enter an option: " OPTION
+    read -r -p "Enter an option: " _option
     echo
 
-    case ${OPTION} in
+    # In case of several Dasharo Firmware versions supported we leave the
+    # decision to user:
+    case ${_option} in
       c|C|comm|community|COMMUNITY|COMM|Community)
-        if [ -n "$BIOS_LINK_COMM" ]; then
-          BIOS_LINK=$BIOS_LINK_COMM
-          BIOS_HASH_LINK=$BIOS_HASH_LINK_COMM
-          BIOS_SIGN_LINK=$BIOS_SIGN_LINK_COMM
-          if [ -n "$EC_LINK_COMM" ]; then
-            EC_LINK=$EC_LINK_COMM
-            EC_HASH_LINK=$EC_HASH_LINK_COMM
-            EC_SIGN_LINK=$EC_SIGN_LINK_COMM
-          fi
-          echo "Community version selected"
-          break
-        else
-          error_exit "Bad option or resignation. Returning to main menu..."
-        fi
-        ;;
+	if [ -n "$_might_be_comm" ]; then
+	  print_ok "Community (Coreboot + EDK2) version selected"
+	  FIRMWARE_VERSION="community"
+	  break
+	fi
+	;;
       d|D|dpp|DPP|Dpp)
-        if [ -n "$BIOS_LINK_DPP" ]; then
-          BIOS_LINK=$BIOS_LINK_DPP
-          BIOS_HASH_LINK=$BIOS_HASH_LINK_DPP
-          BIOS_SIGN_LINK=$BIOS_SIGN_LINK_DPP
-          if [ -n "$EC_LINK_DPP" ]; then
-            EC_LINK=$EC_LINK_DPP
-            EC_HASH_LINK=$EC_HASH_LINK_DPP
-            # shellcheck disable=SC2034
-            EC_SIGN_LINK=$EC_SIGN_LINK_DPP
-          fi
-          echo "Dasharo Entry Subscription (coreboot + edk2) version selected"
-          break
-        else
-          error_exit "Bad option. Returning to main menu..."
-        fi
-        ;;
+	if [ -n "$_might_be_dpp" ]; then
+	  print_ok "Subscription version (cooreboot + EDK2) selected"
+          FIRMWARE_VERSION="dpp"
+	  break
+	fi
+	;;
       s|S|sea|seabios|SeaBIOS)
-        if [ -n "$BIOS_LINK_DPP_SEABIOS" ]; then
-          BIOS_LINK=$BIOS_LINK_DPP_SEABIOS
-          BIOS_HASH_LINK=$BIOS_HASH_LINK_DPP_SEABIOS
-          BIOS_SIGN_LINK=$BIOS_SIGN_LINK_DPP_SEABIOS
-          echo "Dasharo Entry Subscription (coreboot + SeaBIOS) version selected"
-          break
-        else
-          error_exit "Bad option. Returning to main menu..."
-        fi
-        ;;
+	if [ -n "$_might_be_seabios" ]; then
+          print_ok "Subscription version (coreboot + SeaBIOS) selected"
+	  FIRMWARE_VERSION="seabios"
+	  break
+	fi
+	;;
       b|B)
         echo "Returning to main menu..."
         exit 0
@@ -147,6 +156,119 @@ ask_for_version() {
         ;;
     esac
   done
+
+  return 0
+}
+
+choose_version(){
+# This function is used for determining Dasharo firmware update version and is
+# being used during updates only. We do not ask user to choose firmware update
+# versions compared to installation workflow (check ask_for_version function),
+# instead we have some priorities:
+# 1) Check if Dasharo Heads Firmware available, use it if yes;
+# 2) Check if Dasharo EDK2 Firmware available, use it if yes;
+# 3) Use Dasharo Community Firmware;
+#
+# TODO: Currently we do not have clear and concise update mechanisms (e.g. what
+# and when a specific firmware version can be used, how to handle revisions of
+# firmware).
+
+  if [ "$HAVE_HEADS_FW" == "true" ]; then
+    if check_for_firmware_access heads; then
+      CAN_SWITCH_TO_HEADS="true"
+      FIRMWARE_VERSION="heads"
+
+      return 0
+    else
+      print_warning "Dasharo Heads firmware version is available, but your"
+      print_warning "subscription does not give you the access to this firmware."
+      print_warning "If you are interested, please visit https://shop.3mdeb.com/product-category/dasharo-pro-package/"
+    fi
+  fi
+
+  if [ -n "$DASHARO_REL_VER_DPP" ]; then
+    if $(check_for_firmware_access dpp); then
+      FIRMWARE_VERSION="dpp"
+
+      return 0
+    else
+      print_warning "Dasharo Subscription firmware version is available, but your"
+      print_warning "subscription does not give you the access to this firmware."
+      print_warning "If you are interested, please visit https://shop.3mdeb.com/product-category/dasharo-pro-package/"
+    fi
+  fi
+
+  # Last resort:
+  FIRMWARE_VERSION="community"
+
+  return 0
+}
+
+prepare_env() {
+# This function sets all needed variables after user have answered all needed
+# questions and before this script does any work.
+  local _prepare_for
+  _prepare_for="$1"
+
+  # If firmware is being installed - user should choose what to install, if
+  # firmware is being updated - final version is being choosed automatically
+  if [ "$_prepare_for" == "update" ]; then
+    choose_version
+  elif [ "$_prepare_for" == "install" ]; then
+    ask_for_version
+  fi
+
+  # This is the key variable for this function, should be set either by
+  # choose_version or by ask_for_version:
+  if [ -z "$FIRMWARE_VERSION" ]; then
+    return 1
+  fi
+
+  # When board_config returns, we have a set of *_LINK_* variables holding links
+  # to artifacts for our board. Now we need to decide which links to use (some
+  # platforms may support several firmware types). The links being used are
+  # determined bising on FIRMWARE_VERSION:
+  if [ "$FIRMWARE_VERSION" == "community" ]; then
+    BIOS_LINK=$BIOS_LINK_COMM
+    BIOS_HASH_LINK=$BIOS_HASH_LINK_COMM
+    BIOS_SIGN_LINK=$BIOS_SIGN_LINK_COMM
+
+    UPDATE_VERSION="$DASHARO_REL_VER"
+
+    # Check EC link additionally, not all platforms have Embedded Controllers:
+    if [ -n $"EC_LINK_COMM" ]; then
+      EC_LINK=$EC_LINK_COMM
+      EC_HASH_LINK=$EC_HASH_LINK_COMM
+      EC_SIGN_LINK=$EC_SIGN_LINK_COMM
+    fi
+
+    return 0
+  elif [ "$FIRMWARE_VERSION" == "dpp" ]; then
+    BIOS_LINK=$BIOS_LINK_DPP
+    BIOS_HASH_LINK=$BIOS_HASH_LINK_DPP
+    BIOS_SIGN_LINK=$BIOS_SIGN_LINK_DPP
+
+    UPDATE_VERSION="$DASHARO_REL_VER_DPP"
+
+    # Check EC link additionally, not all platforms have Embedded Controllers:
+    if [ -n "$EC_LINK_DPP" ]; then
+      EC_LINK=$EC_LINK_DPP
+      EC_HASH_LINK=$EC_HASH_LINK_DPP
+      EC_SIGN_LINK=$EC_SIGN_LINK_DPP
+    fi
+
+    return 0
+  elif [ "$FIRMWARE_VERSION" == "seabios" ]; the
+    BIOS_LINK=$BIOS_LINK_DPP_SEABIOS
+    BIOS_HASH_LINK=$BIOS_HASH_LINK_DPP_SEABIOS
+    BIOS_SIGN_LINK=$BIOS_SIGN_LINK_DPP_SEABIOS
+
+    return 0
+  fi
+
+  # Must not get here. If it gets here - the above variables are empty and
+  # script will not be able to continue.
+  return 1
 }
 
 display_warning() {
