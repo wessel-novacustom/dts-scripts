@@ -773,6 +773,26 @@ board_config() {
       esac
       shopt -u nocasematch
       ;;
+    "HARDKERNEL")
+      HAVE_EC="false"
+      NEED_EC_RESET="false"
+      NEED_SMBIOS_MIGRATION="true"
+      NEED_BLOB_TRANSMISSION="false"
+      PROGRAMMER_BIOS="internal"
+      case "$SYSTEM_MODEL" in
+        "ODROID-H4")
+          DASHARO_REL_NAME="hardkernel_odroid_h4"
+          DASHARO_REL_VER_DPP="0.9.0-rc1"
+          ;;
+        *)
+          print_error "Board model $SYSTEM_MODEL is currently not supported"
+          return 1
+          ;;
+      esac
+      BIOS_LINK_DPP="$FW_STORE_URL_DPP/$DASHARO_REL_NAME/v$DASHARO_REL_VER_DPP/${DASHARO_REL_NAME}_v$DASHARO_REL_VER_DPP.rom"
+      BIOS_HASH_LINK_DPP="${BIOS_LINK_DPP}.sha256"
+      BIOS_SIGN_LINK_DPP="${BIOS_LINK_DPP}.sha256.sig"
+      ;;
     *)
       print_error "Board vendor: $SYSTEM_VENDOR is currently not supported"
       return 1
