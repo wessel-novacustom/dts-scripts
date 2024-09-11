@@ -6,7 +6,7 @@
 
 SBIN_DIR="/usr/sbin"
 BIN_DIR="/usr/bin"
-FUM_EFIVAR="/sys/firmware/efi/vars/FirmwareUpdateMode-d15b327e-ff2d-4fc1-abf6-c12bd08c1359"
+FUM_EFIVAR="/sys/firmware/efi/efivars/FirmwareUpdateMode-d15b327e-ff2d-4fc1-abf6-c12bd08c1359"
 
 
 log_filename="dts_$(dmidecode -s system-manufacturer)"
