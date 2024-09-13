@@ -52,7 +52,7 @@ if [[ -n "$READ_FLAG" ]]; then
 
     # Create a mock rom.bin file with some dummy data
     echo "This is a mock rom.bin file for testing purposes." > "$OUTPUT_FILE"
-    
+
     # Verify if the file is created
     if [ -f "$OUTPUT_FILE" ]; then
         echo "Mock flashrom: Successfully created $OUTPUT_FILE"
