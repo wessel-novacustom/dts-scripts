@@ -782,7 +782,7 @@ board_config() {
       case "$SYSTEM_MODEL" in
         "ODROID-H4")
           DASHARO_REL_NAME="hardkernel_odroid_h4"
-          DASHARO_REL_VER_DPP="0.9.0-rc1"
+          DASHARO_REL_VER_DPP="0.9.0"
           ;;
         *)
           print_error "Board model $SYSTEM_MODEL is currently not supported"
