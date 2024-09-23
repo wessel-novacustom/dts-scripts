@@ -425,6 +425,49 @@ board_config() {
               ;;
           esac
           ;;
+        "V5xTNC_TND_TNE")
+          if check_if_dasharo; then
+            BOARD_MODEL="$(dmidecode -s baseboard-version)"
+          else
+            ask_for_model V540TNx V560TNx
+          fi
+
+          PLATFORM_SIGN_KEY="customer-keys/novacustom/novacustom-open-source-firmware-release-1.x-key.asc \
+                customer-keys/novacustom/dasharo-release-0.9.x-for-novacustom-signing-key.asc"
+          NEED_SMBIOS_MIGRATION="false"
+          NEED_SMMSTORE_MIGRATION="true"
+          NEED_BOOTSPLASH_MIGRATION="true"
+          NEED_BLOB_TRANSMISSION="false"
+          PROGRAMMER_BIOS="internal"
+          PROGRAMMER_EC="ite_ec:boardmismatch=force,romsize=128K,autoload=disable"
+          CAN_INSTALL_BIOS="false"
+          HAVE_EC="true"
+          NEED_EC_RESET="true"
+
+          case $BOARD_MODEL in
+            "V540TNx")
+              DASHARO_REL_NAME="novacustom_v54x_mtl"
+              DASHARO_REL_VER="0.9.1"
+              COMPATIBLE_EC_FW_VERSION="2024-09-10_3786c8c"
+              ;;
+            "V560TNx")
+              DASHARO_REL_NAME="novacustom_v56x_mtl"
+              DASHARO_REL_VER="0.9.1"
+              COMPATIBLE_EC_FW_VERSION="2024-09-10_3786c8c"
+              ;;
+            *)
+              print_error "Board model $BOARD_MODEL is currently not supported"
+              return 1
+              ;;
+          esac
+
+          BIOS_LINK_COMM="$FW_STORE_URL/$DASHARO_REL_NAME/v$DASHARO_REL_VER/${DASHARO_REL_NAME}_v${DASHARO_REL_VER}.rom"
+          EC_LINK_COMM="$FW_STORE_URL/$DASHARO_REL_NAME/v$DASHARO_REL_VER/${DASHARO_REL_NAME}_ec_v${DASHARO_REL_VER}.rom"
+          BIOS_HASH_LINK_COMM="$BIOS_LINK_COMM.sha256"
+          BIOS_SIGN_LINK_COMM="$BIOS_LINK_COMM.sha256.sig"
+          EC_HASH_LINK_COMM="$EC_LINK_COMM.sha256"
+          EC_SIGN_LINK_COMM="$EC_LINK_COMM.sha256.sig"
+          ;;
         *)
           print_error "Board model $SYSTEM_MODEL is currently not supported"
           return 1
