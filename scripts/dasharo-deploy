@@ -118,7 +118,7 @@ display_flashing_warning() {
     echo
 
     case ${OPTION} in
-      yes|y|Y|Yes|YES)
+      ""|yes|y|Y|Yes|YES)
         break
         ;;
       n|N)
@@ -165,7 +165,7 @@ display_flashing_warning() {
     fi
 
     case ${OPTION} in
-      yes|y|Y|Yes|YES)
+      ""|yes|y|Y|Yes|YES)
         break
         ;;
       n|N)
@@ -622,7 +622,7 @@ update() {
     echo
 
     case ${OPTION} in
-      yes|y|Y|Yes|YES)
+      ""|yes|y|Y|Yes|YES)
         break
         ;;
       n|N)
