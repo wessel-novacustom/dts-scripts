@@ -13,8 +13,8 @@ source $DTS_FUNCS
 [ -z "$SYSTEM_MODEL" ] && error_exit "SYSTEM_MODEL not given"
 
 # Variables used in this script:
-# Currently following firmware versions are available: community, dpp, seabios,
-# and heads:
+# Currently following firmware versions are available: community, community_cap,
+# dpp, dpp_cap, seabios, and heads:
 declare FIRMWARE_VERSION
 declare CAN_SWITCH_TO_HEADS
 CMD="$1"
@@ -73,7 +73,10 @@ check_for_firmware_access() {
 }
 
 ask_for_version() {
-# Available firmware versions are defined by FIRMWARE_VERSION variable
+# Available firmware versions are defined by FIRMWARE_VERSION variable. There
+# are community and DPP firmwares with UEFI Capsule Update support, but they are
+# for firmware updates only, but this function is being called during
+# installation, so no need to mention them here.
   local _option
   local _might_be_comm
   local _might_be_dpp
@@ -169,6 +172,8 @@ choose_version(){
 # 2) Check if Dasharo EDK2 Firmware available, use it if yes;
 # 3) Use Dasharo Community Firmware;
 #
+# Capsules have higher priority over simple binaries.
+#
 # TODO: Currently we do not have clear and concise update mechanisms (e.g. what
 # and when a specific firmware version can be used, how to handle revisions of
 # firmware).
@@ -186,6 +191,19 @@ choose_version(){
     fi
   fi
 
+  if [ -n "$DASHARO_REL_VER_DPP_CAP" ]; then
+    if $(check_for_firmware_access dpp_cap); then
+      FIRMWARE_VERSION="dpp_cap"
+
+      return 0
+    else
+      print_warning "Dasharo Subscription firmware version with UEFI Capsule Update"
+      print_warning "is available, but your subscription does not give you the access"
+      print_warning "to this firmware."
+      print_warning "If you are interested, please visit https://shop.3mdeb.com/product-category/dasharo-pro-package/"
+    fi
+  fi
+
   if [ -n "$DASHARO_REL_VER_DPP" ]; then
     if $(check_for_firmware_access dpp); then
       FIRMWARE_VERSION="dpp"
@@ -196,6 +214,12 @@ choose_version(){
       print_warning "subscription does not give you the access to this firmware."
       print_warning "If you are interested, please visit https://shop.3mdeb.com/product-category/dasharo-pro-package/"
     fi
+  fi
+
+  if [ -n "$DASHARO_REL_VER_CAP" ]; then
+    FIRMWARE_VERSION="community_cap"
+
+    return 0
   fi
 
   # Last resort:
@@ -243,6 +267,21 @@ prepare_env() {
     fi
 
     return 0
+  elif [ "$FIRMWARE_VERSION" == "community_cap" ]; then
+    BIOS_LINK=$BIOS_LINK_COMM_CAP
+    BIOS_HASH_LINK=$BIOS_HASH_LINK_COMM_CAP
+    BIOS_SIGN_LINK=$BIOS_SIGN_LINK_COMM_CAP
+
+    UPDATE_VERSION="$DASHARO_REL_VER_CAP"
+
+    # Check EC link additionally, not all platforms have Embedded Controllers:
+    if [ -n "$EC_LINK_COMM_CAP" ]; then
+      EC_LINK=$EC_LINK_COMM_CAP
+      EC_HASH_LINK=$EC_HASH_LINK_COMM_CAP
+      EC_SIGN_LINK=$EC_SIGN_LINK_COMM_CAP
+    fi
+
+    return 0
   elif [ "$FIRMWARE_VERSION" == "dpp" ]; then
     BIOS_LINK=$BIOS_LINK_DPP
     BIOS_HASH_LINK=$BIOS_HASH_LINK_DPP
@@ -255,6 +294,21 @@ prepare_env() {
       EC_LINK=$EC_LINK_DPP
       EC_HASH_LINK=$EC_HASH_LINK_DPP
       EC_SIGN_LINK=$EC_SIGN_LINK_DPP
+    fi
+
+    return 0
+  elif [ "$FIRMWARE_VERSION" == "dpp_cap" ]; then
+    BIOS_LINK=$BIOS_LINK_DPP_CAP
+    BIOS_HASH_LINK=$BIOS_HASH_LINK_DPP_CAP
+    BIOS_SIGN_LINK=$BIOS_SIGN_LINK_DPP_CAP
+
+    UPDATE_VERSION="$DASHARO_REL_VER_DPP_CAP"
+
+    # Check EC link additionally, not all platforms have Embedded Controllers:
+    if [ -n "$EC_LINK_DPP_CAP" ]; then
+      EC_LINK=$EC_LINK_DPP_CAP
+      EC_HASH_LINK=$EC_HASH_LINK_DPP_CAP
+      EC_SIGN_LINK=$EC_SIGN_LINK_DPP_CAP
     fi
 
     return 0
