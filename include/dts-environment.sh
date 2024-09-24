@@ -112,6 +112,9 @@ declare DASHARO_REL_VER_DPP
 declare HEADS_REL_VER_DPP
 declare DASHARO_REL_VER_DPP_SEABIOS
 declare COMPATIBLE_EC_FW_VERSION
+# and for capsules:
+declare DASHARO_REL_VER_CAP
+declare DASHARO_REL_VER_DPP_CAP
 # Links to files:
 declare BIOS_LINK_COMM
 declare BIOS_HASH_LINK_COMM
@@ -129,6 +132,16 @@ declare EC_LINK_DPP
 declare EC_HASH_LINK_DPP
 declare EC_SIGN_LINK_DPP
 declare HEADS_LINK_DPP
+# and for capsules:
+declare BIOS_LINK_COMM_CAP
+declare BIOS_HASH_LINK_COMM_CAP
+declare BIOS_SIGN_LINK_COMM_CAP
+declare BIOS_LINK_DPP_CAP
+declare BIOS_HASH_LINK_DPP_CAP
+declare BIOS_SIGN_LINK_DPP_CAP
+declare EC_LINK_COMM_CAP
+declare EC_HASH_LINK_COMM_CAP
+declare EC_SIGN_LINK_COMM_CAP
 # Configs, are used in dasharo-deploy script:
 CAN_INSTALL_BIOS="false"
 HAVE_HEADS_FW="false"

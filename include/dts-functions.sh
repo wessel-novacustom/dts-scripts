@@ -673,6 +673,8 @@ board_config() {
               DASHARO_REL_NAME="qemu_q35"
               DASHARO_REL_VER="v0.2.0"
               BIOS_LINK_COMM="${FW_STORE_URL}/${DASHARO_REL_NAME}/${DASHARO_REL_VER}/${DASHARO_REL_NAME}_${DASHARO_REL_VER}.rom"
+              # TODO: wait till the binaries will be uploaded to the server.
+              #BIOS_LINK_COMM_CAP="${FW_STORE_URL}/${DASHARO_REL_NAME}/${DASHARO_REL_VER}/"
               ;;
             *)
               print_error "Board model $BOARD_MODEL is currently not supported"
@@ -703,6 +705,16 @@ board_config() {
   [ -z "$EC_SIGN_LINK_COMM" ] && EC_SIGN_LINK_COMM="${EC_HASH_LINK_COMM}.sig"
   [ -z "$EC_HASH_LINK_DPP" ] && EC_HASH_LINK_DPP="${EC_LINK_DPP}.sha256"
   [ -z "$EC_SIGN_LINK_DPP" ] && EC_SIGN_LINK_DPP="${EC_HASH_LINK_DPP}.sig"
+
+  # And for capsules as well:
+  [ -z "$BIOS_HASH_LINK_COMM_CAP" ] && BIOS_HASH_LINK_COMM_CAP="${BIOS_LINK_COMM_CAP}.sha256"
+  [ -z "$BIOS_SIGN_LINK_COMM_CAP" ] && BIOS_SIGN_LINK_COMM_CAP="${BIOS_HASH_LINK_COMM_CAP}.sig"
+  [ -z "$BIOS_HASH_LINK_DPP_CAP" ] && BIOS_HASH_LINK_DPP_CAP="${BIOS_LINK_DPP_CAP}.sha256"
+  [ -z "$BIOS_SIGN_LINK_DPP_CAP" ] && BIOS_SIGN_LINK_DPP_CAP="${BIOS_HASH_LINK_DPP_CAP}.sig"
+  [ -z "$EC_HASH_LINK_COMM_CAP" ] && EC_HASH_LINK_COMM_CAP="${EC_LINK_COMM_CAP}.sha256"
+  [ -z "$EC_SIGN_LINK_COMM_CAP" ] && EC_SIGN_LINK_COMM_CAP="${EC_HASH_LINK_COMM_CAP}.sig"
+  [ -z "$EC_HASH_LINK_DPP_CAP" ] && EC_HASH_LINK_DPP_CAP="${EC_LINK_DPP_CAP}.sha256"
+  [ -z "$EC_SIGN_LINK_DPP_CAP" ] && EC_SIGN_LINK_DPP_CAP="${EC_HASH_LINK_DPP_CAP}.sig"
 }
 
 check_flash_lock() {
