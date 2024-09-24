@@ -4,6 +4,11 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+# Some variables (especially those with hashes, are being used by functions in
+# dts-functions.sh only, shellcheck is unaware of them and marks them as
+# unused.)
+# shellcheck disable=SC2034
+
 # shellcheck source=../include/dts-environment.sh
 source $DTS_ENV
 # shellcheck source=../include/dts-functions.sh
@@ -88,9 +93,9 @@ ask_for_version() {
 
     # Here we check if user has access to a certain version of Dasharo Firmware.
     # The check consists of two stages:
-    # * does user platform support the fimware - BIOS_LINK_* variables are being
-    # checked;
-    # * does user has access rights to the blobs of the supported fimware - a
+    # * does user platform support the firmware - BIOS_LINK_* variables are
+    # being checked;
+    # * does user has access rights to the blobs of the supported firmware - a
     # call to the server with binaries is done, to check if user can download
     # the blobs.
     if [ -n "$BIOS_LINK_COMM" ]; then
@@ -192,7 +197,7 @@ choose_version(){
   fi
 
   if [ -n "$DASHARO_REL_VER_DPP_CAP" ]; then
-    if $(check_for_firmware_access dpp_cap); then
+    if check_for_firmware_access dpp_cap; then
       FIRMWARE_VERSION="dpp_cap"
 
       return 0
@@ -205,7 +210,7 @@ choose_version(){
   fi
 
   if [ -n "$DASHARO_REL_VER_DPP" ]; then
-    if $(check_for_firmware_access dpp); then
+    if check_for_firmware_access dpp; then
       FIRMWARE_VERSION="dpp"
 
       return 0
@@ -235,7 +240,7 @@ prepare_env() {
   _prepare_for="$1"
 
   # If firmware is being installed - user should choose what to install, if
-  # firmware is being updated - final version is being choosed automatically
+  # firmware is being updated - final version is being chosen automatically
   if [ "$_prepare_for" == "update" ]; then
     choose_version
   elif [ "$_prepare_for" == "install" ]; then
@@ -260,7 +265,7 @@ prepare_env() {
     UPDATE_VERSION="$DASHARO_REL_VER"
 
     # Check EC link additionally, not all platforms have Embedded Controllers:
-    if [ -n $"EC_LINK_COMM" ]; then
+    if [ -n "$EC_LINK_COMM" ]; then
       EC_LINK=$EC_LINK_COMM
       EC_HASH_LINK=$EC_HASH_LINK_COMM
       EC_SIGN_LINK=$EC_SIGN_LINK_COMM
@@ -312,7 +317,7 @@ prepare_env() {
     fi
 
     return 0
-  elif [ "$FIRMWARE_VERSION" == "seabios" ]; the
+  elif [ "$FIRMWARE_VERSION" == "seabios" ]; then
     BIOS_LINK=$BIOS_LINK_DPP_SEABIOS
     BIOS_HASH_LINK=$BIOS_HASH_LINK_DPP_SEABIOS
     BIOS_SIGN_LINK=$BIOS_SIGN_LINK_DPP_SEABIOS
@@ -744,7 +749,7 @@ deploy_firmware(){
     print_warning "power off your computer or touch the keyboard!"
 
     # Firstly we need to check, whether it is possible to use UEFI Capsule
-    # Update, this is the preffered way of updating:
+    # Update, this is the preferred way of updating:
     if [ "$FIRMWARE_VERSION" == "community_cap" ] || [ "$FIRMWARE_VERSION" == "dpp_cap" ]; then
       # Linux Kernel driver is responsible for handling UEFI Capsule Updates, so
       # the capsule should be fed to a specific device:
