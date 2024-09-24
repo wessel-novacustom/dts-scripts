@@ -621,13 +621,24 @@ blob_transmission() {
 }
 
 deploy_ec_firmware() {
-# This function deploys (installs or updates) downloaded EC firmware.
-# Parameters: update, install.
+# This function deploys (installs or updates) downloaded EC firmware either UEFI
+# capsules (updates only) and binaries. Parameters: update, install.
   local _mode
   _mode="$1"
 
   if [ "$_mode" == "update" ]; then
     echo "Updating EC..."
+
+    # The EC firmware could be updated in two ways: via UEFI Capsule Update or
+    # via binaries and flashrom:
+    if [ "$FIRMWARE_VERSION" == "community_cap" ] || [ "$FIRMWARE_VERSION" == "dpp_cap" ]; then
+      # Linux Kernel driver is responsible for handling UEFI Capsule Updates, so
+      # the capsule should be fed to a specific device:
+      cat "$EC_UPDATE_FILE" > "$CAP_UPD_DEVICE"
+      # Return after updating. The below code is for flashrom updates (using
+      # binaries) only
+      return 0
+    fi
 
     # Following command will reset device, so the function will not quit:
     $DASHARO_ECTOOL flash "$EC_UPDATE_FILE" &>> $ERR_LOG_FILE
@@ -722,8 +733,8 @@ firmware_pre_installation_routine(){
 }
 
 deploy_firmware(){
-# This function deploys (installs or updates) downloaded firmware.
-# Parameters: update, install.
+# This function deploys (installs or updates) downloaded firmware either UEFI
+# capsules (updates only) or binaries. Parameters: update, install.
   local _mode
   _mode="$1"
 
@@ -732,7 +743,19 @@ deploy_firmware(){
     print_warning "This may take several minutes. Please be patient and do not"
     print_warning "power off your computer or touch the keyboard!"
 
+    # Firstly we need to check, whether it is possible to use UEFI Capsule
+    # Update, this is the preffered way of updating:
+    if [ "$FIRMWARE_VERSION" == "community_cap" ] || [ "$FIRMWARE_VERSION" == "dpp_cap" ]; then
+      # Linux Kernel driver is responsible for handling UEFI Capsule Updates, so
+      # the capsule should be fed to a specific device:
+      cat "$BIOS_UPDATE_FILE" > "$CAP_UPD_DEVICE"
+      # Return after updating. The below code is for flashrom updates (using
+      # binaries) only.
+      return 0
+    fi
 
+    # Pre-update routine for UEFI Capsule Update is done by drivers and the
+    # capsule itself, so the routine is required only for flashrom updates:
     firmware_pre_updating_routine
 
     # FLASHROM_ADD_OPT_UPDATE_OVERRIDE takes priority over auto-detected update params.
@@ -805,7 +828,9 @@ deploy_firmware(){
 }
 
 install_workflow() {
-# Installation workflow.
+# Installation workflow. The installation of firmware is possible only via
+# flashrom, capsules cannot do the installation because they need initial
+# support inside firmware.
   sync_clocks
 
   # Verify that the device is not using battery as a power source:
@@ -869,7 +894,7 @@ install_workflow() {
 }
 
 update_workflow() {
-# Update workflow.
+# Update workflow. Supported firmware formats: binary, UEFI capsule.
   CAN_SWITCH_TO_HEADS="false"
   sync_clocks
 
