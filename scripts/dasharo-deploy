@@ -620,263 +620,47 @@ blob_transmission() {
   fi
 }
 
-install_ec() {
-  verify_artifacts ec
-  echo "Installing EC..."
-  $FLASHROM -p "$PROGRAMMER_EC" ${FLASH_CHIP_SELECT} -w "$EC_UPDATE_FILE" >> $FLASHROM_LOG_FILE 2>> $ERR_LOG_FILE
-  error_check "Failed to install Dasharo EC firmware"
-  echo "Successfully installed Dasharo EC firmware"
-}
+deploy_ec_firmware() {
+# This function deploys (installs or updates) downloaded EC firmware.
+# Parameters: update, install.
+  local _mode
+  _mode="$1"
 
-install() {
-  ask_for_version
-  if [ "$CAN_INSTALL_BIOS" == "false" ]; then
-    download_ec
-    unset BIOS_HASH_LINK
-    display_warning
-  else
-    download_artifacts
-    display_warning
-    check_flash_lock
-    verify_artifacts bios
+  if [ "$_mode" == "update" ]; then
+    echo "Updating EC..."
 
-    check_intel_regions
-    check_blobs_in_binary $BIOS_UPDATE_FILE
-    check_if_me_disabled
-    set_intel_regions_update_params "-N --ifd -i bios"
-  fi
+    # Following command will reset device, so the function will not quit:
+    $DASHARO_ECTOOL flash "$EC_UPDATE_FILE" &>> $ERR_LOG_FILE
+    error_check "Failed to update EC firmware"
 
-    # Ask user for confirmation:
-  display_warning
-
-  if [ "$HAVE_EC" == "true" ]; then
+    return 0
+  elif [ "$_mode" == "install" ]; then
     echo "Checking for Open Source Embedded Controller firmware"
     $DASHARO_ECTOOL info >> $ERR_LOG_FILE 2>&1
+
     if [ $? -eq 0 ]; then
       echo "Device has already Open Source Embedded Controller firmware, do not flash EC..."
     else
       _ec_fw_version=$($FLASHROM -p "$PROGRAMMER_EC" ${FLASH_CHIP_SELECT} | grep "Mainboard EC Version" | tr -d ' ' | cut -d ':' -f 2)
+
       if [ "$_ec_fw_version" != "$COMPATIBLE_EC_FW_VERSION" ]; then
-        print_warning "EC version: $_ec_fw_version is not supported, update required"
-        install_ec
+        echo "Installing EC..."
+        $FLASHROM -p "$PROGRAMMER_EC" ${FLASH_CHIP_SELECT} -w "$EC_UPDATE_FILE" >> $FLASHROM_LOG_FILE 2>> $ERR_LOG_FILE
+        error_check "Failed to install Dasharo EC firmware"
+	print_ok "Successfully installed Dasharo EC firmware"
       fi
     fi
+
+    return 0
   fi
 
-  if [ "$CAN_INSTALL_BIOS" == "true" ]; then
-    cbfstool "$BIOS_UPDATE_FILE" extract -r COREBOOT -n config -f "$BIOS_UPDATE_CONFIG_FILE"
-    grep "CONFIG_VBOOT=y" "$BIOS_UPDATE_CONFIG_FILE"
-    HAVE_VBOOT="$?"
-
-    if [ "$NEED_ROMHOLE_MIGRATION" = "true" ]; then
-      romhole_migration
-    fi
-
-    if [ "$NEED_BOOTSPLASH_MIGRATION" = "true" ]; then
-      bootsplash_migration
-    fi
-
-    if [ "$NEED_SMBIOS_MIGRATION" = "true" ]; then
-      smbios_migration
-      resign_binary
-    fi
-
-    if [ "$NEED_BLOB_TRANSMISSION" = "true" ]; then
-      blob_transmission
-    fi
-
-    echo "Installing Dasharo firmware..."
-    # FIXME: It seems we do not have an easy way to add some flasrhom extra args
-    # globally for specific platform and variant
-    local _flashrom_extra_args=""
-    if [ "${BIOS_LINK}" = "${BIOS_LINK_DPP_SEABIOS}" ]; then
-      _flashrom_extra_args="--fmap -i COREBOOT"
-    fi
-    $FLASHROM -p "$PROGRAMMER_BIOS" ${FLASH_CHIP_SELECT} ${FLASHROM_ADD_OPT_REGIONS} -w "$BIOS_UPDATE_FILE" ${_flashrom_extra_args} >> $FLASHROM_LOG_FILE 2>> $ERR_LOG_FILE
-    error_check "Failed to install Dasharo firmware"
-
-    print_ok "Successfully installed Dasharo firmware"
-  fi
-
-  echo -n "Syncing disks... "
-  sync
-  echo "Done."
-  if [ "$NEED_EC_RESET" = "true" ]; then
-    echo "The computer will shut down automatically in 5 seconds"
-  else
-    echo "The computer will reboot automatically in 5 seconds"
-  fi
-  sleep 0.5
-  echo "Rebooting in 5s:"
-  echo "5..."
-  sleep 1
-  echo "4..."
-  sleep 1
-  echo "3..."
-  sleep 1
-  echo "2..."
-  sleep 1
-  echo "1..."
-  sleep 0.5
-  echo "Rebooting"
-  sleep 1
-  if [ "$NEED_EC_RESET" = "true" ]; then
-    it5570_shutdown
-  else
-    send_dts_logs
-    ${CMD_REBOOT}
-  fi
+  # Must not get here:
+  return 1
 }
 
-update_ec() {
-  verify_artifacts ec
-  echo "Updating EC..."
-  $DASHARO_ECTOOL flash "$EC_UPDATE_FILE" &>> $ERR_LOG_FILE
-  error_check "Failed to update EC firmware"
-}
-
-update() {
-  local _can_switch_to_heads="false"
-
-  sync_clocks
-  check_if_ac
-  error_check "Firmware update process interrupted on user request."
-
-  echo "Checking for the latest Dasharo update available..."
-  echo "Current Dasharo version: $DASHARO_VERSION"
-  if [ -n "$DPP_IS_LOGGED" ]; then
-    if [ -n "$DASHARO_REL_VER_DPP" ]; then
-      if [ "$DASHARO_FLAVOR" != "Dasharo (coreboot+heads)" ]; then
-        echo "Latest available Dasharo version: $DASHARO_REL_VER_DPP"
-      fi
-      curl -sfI -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_LINK_DPP" -o /dev/null
-      if [ $? -ne 0 ]; then
-        echo "Current DPP credentials do not match the current platform/firmware flavor."
-        echo "Latest possible and available update is $DASHARO_REL_VER"
-        BIOS_HASH_LINK=$BIOS_HASH_LINK_COMM
-        BIOS_SIGN_LINK=$BIOS_SIGN_LINK_COMM
-        BIOS_LINK=$BIOS_LINK_COMM
-        if [ "$HAVE_EC" == "true" ]; then
-          EC_HASH_LINK=$EC_HASH_LINK_COMM
-          EC_SIGN_LINK=$EC_SIGN_LINK_COMM
-          EC_LINK=$EC_LINK_COMM
-        fi
-        UPDATE_VERSION=$DASHARO_REL_VER
-      else
-        BIOS_HASH_LINK=$BIOS_HASH_LINK_DPP
-        BIOS_SIGN_LINK=$BIOS_SIGN_LINK_DPP
-        BIOS_LINK=$BIOS_LINK_DPP
-        if [ "$HAVE_EC" == "true" ]; then
-          EC_HASH_LINK=$EC_HASH_LINK_DPP
-          EC_SIGN_LINK=$EC_SIGN_LINK_DPP
-          EC_LINK=$EC_LINK_DPP
-        fi
-        UPDATE_VERSION=$DASHARO_REL_VER_DPP
-      fi
-    else
-      if [ "$DASHARO_FLAVOR" != "Dasharo (coreboot+heads)" ]; then
-        echo "Latest available Dasharo version: $DASHARO_REL_VER"
-      fi
-      BIOS_HASH_LINK=$BIOS_HASH_LINK_COMM
-      BIOS_SIGN_LINK=$BIOS_SIGN_LINK_COMM
-      BIOS_LINK=$BIOS_LINK_COMM
-      if [ "$HAVE_EC" == "true" ]; then
-        EC_HASH_LINK=$EC_HASH_LINK_COMM
-        EC_SIGN_LINK=$EC_SIGN_LINK_COMM
-        EC_LINK=$EC_LINK_COMM
-      fi
-      UPDATE_VERSION=$DASHARO_REL_VER
-    fi
-    if [ -n "$HAVE_HEADS_FW" ] && [ "$DASHARO_FLAVOR" != "Dasharo (coreboot+heads)" ]; then
-      # Check if given DPP credentials give access to heads, if not,
-      # then it means DPP is for regular releases
-      curl -sfI -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$HEADS_LINK_DPP" -o /dev/null
-      if [ $? -ne 0 ]; then
-        print_warning "Dasharo Heads firmware version is available, but your"
-        print_warning "subscription does not give you the access to this firmware."
-        print_warning "If you are interested, please visit https://shop.3mdeb.com/product-category/dasharo-entry-subscription/"
-      else
-        # Access to the heads FW is possible, allow to switch to heads
-        _can_switch_to_heads="true"
-        print_ok "Dasharo Heads firmware version is available and your subscription"
-        print_ok "gives you access to this firmware."
-      fi
-    elif [ -n "$HAVE_HEADS_FW" ] && [ "$DASHARO_FLAVOR" == "Dasharo (coreboot+heads)" ]; then
-      # Set the switch flag to offer switch back
-      echo "Latest available Dasharo version: $HEADS_REL_VER_DPP"
-      _can_switch_to_heads="true"
-    fi
-  else
-    if [ -n "$DASHARO_REL_VER_DPP" ]; then
-      print_green "DPP version (coreboot + UEFI) available, if you are interested"
-      print_ok "please visit https://shop.3mdeb.com/product-category/dasharo-entry-subscription/"
-    fi
-    if [ "$DASHARO_FLAVOR" != "Dasharo (coreboot+heads)" ]; then
-      echo "Latest available Dasharo version: $DASHARO_REL_VER"
-    fi
-    BIOS_HASH_LINK=$BIOS_HASH_LINK_COMM
-    # shellcheck disable=SC2034
-    BIOS_SIGN_LINK=$BIOS_SIGN_LINK_COMM
-    BIOS_LINK=$BIOS_LINK_COMM
-    if [ "$HAVE_EC" == "true" ]; then
-      EC_HASH_LINK=$EC_HASH_LINK_COMM
-      # shellcheck disable=SC2034
-      EC_SIGN_LINK=$EC_SIGN_LINK_COMM
-      EC_LINK=$EC_LINK_COMM
-    fi
-    UPDATE_VERSION=$DASHARO_REL_VER
-    if [ -n "$HAVE_HEADS_FW" ] && [ "$DASHARO_FLAVOR" != "Dasharo (coreboot+heads)" ]; then
-      print_ok "Dasharo heads firmware version is available. If you are interested,"
-      print_ok "please provide your subscription credentials in the main DTS menu"
-      print_ok "and select 'Update Dasharo firmware' again to check if you are eligible."
-    elif [ -n "$HAVE_HEADS_FW" ] && [ "$DASHARO_FLAVOR" == "Dasharo (coreboot+heads)" ]; then
-      # Set the switch flag to offer switch back
-      _can_switch_to_heads="true"
-    fi
-  fi
-
-  handle_fw_switching $_can_switch_to_heads
-
-  if [[ "$UPDATE_VERSION" == "1.1.1" && \
-    ( "$BOARD_MODEL" == "PRO Z690-A WIFI DDR4(MS-7D25)" || \
-      "$BOARD_MODEL" == "PRO Z690-A DDR4(MS-7D25)" || \
-      "$BOARD_MODEL" == "PRO Z690-A (MS-7D25)" || \
-      "$BOARD_MODEL" == "PRO Z690-A WIFI (MS-7D25)" ) ]]; then
-
-    cpu_gen_check=$(lscpu | grep -F "Model name" | grep -E "\-(13|14)[0-9]{3}" | wc -l)
-
-    if [ $cpu_gen_check -ne 0 ]; then
-      echo "You have a 13th gen or above CPU and are trying to flash Dasharo v1.1.1 on a MSI PRO Z690-A DDR4 or DDR5 board"
-      echo "That version does not support gen 13 and above CPU. Therefore we cannot continue with flashing."
-      error_exit "Aborting update process..."
-    fi
-
-  fi
-
-  while : ; do
-    echo
-    read -r -p "Are you sure you want to proceed with update? (Y|n) " OPTION
-    echo
-
-    case ${OPTION} in
-      ""|yes|y|Y|Yes|YES)
-        break
-        ;;
-      n|N)
-        error_exit "Aborting update process..."
-        ;;
-      *)
-        ;;
-    esac
-  done
-
-  download_artifacts
-  if [ ! "$FUM" == "fum" ]; then
-    display_warning
-  fi
+firmware_pre_updating_routine(){
+  # Preupdating routine:
   check_flash_lock
-
-  verify_artifacts bios
 
   if [ "$HAVE_EC" == "true" ]; then
     $DASHARO_ECTOOL info >> $ERR_LOG_FILE 2>&1
@@ -902,55 +686,234 @@ update() {
   set_intel_regions_update_params "-N --ifd"
   check_vboot_keys
 
-  echo "Updating Dasharo firmware..."
-  print_warning "This may take several minutes. Please be patient and do not power off your computer or touch the keyboard!"
+  return 0
+}
 
-  # FLASHROM_ADD_OPT_UPDATE_OVERRIDE takes priority over auto-detected update params.
-  # It set only by platform-specific and firmware version-specific conditions
-  if [ -n "$FLASHROM_ADD_OPT_UPDATE_OVERRIDE" ]; then
-    # To standardize the operation of the FLASHROM_ADD_OPT_UPDATE_OVERRIDE flag,
-    # by default it contains only the bios section, below we verify the
-    # downloaded binary and add more sections when they were detected after
-    # using the `check_blobs_in_binary` function.
-    set_intel_regions_update_params "$FLASHROM_ADD_OPT_UPDATE_OVERRIDE"
-    FLASHROM_ADD_OPT_UPDATE_OVERRIDE="$FLASHROM_ADD_OPT_REGIONS"
-    $FLASHROM -p "$PROGRAMMER_BIOS" ${FLASH_CHIP_SELECT} ${FLASHROM_ADD_OPT_UPDATE_OVERRIDE} -w "$BIOS_UPDATE_FILE"  >> $FLASHROM_LOG_FILE 2>> $ERR_LOG_FILE
-    error_check "Failed to update Dasharo firmware"
-  else
-    $FLASHROM -p "$PROGRAMMER_BIOS" ${FLASH_CHIP_SELECT} ${FLASHROM_ADD_OPT_UPDATE} -w "$BIOS_UPDATE_FILE"  >> $FLASHROM_LOG_FILE 2>> $ERR_LOG_FILE
-    error_check "Failed to update Dasharo firmware"
+firmware_pre_installation_routine(){
+  # Preinstallation routine:
+  check_flash_lock
+  check_intel_regions
+  check_blobs_in_binary $BIOS_UPDATE_FILE
+  check_if_me_disabled
+  set_intel_regions_update_params "-N --ifd -i bios"
 
-    if [ $BINARY_HAS_RW_B -eq 0 ]; then
-      echo "Updating second firmware partition..."
-      $FLASHROM -p "$PROGRAMMER_BIOS" ${FLASH_CHIP_SELECT} --fmap -N -i RW_SECTION_B -w "$BIOS_UPDATE_FILE"  >> $FLASHROM_LOG_FILE 2>> $ERR_LOG_FILE
-      error_check "Failed to update second firmware partition"
-    fi
+  cbfstool "$BIOS_UPDATE_FILE" extract -r COREBOOT -n config -f "$BIOS_UPDATE_CONFIG_FILE"
+  grep "CONFIG_VBOOT=y" "$BIOS_UPDATE_CONFIG_FILE"
+  HAVE_VBOOT="$?"
+
+  if [ "$NEED_ROMHOLE_MIGRATION" = "true" ]; then
+    romhole_migration
   fi
 
-  # We use FLASHROM_ADD_OPT_REGIONS for updating ME and IFD.
-  # If FLASHROM_ADD_OPT_REGIONS remains the same after
-  # set_intel_regions_update_params or is cleared, it means
-  # we either cannot update any region, or were not allowed to,
-  # or platform has no descriptor.
-  if [ "$FLASHROM_ADD_OPT_REGIONS" != "-N --ifd" ] && [ "$FLASHROM_ADD_OPT_REGIONS" != "" ]; then
-    UPDATE_STRING=""
-    grep -q "\-i fd" <<< "$FLASHROM_ADD_OPT_REGIONS"
-    UPDATE_IFD=$?
-    grep -q "\-i me" <<< "$FLASHROM_ADD_OPT_REGIONS"
-    UPDATE_ME=$?
-    if [ $UPDATE_IFD -eq 0 ]; then
-      UPDATE_STRING+="Flash Descriptor"
-      if [ $UPDATE_ME -eq 0 ]; then
-        UPDATE_STRING+=" and "
+  if [ "$NEED_BOOTSPLASH_MIGRATION" = "true" ]; then
+    bootsplash_migration
+  fi
+
+  if [ "$NEED_SMBIOS_MIGRATION" = "true" ]; then
+    smbios_migration
+    resign_binary
+  fi
+
+  if [ "$NEED_BLOB_TRANSMISSION" = "true" ]; then
+    blob_transmission
+  fi
+
+  return 0
+}
+
+deploy_firmware(){
+# This function deploys (installs or updates) downloaded firmware.
+# Parameters: update, install.
+  local _mode
+  _mode="$1"
+
+  if [ "$_mode" == "update" ]; then
+    echo "Updating Dasharo firmware..."
+    print_warning "This may take several minutes. Please be patient and do not"
+    print_warning "power off your computer or touch the keyboard!"
+
+
+    firmware_pre_updating_routine
+
+    # FLASHROM_ADD_OPT_UPDATE_OVERRIDE takes priority over auto-detected update params.
+    # It set only by platform-specific and firmware version-specific conditions
+    if [ -n "$FLASHROM_ADD_OPT_UPDATE_OVERRIDE" ]; then
+      # To standardize the operation of the FLASHROM_ADD_OPT_UPDATE_OVERRIDE flag,
+      # by default it contains only the bios section, below we verify the
+      # downloaded binary and add more sections when they were detected after
+      # using the `check_blobs_in_binary` function.
+      set_intel_regions_update_params "$FLASHROM_ADD_OPT_UPDATE_OVERRIDE"
+      FLASHROM_ADD_OPT_UPDATE_OVERRIDE="$FLASHROM_ADD_OPT_REGIONS"
+      $FLASHROM -p "$PROGRAMMER_BIOS" ${FLASH_CHIP_SELECT} ${FLASHROM_ADD_OPT_UPDATE_OVERRIDE} -w "$BIOS_UPDATE_FILE"  >> $FLASHROM_LOG_FILE 2>> $ERR_LOG_FILE
+      error_check "Failed to update Dasharo firmware"
+    else
+      $FLASHROM -p "$PROGRAMMER_BIOS" ${FLASH_CHIP_SELECT} ${FLASHROM_ADD_OPT_UPDATE} -w "$BIOS_UPDATE_FILE"  >> $FLASHROM_LOG_FILE 2>> $ERR_LOG_FILE
+      error_check "Failed to update Dasharo firmware"
+
+      if [ $BINARY_HAS_RW_B -eq 0 ]; then
+        echo "Updating second firmware partition..."
+        $FLASHROM -p "$PROGRAMMER_BIOS" ${FLASH_CHIP_SELECT} --fmap -N -i RW_SECTION_B -w "$BIOS_UPDATE_FILE"  >> $FLASHROM_LOG_FILE 2>> $ERR_LOG_FILE
+        error_check "Failed to update second firmware partition"
       fi
     fi
-    if [ $UPDATE_ME -eq 0 ]; then
-      UPDATE_STRING+="Management Engine"
+
+    # We use FLASHROM_ADD_OPT_REGIONS for updating ME and IFD.
+    # If FLASHROM_ADD_OPT_REGIONS remains the same after
+    # set_intel_regions_update_params or is cleared, it means
+    # we either cannot update any region, or were not allowed to,
+    # or platform has no descriptor.
+    if [ "$FLASHROM_ADD_OPT_REGIONS" != "-N --ifd" ] && [ "$FLASHROM_ADD_OPT_REGIONS" != "" ]; then
+      UPDATE_STRING=""
+      grep -q "\-i fd" <<< "$FLASHROM_ADD_OPT_REGIONS"
+      UPDATE_IFD=$?
+      grep -q "\-i me" <<< "$FLASHROM_ADD_OPT_REGIONS"
+      UPDATE_ME=$?
+      if [ $UPDATE_IFD -eq 0 ]; then
+        UPDATE_STRING+="Flash Descriptor"
+        if [ $UPDATE_ME -eq 0 ]; then
+          UPDATE_STRING+=" and "
+        fi
+      fi
+      if [ $UPDATE_ME -eq 0 ]; then
+        UPDATE_STRING+="Management Engine"
+      fi
+      echo "Updating $UPDATE_STRING"
+      $FLASHROM -p "$PROGRAMMER_BIOS" ${FLASH_CHIP_SELECT} ${FLASHROM_ADD_OPT_REGIONS} -w "$BIOS_UPDATE_FILE" >> $FLASHROM_LOG_FILE 2>> $ERR_LOG_FILE
+      error_check "Failed to update $UPDATE_STRING"
     fi
-    echo "Updating $UPDATE_STRING"
-    $FLASHROM -p "$PROGRAMMER_BIOS" ${FLASH_CHIP_SELECT} ${FLASHROM_ADD_OPT_REGIONS} -w "$BIOS_UPDATE_FILE" >> $FLASHROM_LOG_FILE 2>> $ERR_LOG_FILE
-    error_check "Failed to update $UPDATE_STRING"
+
+    return 0
+  elif [ "$_mode" == "install" ]; then
+    firmware_pre_installation_routine
+
+    echo "Installing Dasharo firmware..."
+    # FIXME: It seems we do not have an easy way to add some flasrhom extra args
+    # globally for specific platform and variant
+    local _flashrom_extra_args=""
+    if [ "${BIOS_LINK}" = "${BIOS_LINK_DPP_SEABIOS}" ]; then
+      _flashrom_extra_args="--fmap -i COREBOOT"
+    fi
+    $FLASHROM -p "$PROGRAMMER_BIOS" ${FLASH_CHIP_SELECT} ${FLASHROM_ADD_OPT_REGIONS} -w "$BIOS_UPDATE_FILE" ${_flashrom_extra_args} >> $FLASHROM_LOG_FILE 2>> $ERR_LOG_FILE
+    error_check "Failed to install Dasharo firmware"
+    print_ok "Successfully installed Dasharo firmware"
+
+    return 0
   fi
+
+  # Must not get here.
+  return 1
+}
+
+install_workflow() {
+# Installation workflow.
+  sync_clocks
+
+  # Verify that the device is not using battery as a power source:
+  check_if_ac
+  error_check "Firmware update process interrupted on user request."
+
+  # Set all global variables needed for installation:
+  prepare_env install
+
+  # Download and verify firmware:
+  if [ "$CAN_INSTALL_BIOS" == "false" ]; then
+    download_ec
+    verify_artifacts ec
+  else
+    download_artifacts
+    verify_artifacts ec bios
+  fi
+
+  # Ask user for confirmation:
+  display_warning
+
+  # Deploy EC firmware
+  if [ "$HAVE_EC" == "true" ]; then
+    deploy_ec_firmware install
+  fi
+
+  # Deploy BIOS firmware
+  if [ "$CAN_INSTALL_BIOS" == "true" ]; then
+    deploy_firmware install
+  fi
+
+  # Post-installation routine:
+  echo -n "Syncing disks... "
+  sync
+  echo "Done."
+  if [ "$NEED_EC_RESET" == "true" ]; then
+    echo "The computer will shut down automatically in 5 seconds"
+  else
+    echo "The computer will reboot automatically in 5 seconds"
+  fi
+  sleep 0.5
+  echo "Rebooting in 5s:"
+  echo "5..."
+  sleep 1
+  echo "4..."
+  sleep 1
+  echo "3..."
+  sleep 1
+  echo "2..."
+  sleep 1
+  echo "1..."
+  sleep 0.5
+  echo "Rebooting"
+  sleep 1
+  if [ "$NEED_EC_RESET" == "true" ]; then
+    it5570_shutdown
+  else
+    send_dts_logs
+    ${CMD_REBOOT}
+  fi
+}
+
+update_workflow() {
+# Update workflow.
+  CAN_SWITCH_TO_HEADS="false"
+  sync_clocks
+
+  # Verify that the device is not using battery as a power source:
+  check_if_ac
+  error_check "Firmware update process interrupted on user request."
+
+  # Set all global variables needed for installation:
+  prepare_env update
+
+  print_ok "Current Dasharo version: $DASHARO_VERSION"
+  print_ok "Latest available Dasharo version: $UPDATE_VERSION"
+
+  # TODO: Why do we separate Heads firmware-related code from other code? A
+  # common way to handle this should be found.
+  handle_fw_switching $CAN_SWITCH_TO_HEADS
+
+  # TODO: It is not a good practice to do some target specific work in the code
+  # of a scallable product, this should be handled in a more scallable way:
+  if [[ "$UPDATE_VERSION" == "1.1.1" && \
+    ( "$BOARD_MODEL" == "PRO Z690-A WIFI DDR4(MS-7D25)" || \
+      "$BOARD_MODEL" == "PRO Z690-A DDR4(MS-7D25)" || \
+      "$BOARD_MODEL" == "PRO Z690-A (MS-7D25)" || \
+      "$BOARD_MODEL" == "PRO Z690-A WIFI (MS-7D25)" ) ]]; then
+
+    cpu_gen_check=$(lscpu | grep -F "Model name" | grep -E "\-(13|14)[0-9]{3}" | wc -l)
+
+    if [ $cpu_gen_check -ne 0 ]; then
+      echo "You have a 13th gen or above CPU and are trying to flash Dasharo v1.1.1 on a MSI PRO Z690-A DDR4 or DDR5 board"
+      echo "That version does not support gen 13 and above CPU. Therefore we cannot continue with flashing."
+      error_exit "Aborting update process..."
+    fi
+  fi
+
+  download_artifacts
+  verify_artifacts bios
+
+  # Warning must be displayed after the artifacts have been downloaded, because
+  # we check their hashes inside display_warning function:
+  if [ ! "$FUM" == "fum" ]; then
+    display_warning
+  fi
+
+  deploy_firmware update
 
   if [ ! -z "$SWITCHING_TO" ]; then
     # Any post-branch-switch messaging should go here
@@ -971,9 +934,10 @@ update() {
     print_ok "Successfully updated Dasharo firmware."
   fi
 
+  # Post update routine:
   if [ "$HAVE_EC" == "true" ]; then
     echo "Updating Embedded Controller firmware. Your computer will power off automatically when done."
-    update_ec # Ends in a reset, does not exit
+    deploy_ec_firmware update
   else
     echo -n "Syncing disks... "
     sync
@@ -1126,7 +1090,7 @@ if ! check_if_dasharo; then
   fi
 fi
 
-# for FUM we start in dasharo-deploy so we need to verify that we have internet
+# For FUM we start in dasharo-deploy so we need to verify that we have internet
 # connection to download shasums in board_config
 if [ "$FUM" == "fum" ]; then
     wait_for_network_connection
@@ -1145,7 +1109,7 @@ case "$CMD" in
         initial deployment of Dasharo Firmware. Aborting..."
     fi
     backup
-    install
+    install_workflow
     ;;
   update)
     if [ "$FUM" == "fum" ]; then
@@ -1162,7 +1126,7 @@ case "$CMD" in
         echo "1..."
         sleep 0.5
     fi
-    update
+    update_workflow
     ;;
   backup)
     backup
