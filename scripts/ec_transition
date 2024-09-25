@@ -58,8 +58,6 @@ check_for_opensource_firmware()
 download_files()
 {
   wait_for_network_connection
-  BIOS_UPDATE_FILE="/tmp/biosupdate.rom"
-  EC_UPDATE_FILE="/tmp/ecupdate.rom"
   wget -O $EC_UPDATE_FILE $EC_LINK
   error_check "Cannot download EC update file. Aborting..."
   wget -O $BIOS_UPDATE_FILE $BIOS_LINK
