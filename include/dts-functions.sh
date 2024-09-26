@@ -779,8 +779,10 @@ board_config() {
       NEED_SMBIOS_MIGRATION="true"
       NEED_BLOB_TRANSMISSION="false"
       PROGRAMMER_BIOS="internal"
+
       case "$SYSTEM_MODEL" in
         "ODROID-H4")
+          PLATFORM_SIGN_KEY="dasharo/hardkernel_odroid_h4/dasharo-release-0.x-compatible-with-hardkernel-odroid-h4-family-signing-key.asc"
           DASHARO_REL_NAME="hardkernel_odroid_h4"
           DASHARO_REL_VER_DPP="0.9.0"
           ;;
@@ -789,6 +791,7 @@ board_config() {
           return 1
           ;;
       esac
+
       BIOS_LINK_DPP="$FW_STORE_URL_DPP/$DASHARO_REL_NAME/v$DASHARO_REL_VER_DPP/${DASHARO_REL_NAME}_v$DASHARO_REL_VER_DPP.rom"
       BIOS_HASH_LINK_DPP="${BIOS_LINK_DPP}.sha256"
       BIOS_SIGN_LINK_DPP="${BIOS_LINK_DPP}.sha256.sig"
