@@ -1487,7 +1487,7 @@ main_menu_options(){
       check_avail_dpp_packages || return 0
 
       # Download and install available packages, start loop over if there is
-      # no packages tto install:
+      # no packages to install:
       install_all_dpp_packages || return 0
 
       # Parse installed packages for premium submenus:

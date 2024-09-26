@@ -628,6 +628,12 @@ blob_transmission() {
 deploy_ec_firmware() {
 # This function deploys (installs or updates) downloaded EC firmware either UEFI
 # capsules (updates only) and binaries. Parameters: update, install.
+#
+# TODO: Currently we have here flashrom parameters confguration code, this
+# should be done before this function is called, so as to palce here only
+# deployment-related code. Ideally the deploying calls would look like this:
+#
+# $DEPLOY_COMMAND $DEPLOY_ARGS &>> $LOGS_FILE
   local _mode
   _mode="$1"
 
@@ -675,7 +681,9 @@ deploy_ec_firmware() {
 }
 
 firmware_pre_updating_routine(){
-  # Preupdating routine:
+# This function only separates some code from deployment code, so to make clear
+# where is deployment code, and what should be executed before it:
+  check_flash_chip
   check_flash_lock
 
   if [ "$HAVE_EC" == "true" ]; then
@@ -706,7 +714,9 @@ firmware_pre_updating_routine(){
 }
 
 firmware_pre_installation_routine(){
-  # Preinstallation routine:
+# This function only separates some code from deployment code, so to make clear
+# where is deployment code, and what should be executed before it:
+  check_flash_chip
   check_flash_lock
   check_intel_regions
   check_blobs_in_binary $BIOS_UPDATE_FILE
@@ -740,6 +750,12 @@ firmware_pre_installation_routine(){
 deploy_firmware(){
 # This function deploys (installs or updates) downloaded firmware either UEFI
 # capsules (updates only) or binaries. Parameters: update, install.
+#
+# TODO: Currently we have here flashrom parameters confguration code, this
+# should be done before this function is called, so as to palce here only
+# deployment-related code. Ideally the deploying calls would look like this:
+#
+# $DEPLOY_COMMAND $DEPLOY_ARGS &>> $LOGS_FILE
   local _mode
   _mode="$1"
 
@@ -835,7 +851,13 @@ deploy_firmware(){
 install_workflow() {
 # Installation workflow. The installation of firmware is possible only via
 # flashrom, capsules cannot do the installation because they need initial
-# support inside firmware.
+# support inside firmware. The workflow steps are:
+# 1) Prepare system for installation (e.g. check connection);
+# 2) Prepare environment for installation (e.g. set all needed vars);
+# 3) Ask user are the changes that will be done ok;
+# 4) Do backup;
+# 5) Do the installation;
+# 6) Do some after-installation routine.
   sync_clocks
 
   # Verify that the device is not using battery as a power source:
@@ -901,7 +923,13 @@ install_workflow() {
 }
 
 update_workflow() {
-# Update workflow. Supported firmware formats: binary, UEFI capsule.
+# Update workflow. Supported firmware formats: binary, UEFI capsule. The
+# workflow steps are:
+# 1) Prepare system for update (e.g. check connection);
+# 2) Prepare environment for update (e.g. set all needed vars);
+# 3) Ask user are the changes that wiil be done ok;
+# 4) Do the updating;
+# 5) Do some after-updating routine.
   CAN_SWITCH_TO_HEADS="false"
   sync_clocks
 
@@ -947,6 +975,7 @@ update_workflow() {
 
   deploy_firmware update
 
+  # TODO: Could it be placed somewhere else?
   if [ ! -z "$SWITCHING_TO" ]; then
     # Any post-branch-switch messaging should go here
     case "$SWITCHING_TO" in
