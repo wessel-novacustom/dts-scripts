@@ -857,6 +857,8 @@ install_workflow() {
   # Ask user for confirmation:
   display_warning
 
+  backup
+
   # Deploy EC firmware
   if [ "$HAVE_EC" == "true" ]; then
     deploy_ec_firmware install
@@ -1110,7 +1112,7 @@ restore() {
 usage() {
   echo "Usage:"
   echo "  $0 install  - Install Dasharo on this device"
-  echo "  $0 backup   - Backup current firmware"
+  echo "  $0 update   - Update Dasharo"
   echo "  $0 restore  - Restore from a previously saved backup"
 }
 
@@ -1138,7 +1140,6 @@ case "$CMD" in
       error_exit "Dasharo Firmware is already installed. This script is only for\r
         initial deployment of Dasharo Firmware. Aborting..."
     fi
-    backup
     install_workflow
     ;;
   update)
@@ -1157,9 +1158,6 @@ case "$CMD" in
         sleep 0.5
     fi
     update_workflow
-    ;;
-  backup)
-    backup
     ;;
   restore)
     if ! check_if_dasharo; then
