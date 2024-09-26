@@ -1517,9 +1517,9 @@ show_footer(){
     echo -ne "${RED}${SSH_OPT_UP}${NORMAL} to launch SSH server  ${NORMAL}"
   fi
   if [ "${SEND_LOGS_ACTIVE}" == "true" ]; then
-    echo -ne "${RED}${SEND_LOGS_OPT}${NORMAL} to disable sending DTS logs ${NORMAL}"
+    echo -e "${RED}${SEND_LOGS_OPT}${NORMAL} to disable sending DTS logs ${NORMAL}"
   else
-    echo -ne "${RED}${SEND_LOGS_OPT}${NORMAL} to enable sending DTS logs ${NORMAL}"
+    echo -e "${RED}${SEND_LOGS_OPT}${NORMAL} to enable sending DTS logs ${NORMAL}"
   fi
   if [ "${VERBOSE_ACTIVE}" == "true" ]; then
     echo -ne "${RED}${VERBOSE_OPT}${NORMAL} to disable verbose mode ${NORMAL}"
