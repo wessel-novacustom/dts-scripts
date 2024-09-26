@@ -661,26 +661,16 @@ board_config() {
 
       BIOS_LINK_DPP="$FW_STORE_URL_DPP/$DASHARO_REL_NAME/v$DASHARO_REL_VER_DPP/${DASHARO_REL_NAME}_v$DASHARO_REL_VER_DPP.rom"
       ;;
-    "Emulation")
+    "QEMU"|"Emulation")
       case "$SYSTEM_MODEL" in
-        "QEMU x86 q35/ich9")
-          case "$BOARD_MODEL" in
-	    "QEMU x86 q35/ich9")
-              # Update type:
-              CAN_INSTALL_BIOS="true"
-              CAPSULE_UPDATE="true"
-              # Download and versioning variables:
-              DASHARO_REL_NAME="qemu_q35"
-              DASHARO_REL_VER="v0.2.0"
-              BIOS_LINK_COMM="${FW_STORE_URL}/${DASHARO_REL_NAME}/${DASHARO_REL_VER}/${DASHARO_REL_NAME}_${DASHARO_REL_VER}.rom"
-              # TODO: wait till the binaries will be uploaded to the server.
-              #BIOS_LINK_COMM_CAP="${FW_STORE_URL}/${DASHARO_REL_NAME}/${DASHARO_REL_VER}/"
-              ;;
-            *)
-              print_error "Board model $BOARD_MODEL is currently not supported"
-              return 1
-              ;;
-          esac
+        *Q35*ICH9*|*q35*ich9*)
+           # Update type:
+           CAN_INSTALL_BIOS="true"
+           # Download and versioning variables:
+           DASHARO_REL_NAME_CAP="qemu_q35"
+           DASHARO_REL_VER_CAP="0.2.0"
+           # TODO: wait till the binaries will be uploaded to the server.
+           BIOS_LINK_COMM_CAP="${FW_STORE_URL}/${DASHARO_REL_NAME_CAP}/v${DASHARO_REL_VER_CAP}/"
 	  ;;
         *)
           print_error "Board model $SYSTEM_MODEL is currently not supported"
