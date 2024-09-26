@@ -629,8 +629,8 @@ deploy_ec_firmware() {
 # This function deploys (installs or updates) downloaded EC firmware either UEFI
 # capsules (updates only) and binaries. Parameters: update, install.
 #
-# TODO: Currently we have here flashrom parameters confguration code, this
-# should be done before this function is called, so as to palce here only
+# TODO: Currently we have here flashrom parameters configuration code, this
+# should be done before this function is called, so as to place here only
 # deployment-related code. Ideally the deploying calls would look like this:
 #
 # $DEPLOY_COMMAND $DEPLOY_ARGS &>> $LOGS_FILE
@@ -751,8 +751,8 @@ deploy_firmware(){
 # This function deploys (installs or updates) downloaded firmware either UEFI
 # capsules (updates only) or binaries. Parameters: update, install.
 #
-# TODO: Currently we have here flashrom parameters confguration code, this
-# should be done before this function is called, so as to palce here only
+# TODO: Currently we have here flashrom parameters configuration code, this
+# should be done before this function is called, so as to place here only
 # deployment-related code. Ideally the deploying calls would look like this:
 #
 # $DEPLOY_COMMAND $DEPLOY_ARGS &>> $LOGS_FILE
@@ -927,7 +927,7 @@ update_workflow() {
 # workflow steps are:
 # 1) Prepare system for update (e.g. check connection);
 # 2) Prepare environment for update (e.g. set all needed vars);
-# 3) Ask user are the changes that wiil be done ok;
+# 3) Ask user are the changes that will be done ok;
 # 4) Do the updating;
 # 5) Do some after-updating routine.
   CAN_SWITCH_TO_HEADS="false"
