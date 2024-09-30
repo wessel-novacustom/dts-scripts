@@ -873,12 +873,13 @@ install_workflow() {
   prepare_env install
 
   # Download and verify firmware:
-  if [ "$CAN_INSTALL_BIOS" == "false" ]; then
+  if [ "$HAVE_EC" == "true" ]; then
     download_ec
     verify_artifacts ec
-  else
-    download_artifacts
-    verify_artifacts ec bios
+  fi
+  if [ "$CAN_INSTALL_BIOS" == "true" ]; then
+    download_bios
+    verify_artifacts bios
   fi
 
   # Ask user for confirmation:
