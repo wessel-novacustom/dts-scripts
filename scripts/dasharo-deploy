@@ -90,6 +90,7 @@ ask_for_version() {
   while : ; do
     echo
     echo "Please, select Dasharo firmware version to install:"
+    echo
 
     # Here we check if user has access to a certain version of Dasharo Firmware.
     # The check consists of two stages:
@@ -110,9 +111,11 @@ ask_for_version() {
         echo "  d) DPP version (coreboot + UEFI)"
 	_might_be_dpp="true"
       else
-        echo "  DPP version (coreboot + UEFI) available but you don't have access"
-        echo "  to it, if you are interested, please visit"
-        echo "  https://shop.3mdeb.com/product-category/dasharo-pro-package/"
+        print_warning "  DPP version (coreboot + UEFI) available but you don't have access"
+        print_warning "  to it, if you are interested, please visit"
+        print_warning "  https://shop.3mdeb.com/product-category/dasharo-pro-package/"
+
+        echo
       fi
     fi
 
@@ -121,9 +124,11 @@ ask_for_version() {
         echo "  s) DPP version (coreboot + SeaBIOS)"
 	_might_be_seabios="true"
       else
-        echo "  DPP version (coreboot + SeaBIOS) available but you don't have access"
-        echo "  to it, if you are interested, please visit"
-        echo "  https://shop.3mdeb.com/product-category/dasharo-pro-package/"
+        print_warning "  DPP version (coreboot + SeaBIOS) available but you don't have access"
+        print_warning "  to it, if you are interested, please visit"
+        print_warning "  https://shop.3mdeb.com/product-category/dasharo-pro-package/"
+
+        echo
       fi
     fi
 
