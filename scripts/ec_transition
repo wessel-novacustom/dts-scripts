@@ -8,6 +8,8 @@
 source $DTS_ENV
 # shellcheck source=../include/dts-functions.sh
 source $DTS_FUNCS
+# shellcheck source=../include/hal/dts-hal.sh
+source $DTS_HAL
 
 board_config() {
   case "$SYSTEM_VENDOR" in
@@ -46,15 +48,6 @@ board_config() {
   esac
 }
 
-check_for_opensource_firmware()
-{
-  echo "Checking for opensource firmware"
-  $DASHARO_ECTOOL info >> /dev/null 2>&1
-  if [ $? -eq 0 ]; then
-    error_exit "Device has already Open Source Embedded Controller firmware, aborting..."
-  fi
-}
-
 download_files()
 {
   wait_for_network_connection
@@ -81,7 +74,7 @@ install() {
   error_check "Failed to verify Dasharo firmware"
 
   if [ "$HAVE_EC" == "true" ]; then
-    _ec_fw_version=$($FLASHROM -p ${PROGRAMMER_EC} | grep "Mainboard EC Version" | tr -d ' ' | cut -d ':' -f 2)
+    _ec_fw_version=$($FLASHROM get_ec_firm_version_mock -p ${PROGRAMMER_EC} | grep "Mainboard EC Version" | tr -d ' ' | cut -d ':' -f 2)
 
     if [ "$_ec_fw_version" != "$COMPATIBLE_EC_FW_VERSION" ]; then
       echo "EC version: $_ec_fw_version is not supported, update required"
@@ -100,7 +93,7 @@ install() {
   if [ "$NEED_EC_RESET" = "true" ]; then
     it5570_shutdown
   else
-    ${CMD_POWEROFF}
+    ${POWEROFF}
   fi
 }
 
@@ -115,7 +108,9 @@ ROOT_DIR="/"
 [ -z "$SYSTEM_VENDOR" ] && error_exit "SYSTEM_VENDOR not given"
 [ -z "$SYSTEM_MODEL" ] && error_exit "SYSTEM_MODEL not given"
 
-check_for_opensource_firmware
+if check_for_opensource_firmware; then
+  error_exit "Device has already Open Source Embedded Controller firmware, aborting..."
+fi
 board_config
 download_files
 install

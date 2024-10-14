@@ -9,6 +9,8 @@
 source $DTS_ENV
 # shellcheck source=../include/dts-subscription.sh
 source $DTS_SUBS
+# shellcheck source=../include/hal/dts-hal.sh
+source $DTS_HAL
 
 ### Color functions:
 function echo_green() {
@@ -53,7 +55,7 @@ check_if_ac() {
   fi
 
   while true; do
-    ac_status=$(cat ${_ac_file})
+    ac_status=$($FSREAD_TOOL check_if_ac_mock cat ${_ac_file})
 
     if [ "$ac_status" -eq 1 ]; then
       echo "AC adapter is connected. Continuing with firmware update."
@@ -121,28 +123,28 @@ it5570_i2ec() {
   # TODO: Use /dev/port instead of iotools
 
   # Address high byte
-  iotools io_write8 0x2e 0x2e
-  iotools io_write8 0x2f 0x11
-  iotools io_write8 0x2e 0x2f
-  iotools io_write8 0x2f $(($2>>8 & 0xff))
+  $IOTOOLS io_write8 0x2e 0x2e
+  $IOTOOLS io_write8 0x2f 0x11
+  $IOTOOLS io_write8 0x2e 0x2f
+  $IOTOOLS io_write8 0x2f $(($2>>8 & 0xff))
 
   # Address low byte
-  iotools io_write8 0x2e 0x2e
-  iotools io_write8 0x2f 0x10
-  iotools io_write8 0x2e 0x2f
-  iotools io_write8 0x2f $(($2 & 0xff))
+  $IOTOOLS io_write8 0x2e 0x2e
+  $IOTOOLS io_write8 0x2f 0x10
+  $IOTOOLS io_write8 0x2e 0x2f
+  $IOTOOLS io_write8 0x2f $(($2 & 0xff))
 
   # Data
-  iotools io_write8 0x2e 0x2e
-  iotools io_write8 0x2f 0x12
-  iotools io_write8 0x2e 0x2f
+  $IOTOOLS io_write8 0x2e 0x2e
+  $IOTOOLS io_write8 0x2f 0x12
+  $IOTOOLS io_write8 0x2e 0x2f
 
   case $1 in
     "r")
-      iotools io_read8 0x2f
+      $IOTOOLS io_read8 0x2f
       ;;
     "w")
-      iotools io_write8 0x2f "$3"
+      $IOTOOLS io_write8 0x2f "$3"
       ;;
   esac
 }
@@ -350,11 +352,11 @@ board_config() {
         "V54x_6x_TU")
           # Dasharo 0.9.0-rc10 and higher have board model in baseboard-version
           if check_if_dasharo && compare_versions "$DASHARO_VERSION" 0.9.0-rc10; then
-            BOARD_MODEL="$(dmidecode -s baseboard-version)"
-          elif ! dasharo_ectool info 2>/dev/null; then
+            BOARD_MODEL="$($DMIDECODE dump_var_mock -s baseboard-version)"
+          elif ! $DASHARO_ECTOOL check_for_opensource_firm_mock info 2>/dev/null; then
             ask_for_model V540TU V560TU
           else
-            BOARD_MODEL=$(dasharo_ectool info | grep "board:" |
+            BOARD_MODEL=$($DASHARO_ECTOOL novacustom_check_sys_model_mock info | grep "board:" |
               sed -r 's|.*novacustom/(.*)|\1|' | awk '{print toupper($1)}')
           fi
 
@@ -387,7 +389,7 @@ board_config() {
           ;;
         "V5xTNC_TND_TNE")
           if check_if_dasharo; then
-            BOARD_MODEL="$(dmidecode -s baseboard-version)"
+            BOARD_MODEL="$($DMIDECODE dump_var_mock -s baseboard-version)"
           else
             ask_for_model V540TNx V560TNx
           fi
@@ -708,7 +710,7 @@ board_config() {
 }
 
 check_flash_lock() {
-    $FLASHROM -p "$PROGRAMMER_BIOS" ${FLASH_CHIP_SELECT} > /tmp/check_flash_lock 2> /tmp/check_flash_lock.err
+    $FLASHROM check_flash_lock_mock -p "$PROGRAMMER_BIOS" ${FLASH_CHIP_SELECT} > /tmp/check_flash_lock 2> /tmp/check_flash_lock.err
     # Check in flashrom output if lock is enabled
     grep -q 'PR0: Warning:.* is read-only\|SMM protection is enabled' /tmp/check_flash_lock.err
     if [ $? -eq 0 ]; then
@@ -721,22 +723,22 @@ check_flash_lock() {
 
 check_flash_chip() {
   echo "Gathering flash chip and chipset information..."
-  $FLASHROM -p "$PROGRAMMER_BIOS" --flash-name >> "$FLASH_INFO_FILE" 2>> "$ERR_LOG_FILE"
+  $FLASHROM flash_chip_name_mock -p "$PROGRAMMER_BIOS" --flash-name >> "$FLASH_INFO_FILE" 2>> "$ERR_LOG_FILE"
   if [ $? -eq 0 ]; then
     echo -n "Flash information: "
     tail -n1 "$FLASH_INFO_FILE"
-    FLASH_CHIP_SIZE=$(($($FLASHROM -p "$PROGRAMMER_BIOS" --flash-size 2>> /dev/null | tail -n1) / 1024 / 1024))
+    FLASH_CHIP_SIZE=$(($($FLASHROM flash_chip_size_mock -p "$PROGRAMMER_BIOS" --flash-size 2>> /dev/null | tail -n1) / 1024 / 1024))
     echo -n "Flash size: "
     echo ${FLASH_CHIP_SIZE}M
   else
     for flash_name in $FLASH_CHIP_LIST
     do
-      $FLASHROM -p "$PROGRAMMER_BIOS" -c "$flash_name" --flash-name >> "$FLASH_INFO_FILE" 2>> "$ERR_LOG_FILE"
+      $FLASHROM flash_chip_name_mock -p "$PROGRAMMER_BIOS" -c "$flash_name" --flash-name >> "$FLASH_INFO_FILE" 2>> "$ERR_LOG_FILE"
       if [ $? -eq 0 ]; then
         echo "Chipset found"
         tail -n1 "$FLASH_INFO_FILE"
         FLASH_CHIP_SELECT="-c ${flash_name}"
-        FLASH_CHIP_SIZE=$(($($FLASHROM -p "$PROGRAMMER_BIOS" ${FLASH_CHIP_SELECT} --flash-size 2>> /dev/null | tail -n1) / 1024 / 1024))
+        FLASH_CHIP_SIZE=$(($($FLASHROM flash_chip_size_mock -p "$PROGRAMMER_BIOS" ${FLASH_CHIP_SELECT} --flash-size 2>> /dev/null | tail -n1) / 1024 / 1024))
         echo "Chipset size"
         echo ${FLASH_CHIP_SIZE}M
         break
@@ -918,7 +920,7 @@ verify_artifacts() {
 
 check_intel_regions() {
 
-  FLASH_REGIONS=$($FLASHROM -p "$PROGRAMMER_BIOS" ${FLASH_CHIP_SELECT} 2>&1)
+  FLASH_REGIONS=$($FLASHROM check_intel_regions_mock -p "$PROGRAMMER_BIOS" ${FLASH_CHIP_SELECT} 2>&1)
   BOARD_HAS_FD_REGION=0
   BOARD_FD_REGION_RW=0
   BOARD_HAS_ME_REGION=0
@@ -946,7 +948,7 @@ check_blobs_in_binary() {
 
   # If there is no descriptor, there is no ME as well, so skip the check
   if [ $BOARD_HAS_FD_REGION -ne 0 ]; then
-    ME_OFFSET=$(ifdtool -d $1 2> /dev/null | grep "Flash Region 2 (Intel ME):" | sed 's/Flash Region 2 (Intel ME)\://' |awk '{print $1;}')
+    ME_OFFSET=$($IFDTOOL check_blobs_in_binary_mock -d $1 2> /dev/null | grep "Flash Region 2 (Intel ME):" | sed 's/Flash Region 2 (Intel ME)\://' | awk '{print $1;}')
     # Check for IFD signature at offset 0 (old descriptors)
     if [ "$(tail -c +0 $1|head -c 4|xxd -ps)" == "5aa5f00f" ]; then
       BINARY_HAS_FD=1
@@ -976,11 +978,8 @@ check_if_me_disabled() {
     return
   fi
 
-  # Check if HECI present
-  # FIXME: what if HECI is not device 16.0?
-  if [ -d /sys/class/pci_bus/0000:00/device/0000:00:16.0 ]; then
-    # Check ME Current Operation Mode at offset 0x40 bits 19:16
-    ME_OPMODE="$(setpci -s 00:16.0 42.B 2> /dev/null | cut -c2-)"
+  if check_if_heci_present; then
+    ME_OPMODE="$(check_me_op_mode)"
     if [ $ME_OPMODE == "0" ]; then
       echo "ME is not disabled"  >> $ERR_LOG_FILE
       return
@@ -1015,8 +1014,8 @@ check_if_me_disabled() {
     fi
   else
     # If we are running coreboot, check for status in logs
-    cbmem -1 | grep -q "ME is disabled" && ME_DISABLED=1 && return # HECI (soft) disabled
-    cbmem -1 | grep -q "ME is HAP disabled" && ME_DISABLED=1 && return # HAP disabled
+    $CBMEM check_if_me_disabled_mock -1 | grep -q "ME is disabled" && ME_DISABLED=1 && return # HECI (soft) disabled
+    $CBMEM check_if_me_disabled_mock -1 | grep -q "ME is HAP disabled" && ME_DISABLED=1 && return # HAP disabled
     # TODO: If proprietary BIOS, then also try to check SMBIOS for ME FWSTS
     # BTW we could do the same in coreboot, expose FWSTS in SMBIOS before it
     # gets disabled
@@ -1061,10 +1060,10 @@ set_flashrom_update_params() {
   # We need to read whole binary (or BIOS region), otherwise cbfstool will
   # return different attributes for CBFS regions
   echo "Checking flash layout."
-  $FLASHROM -p "$PROGRAMMER_BIOS" ${FLASH_CHIP_SELECT} ${FLASHROM_ADD_OPT_UPDATE} -r /tmp/bios.bin > /dev/null 2>&1
-  if [ $? -eq 0 ] && [ -f "/tmp/bios.bin" ]; then
-    BOARD_FMAP_LAYOUT=$(cbfstool /tmp/bios.bin layout -w 2> /dev/null)
-    BINARY_FMAP_LAYOUT=$(cbfstool $1 layout -w 2> /dev/null)
+  $FLASHROM read_flash_layout_mock -p "$PROGRAMMER_BIOS" ${FLASH_CHIP_SELECT} ${FLASHROM_ADD_OPT_UPDATE} -r $BIOS_DUMP_FILE > /dev/null 2>&1
+  if [ $? -eq 0 ] && [ -f "$BIOS_DUMP_FILE" ]; then
+    BOARD_FMAP_LAYOUT=$($CBFSTOOL layout_mock $BIOS_DUMP_FILE layout -w 2> /dev/null)
+    BINARY_FMAP_LAYOUT=$($CBFSTOOL layout_mock $1 layout -w 2> /dev/null)
     diff <(echo "$BOARD_FMAP_LAYOUT") <(echo "$BINARY_FMAP_LAYOUT") > /dev/null 2>&1
     # If layout is identical, perform standard update using FMAP only
     if [ $? -eq 0 ]; then
@@ -1269,7 +1268,7 @@ You can find more info about HCL in docs.dasharo.com/glossary\r"
 show_ram_inf() {
   # Get the data:
   local data=""
-  data=$(dmidecode)
+  data=$($DMIDECODE)
 
   # Initialize an empty array to store the extracted values:
   local -a memory_devices_array
@@ -1325,7 +1324,7 @@ show_hardsoft_inf() {
   echo -e "${BLUE}**${NORMAL}                HARDWARE INFORMATION ${NORMAL}"
   echo -e "${BLUE}*********************************************************${NORMAL}"
   echo -e "${BLUE}**${YELLOW}    System Inf.: ${NORMAL}${SYSTEM_VENDOR} ${SYSTEM_MODEL}"
-  echo -e "${BLUE}**${YELLOW} Baseboard Inf.: ${NORMAL}${BOARD_VENDOR} ${BOARD_MODEL}"
+  echo -e "${BLUE}**${YELLOW} Baseboard Inf.: ${NORMAL}${SYSTEM_VENDOR} ${BOARD_MODEL}"
   echo -e "${BLUE}**${YELLOW}       CPU Inf.: ${NORMAL}${CPU_VERSION}"
   show_ram_inf
   echo -e "${BLUE}*********************************************************${NORMAL}"
@@ -1564,11 +1563,11 @@ footer_options(){
       ;;
     "${POWEROFF_OPT_UP}" | "${POWEROFF_OPT_LOW}")
       send_dts_logs
-      ${CMD_POWEROFF}
+      ${POWEROFF}
       ;;
     "${REBOOT_OPT_UP}" | "${REBOOT_OPT_LOW}")
       send_dts_logs
-      ${CMD_REBOOT}
+      ${REBOOT}
       ;;
     "${SEND_LOGS_OPT}" | "${SEND_LOGS_OPT_LOW}")
       if [ "${SEND_LOGS_ACTIVE}" == "true" ]; then

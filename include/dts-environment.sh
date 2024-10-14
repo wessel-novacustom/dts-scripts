@@ -5,6 +5,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # shellcheck disable=SC2034
+# shellcheck source=../include/hal/dts-hal.sh
+source $DTS_HAL
 
 # Text colors:
 NORMAL='\033[0m'
@@ -50,15 +52,14 @@ VERBOSE_OPT="V"
 VERBOSE_OPT_LOW="$(echo $VERBOSE_OPT | awk '{print tolower($0)}')"
 
 # Hardware variables:
-SYSTEM_VENDOR="${SYSTEM_VENDOR:-$(dmidecode -s system-manufacturer)}"
-SYSTEM_MODEL="${SYSTEM_MODEL:-$(dmidecode -s system-product-name)}"
-BOARD_VENDOR="${BOARD_VENDOR:-$(dmidecode -s system-manufacturer)}"
-BOARD_MODEL="${BOARD_MODEL:-$(dmidecode -s baseboard-product-name)}"
-CPU_VERSION="$(dmidecode -s processor-version)"
+SYSTEM_VENDOR="$($DMIDECODE dump_var_mock -s system-manufacturer)"
+SYSTEM_MODEL="$($DMIDECODE dump_var_mock -s system-product-name)"
+BOARD_MODEL="$($DMIDECODE dump_var_mock -s baseboard-product-name)"
+CPU_VERSION="$($DMIDECODE dump_var_mock -s processor-version)"
 
 # Firmware variables
-BIOS_VENDOR="${BIOS_VENDOR:-$(dmidecode -s bios-vendor)}"
-BIOS_VERSION="${BIOS_VERSION:-$(dmidecode -s bios-version)}"
+BIOS_VENDOR="$($DMIDECODE dump_var_mock -s bios-vendor)"
+BIOS_VERSION="$($DMIDECODE dump_var_mock -s bios-version)"
 DASHARO_VERSION="$(echo $BIOS_VERSION | cut -d ' ' -f 3 | tr -d 'v')"
 DASHARO_FLAVOR="$(echo $BIOS_VERSION | cut -d ' ' -f 1,2)"
 
@@ -66,6 +67,7 @@ DASHARO_FLAVOR="$(echo $BIOS_VERSION | cut -d ' ' -f 1,2)"
 # firmware, are used globally for both: updating via binaries and via UEFI
 # Capsule Update.
 BIOS_UPDATE_FILE="/tmp/biosupdate"
+BIOS_DUMP_FILE="/tmp/bios.bin"
 EC_UPDATE_FILE="/tmp/ecupdate"
 BIOS_HASH_FILE="/tmp/bioshash.sha256"
 EC_HASH_FILE="/tmp/echash.sha256"
@@ -91,17 +93,15 @@ FLASH_INFO_FILE="/tmp/flash_info"
 OS_VERSION_FILE="/etc/os-release"
 KEYS_DIR="/tmp/devkeys"
 
-# Paths to system commands
-CMD_POWEROFF="/sbin/poweroff"
-CMD_REBOOT="/sbin/reboot"
-CMD_SHELL="/bin/bash"
+# Paths to system commands:
+SHELL="bash"
+
+# Paths to DTS commands:
 CMD_DASHARO_HCL_REPORT="/usr/sbin/dasharo-hcl-report"
 CMD_NCMENU="/usr/sbin/novacustom_menu"
 CMD_DASHARO_DEPLOY="/usr/sbin/dasharo-deploy"
 CMD_CLOUD_LIST="/usr/sbin/cloud_list"
 CMD_EC_TRANSITION="/usr/sbin/ec_transition"
-DASHARO_ECTOOL="${DASHARO_ECTOOL:-dasharo_ectool}"
-FLASHROM="${FLASHROM:-flashrom}"
 
 # Configuration variables declaration and default values (see dts-functions.sh/
 # board_config function for more inf.):

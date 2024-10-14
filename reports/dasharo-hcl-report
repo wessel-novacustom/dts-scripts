@@ -8,6 +8,8 @@
 source $DTS_ENV
 # shellcheck source=../include/dts-functions.sh
 source $DTS_FUNCS
+# shellcheck source=../include/hal/dts-hal.sh
+source $DTS_HAL
 
 update_result() {
   TOOL=$1
@@ -68,32 +70,32 @@ if [ $DEPLOY_REPORT = "false" ]; then
   echo "Getting hardware information. It will take a few minutes..."
 fi
 # echo "Dumping PCI configuration space and topology..."
-lspci -nnvvvxxxx > logs/lspci.log 2> logs/lspci.err.log
+$LSPCI -nnvvvxxxx > logs/lspci.log 2> logs/lspci.err.log
 update_result "PCI configuration space and topology" logs/lspci.err.log
 printf '##                                                                 |\r'
 
 # echo "Dumping USB devices and topology..."
-lsusb -vvv > logs/lsusb.log 2> logs/lsusb.err.log
+$LSUSB -vvv > logs/lsusb.log 2> logs/lsusb.err.log
 update_result "USB devices and topology" logs/lsusb.err.log
 printf '####                                                               |\r'
 
 # echo "Dumping Super I/O configuration..."
-superiotool -deV > logs/superiotool.log 2> logs/superiotool.err.log
+$SUPERIOTOOL -deV > logs/superiotool.log 2> logs/superiotool.err.log
 update_result "Super I/O configuration" logs/superiotool.err.log
 printf '######                                                             |\r'
 
 # echo "Dumping Embedded Controller configuration (this may take a while if EC is not present)..."
-ectool -ip > logs/ectool.log 2> logs/ectool.err.log
+$ECTOOL -ip > logs/ectool.log 2> logs/ectool.err.log
 update_result "EC configuration" logs/ectool.err.log
 printf '########                                                           |\r'
 
 # echo "Dumping MSRs..."
-msrtool > logs/msrtool.log 2> logs/msrtool.err.log
+$MSRTOOL > logs/msrtool.log 2> logs/msrtool.err.log
 update_result "MSRs" logs/msrtool.err.log
 printf '##########                                                         |\r'
 
 # echo "Dumping SMBIOS tables..."
-dmidecode > logs/dmidecode.log 2> logs/dmidecode.err.log
+$DMIDECODE > logs/dmidecode.log 2> logs/dmidecode.err.log
 update_result "SMBIOS tables" logs/dmidecode.err.log
 printf '############                                                       |\r'
 
@@ -121,12 +123,12 @@ update_result "GPIO configuration C header files" logs/intelp2m.err.log
 printf '####################                                               |\r'
 
 # echo "Dumping kernel dmesg..."
-dmesg > logs/dmesg.log 2> logs/dmesg.err.log
+$DMESG > logs/dmesg.log 2> logs/dmesg.err.log
 update_result "kernel dmesg" logs/dmesg.err.log
 printf '######################                                             |\r'
 
 # echo "Dumping ACPI tables..."
-acpidump > logs/acpidump.log 2> logs/acpidump.err.log
+$ACPIDUMP > logs/acpidump.log 2> logs/acpidump.err.log
 update_result "ACPI tables" logs/acpidump.err.log
 printf '########################                                           |\r'
 
@@ -190,9 +192,9 @@ if [ $BOARD_HAS_FD_REGION -eq 1 ]; then
     # GBE region is present and not locked, read it as well
     FLASHROM_ADD_OPT_READ+=" -i gbe"
   fi
-  else
-      # No descriptor, probably safe to read everything
-      FLASHROM_ADD_OPT_READ=""
+else
+  # No descriptor, probably safe to read everything
+  FLASHROM_ADD_OPT_READ=""
 fi
 
 $FLASHROM -V -p internal:laptop=force_I_want_a_brick ${FLASH_CHIP_SELECT} -r logs/rom.bin ${FLASHROM_ADD_OPT_READ} > logs/flashrom_read.log 2> logs/flashrom_read.err.log
@@ -233,12 +235,12 @@ update_result "DIMMs information" logs/decode-dimms.err.log
 printf '##########################################                         |\r'
 
 # echo "Getting CBMEM table..."
-cbmem > logs/cbmem.log 2> logs/cbmem.err.log
+$CBMEM > logs/cbmem.log 2> logs/cbmem.err.log
 update_result "CBMEM table information" logs/cbmem.err.log
 printf '############################################                       |\r'
 
 # echo "Getting CBMEM console..."
-cbmem -1 > logs/cbmem_console.log 2> logs/cbmem_console.err.log
+$CBMEM -1 > logs/cbmem_console.log 2> logs/cbmem_console.err.log
 update_result "CBMEM console" logs/cbmem_console.err.log
 printf '##############################################                     |\r'
 
@@ -248,12 +250,12 @@ update_result "TPM information" logs/tpm_version.err.log
 printf '################################################                   |\r'
 
 # echo "Checking AMT..."
-mei-amt-check > logs/amt-check.log 2> logs/amt-check.err.log
+$MEI_AMT_CHECK > logs/amt-check.log 2> logs/amt-check.err.log
 update_result "AMT information" logs/amt-check.err.log
 printf '##################################################                 |\r'
 
 # echo "Checking ME..."
-intelmetool -m > logs/intelmetool.log 2> logs/intelmetool.err.log
+$INTELMETOOL -m > logs/intelmetool.log 2> logs/intelmetool.err.log
 update_result "ME information" logs/intelmetool.err.log
 printf '#####################################################              |\r'
 
@@ -287,9 +289,9 @@ if [ $DEPLOY_REPORT = "false" ]; then
 fi
 
 # Create name for generated report
-filename="$(dmidecode -s system-manufacturer)"
-filename+=" $(dmidecode -s system-product-name)"
-filename+=" $(dmidecode -s bios-version)"
+filename="$($DMIDECODE dump_var_mock -s system-manufacturer)"
+filename+=" $($DMIDECODE dump_var_mock -s system-product-name)"
+filename+=" $($DMIDECODE dump_var_mock -s bios-version)"
 
 # MAC address of device that is used to connect the internet
 # it could return none only when there is no internet connection but
@@ -299,8 +301,8 @@ filename+=" $(dmidecode -s bios-version)"
 # shellcheck disable=SC2046
 uuid_string="$(cat /sys/class/net/$(ip route show default | head -1 | awk '/default/ {print $5}')/address)"
 # next two values are hardware related so they will be always the same
-uuid_string+="_$(dmidecode -s system-product-name)"
-uuid_string+="_$(dmidecode -s system-manufacturer)"
+uuid_string+="_$($DMIDECODE dump_var_mock -s system-product-name)"
+uuid_string+="_$($DMIDECODE dump_var_mock -s system-manufacturer)"
 
 # using values from above should generate the same uuid all the time if only
 # the MAC address will not change.
@@ -371,7 +373,7 @@ order to participate)\r
 read -p "[N/y] "
 case ${REPLY} in
     yes|y|Y|Yes|YES)
-    /usr/bin/hw-probe -all -upload
+    $HW_PROBE -all -upload
     if [ $? -eq 0 ]; then
         echo "Thank you for contributing to the \"Hardware for Linux\" project!"
     else
