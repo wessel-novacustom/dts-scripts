@@ -1717,7 +1717,6 @@ check_if_intel() {
   if [ $cpu_vendor == "GenuineIntel" ]; then
     return 0
   fi
-  return 1
 }
 
 set_verbose() {

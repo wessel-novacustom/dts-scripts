@@ -11,6 +11,8 @@ install:
 	install -m 0755 include/dts-environment.sh $(DESTDIR)$(SBINDIR)
 	install -m 0755 include/dts-functions.sh $(DESTDIR)$(SBINDIR)
 	install -m 0755 include/dts-subscription.sh $(DESTDIR)$(SBINDIR)
+	install -m 0755 include/hal/dts-hal.sh $(DESTDIR)$(SBINDIR)
+	install -m 0755 include/hal/common-mock-func.sh $(DESTDIR)$(SBINDIR)
 
 	install -m 0755 scripts/cloud_list $(DESTDIR)$(SBINDIR)
 	install -m 0755 scripts/dasharo-deploy $(DESTDIR)$(SBINDIR)
