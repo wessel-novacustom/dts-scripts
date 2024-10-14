@@ -21,9 +21,7 @@
 
 # shellcheck disable=SC2034
 
-# shellcheck source=./dts-hal-common.sh
-source $DTS_ENV
-# shellcheck source=./dts-hal-common.sh
+# shellcheck source=../../include/hal/common-mock-func.sh
 source $DTS_MOCK_COMMON
 
 # Set tools wrappers:

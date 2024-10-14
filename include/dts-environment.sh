@@ -7,6 +7,8 @@
 # shellcheck disable=SC2034
 # shellcheck source=../include/hal/dts-hal.sh
 source $DTS_HAL
+# shellcheck source=../include/dts-functions.sh
+source $DTS_FUNCS
 
 # Text colors:
 NORMAL='\033[0m'

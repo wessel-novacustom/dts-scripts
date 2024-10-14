@@ -5,12 +5,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # shellcheck disable=SC2034
-# shellcheck source=../include/dts-environment.sh
-source $DTS_ENV
-# shellcheck source=../include/dts-subscription.sh
-source $DTS_SUBS
-# shellcheck source=../include/hal/dts-hal.sh
-source $DTS_HAL
 
 ### Color functions:
 function echo_green() {

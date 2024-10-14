@@ -5,8 +5,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # shellcheck disable=SC2034
-# shellcheck source=../include/dts-environment.sh
-source $DTS_ENV
 
 check_for_dasharo_firmware() {
   # This function checks if Dasharo firmware is available for the current
