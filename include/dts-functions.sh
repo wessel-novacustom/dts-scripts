@@ -687,6 +687,8 @@ board_config() {
   [ -z "$BIOS_SIGN_LINK_DPP" ] && BIOS_SIGN_LINK_DPP="${BIOS_HASH_LINK_DPP}.sig"
   [ -z "$BIOS_HASH_LINK_DPP_SEABIOS" ] && BIOS_HASH_LINK_DPP_SEABIOS="${BIOS_LINK_DPP_SEABIOS}.sha256"
   [ -z "$BIOS_SIGN_LINK_DPP_SEABIOS" ] && BIOS_SIGN_LINK_DPP_SEABIOS="${BIOS_HASH_LINK_DPP_SEABIOS}.sig"
+  [ -z "$HEADS_HASH_LINK_DPP" ] && HEADS_HASH_LINK_DPP="${HEADS_LINK_DPP}.sha256"
+  [ -z "$HEADS_SIGN_LINK_DPP" ] && HEADS_SIGN_LINK_DPP="${HEADS_HASH_LINK_DPP}.sig"
   [ -z "$EC_HASH_LINK_COMM" ] && EC_HASH_LINK_COMM="${EC_LINK_COMM}.sha256"
   [ -z "$EC_SIGN_LINK_COMM" ] && EC_SIGN_LINK_COMM="${EC_HASH_LINK_COMM}.sig"
   [ -z "$EC_HASH_LINK_DPP" ] && EC_HASH_LINK_DPP="${EC_LINK_DPP}.sha256"
@@ -1130,9 +1132,21 @@ handle_fw_switching() {
         yes|y|Y|Yes|YES)
           UPDATE_VERSION=$HEADS_REL_VER_DPP
           FLASHROM_ADD_OPT_UPDATE_OVERRIDE=$HEADS_SWITCH_FLASHROM_OPT_OVERRIDE
-          BIOS_HASH_LINK="${HEADS_LINK_DPP}.sha256"
-          BIOS_SIGN_LINK="${HEADS_LINK_DPP}.sha256.sig"
-          BIOS_LINK=$HEADS_LINK_DPP
+          BIOS_HASH_LINK="${HEADS_HASH_LINK_DPP}"
+          BIOS_SIGN_LINK="${HEADS_SIGN_LINK_DPP}"
+          BIOS_LINK="$HEADS_LINK_DPP"
+
+          # Check EC link additionally, not all platforms have Embedded Controllers:
+          if [ -n "$EC_LINK_DPP" ]; then
+            EC_LINK=$EC_LINK_DPP
+            EC_HASH_LINK=$EC_HASH_LINK_DPP
+            EC_SIGN_LINK=$EC_SIGN_LINK_DPP
+          elif [ -n "$EC_LINK_COMM" ]; then
+            EC_LINK=$EC_LINK_COMM
+            EC_HASH_LINK=$EC_HASH_LINK_COMM
+            EC_SIGN_LINK=$EC_SIGN_LINK_COMM
+          fi
+
           export SWITCHING_TO="heads"
           echo
           echo "Switching to Dasharo heads firmware v$UPDATE_VERSION"
@@ -1184,9 +1198,21 @@ handle_fw_switching() {
             fi
             echo "Will not switch back to regular Dasharo firmware. Proceeding with Dasharo heads firmware update to $UPDATE_VERSION."
             FLASHROM_ADD_OPT_UPDATE_OVERRIDE="--ifd -i bios"
-            BIOS_HASH_LINK="${HEADS_LINK_DPP}.sha256"
-            BIOS_SIGN_LINK="${HEADS_LINK_DPP}.sha256.sig"
-            BIOS_LINK=$HEADS_LINK_DPP
+            BIOS_HASH_LINK="${HEADS_HASH_LINK_DPP}"
+            BIOS_SIGN_LINK="${HEADS_SIGN_LINK_DPP}"
+            BIOS_LINK="$HEADS_LINK_DPP"
+
+            # Check EC link additionally, not all platforms have Embedded Controllers:
+            if [ -n "$EC_LINK_DPP" ]; then
+              EC_LINK=$EC_LINK_DPP
+              EC_HASH_LINK=$EC_HASH_LINK_DPP
+              EC_SIGN_LINK=$EC_SIGN_LINK_DPP
+            elif [ -n "$EC_LINK_COMM" ]; then
+              EC_LINK=$EC_LINK_COMM
+              EC_HASH_LINK=$EC_HASH_LINK_COMM
+              EC_SIGN_LINK=$EC_SIGN_LINK_COMM
+            fi
+
             break
             ;;
           *)
