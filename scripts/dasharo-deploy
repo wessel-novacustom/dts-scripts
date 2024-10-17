@@ -966,7 +966,12 @@ update_workflow() {
     fi
   fi
 
-  download_artifacts
+  if [ "$HAVE_EC" == "true" ]; then
+    download_ec
+    verify_artifacts ec
+  fi
+
+  download_bios
   verify_artifacts bios
 
   # Warning must be displayed after the artifacts have been downloaded, because
