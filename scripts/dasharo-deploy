@@ -686,7 +686,6 @@ deploy_ec_firmware() {
 firmware_pre_updating_routine(){
 # This function only separates some code from deployment code, so to make clear
 # where is deployment code, and what should be executed before it:
-  check_flash_chip
   check_flash_lock
 
   if [ "$HAVE_EC" == "true" ]; then
@@ -719,7 +718,6 @@ firmware_pre_updating_routine(){
 firmware_pre_installation_routine(){
 # This function only separates some code from deployment code, so to make clear
 # where is deployment code, and what should be executed before it:
-  check_flash_chip
   check_flash_lock
   check_intel_regions
   check_blobs_in_binary $BIOS_UPDATE_FILE
@@ -1161,6 +1159,10 @@ if [ "$FUM" == "fum" ]; then
     wait_for_network_connection
 fi
 
+# Size of flashchip should be checked before board_config func. because the
+# func. assigns some configs based on the chip size detected for ASUS boards
+# (FIXME).
+check_flash_chip
 board_config
 check_flash_chip
 
