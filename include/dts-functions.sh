@@ -439,6 +439,10 @@ board_config() {
           NEED_SMMSTORE_MIGRATION="true"
           NEED_ROMHOLE_MIGRATION="true"
 
+          # Add capsules:
+          DASHARO_REL_NAME_CAP="$DASHARO_REL_NAME"
+          DASHARO_REL_VER_DPP_CAP="$DASHARO_REL_VER_DPP"
+
           if check_if_dasharo; then
             # if v1.1.3 or older, flash the whole bios region
             # TODO: Let DTS determine which parameters are suitable.
@@ -457,11 +461,13 @@ board_config() {
             "PRO Z690-A WIFI DDR4(MS-7D25)" | "PRO Z690-A DDR4(MS-7D25)")
               BIOS_LINK_COMM="${FW_STORE_URL}/${DASHARO_REL_NAME}/v${DASHARO_REL_VER}/${DASHARO_REL_NAME}_v${DASHARO_REL_VER}_ddr4.rom"
               BIOS_LINK_DPP="${FW_STORE_URL_DPP}/MS-7D25/v${DASHARO_REL_VER_DPP}/${DASHARO_REL_NAME}_v${DASHARO_REL_VER_DPP}_ddr4.rom"
+              BIOS_LINK_DPP_CAP="${FW_STORE_URL_DPP}/MS-7D25/v${DASHARO_REL_VER_DPP_CAP}/${DASHARO_REL_NAME_CAP}_v${DASHARO_REL_VER_DPP_CAP}_ddr4.cap"
               HEADS_LINK_DPP="${FW_STORE_URL_DPP}/MS-7D25/v${HEADS_REL_VER_DPP}/${DASHARO_REL_NAME}_v${HEADS_REL_VER_DPP}_ddr4_heads.rom"
               ;;
             "PRO Z690-A WIFI (MS-7D25)" | "PRO Z690-A (MS-7D25)")
               BIOS_LINK_COMM="${FW_STORE_URL}/${DASHARO_REL_NAME}/v${DASHARO_REL_VER}/${DASHARO_REL_NAME}_v${DASHARO_REL_VER}_ddr5.rom"
               BIOS_LINK_DPP="${FW_STORE_URL_DPP}/MS-7D25/v${DASHARO_REL_VER_DPP}/${DASHARO_REL_NAME}_v${DASHARO_REL_VER_DPP}_ddr5.rom"
+              BIOS_LINK_DPP_CAP="${FW_STORE_URL_DPP}/MS-7D25/v${DASHARO_REL_VER_DPP_CAP}/${DASHARO_REL_NAME_CAP}_v${DASHARO_REL_VER_DPP_CAP}_ddr5.cap"
               HEADS_LINK_DPP="${FW_STORE_URL_DPP}/MS-7D25/v${HEADS_REL_VER_DPP}/${DASHARO_REL_NAME}_v${HEADS_REL_VER_DPP}_ddr5_heads.rom"
               ;;
             *)
@@ -483,6 +489,10 @@ board_config() {
           NEED_SMMSTORE_MIGRATION="true"
           NEED_ROMHOLE_MIGRATION="true"
 
+          # Add capsules:
+          DASHARO_REL_NAME_CAP="$DASHARO_REL_NAME"
+          DASHARO_REL_VER_DPP_CAP="$DASHARO_REL_VER_DPP"
+
           if check_if_dasharo; then
             # if v0.9.1 or older, flash the whole bios region
             # TODO: Let DTS determine which parameters are suitable.
@@ -501,12 +511,14 @@ board_config() {
             "PRO Z790-P WIFI DDR4(MS-7E06)" | "PRO Z790-P DDR4(MS-7E06)" | "PRO Z790-P WIFI DDR4 (MS-7E06)" | "PRO Z790-P DDR4 (MS-7E06)")
               #BIOS_LINK_COMM="$FW_STORE_URL/$DASHARO_REL_NAME/v$DASHARO_REL_VER/${DASHARO_REL_NAME}_v${DASHARO_REL_VER}_ddr4.rom"
               BIOS_LINK_DPP="${FW_STORE_URL_DPP}/MS-7E06/v${DASHARO_REL_VER_DPP}/${DASHARO_REL_NAME}_v${DASHARO_REL_VER_DPP}_ddr4.rom"
+              BIOS_LINK_DPP_CAP="${FW_STORE_URL_DPP}/MS-7E06/v${DASHARO_REL_VER_DPP_CAP}/${DASHARO_REL_NAME_CAP}_v${DASHARO_REL_VER_DPP_CAP}_ddr4.cap"
               HEADS_LINK_DPP="${FW_STORE_URL_DPP}/MS-7E06/v${HEADS_REL_VER_DPP}/${DASHARO_REL_NAME}_v${HEADS_REL_VER_DPP}_ddr4_heads.rom"
               PROGRAMMER_BIOS="internal:boardmismatch=force"
               ;;
             "PRO Z790-P WIFI (MS-7E06)" | "PRO Z790-P (MS-7E06)")
               #BIOS_LINK_COMM="$FW_STORE_URL/$DASHARO_REL_NAME/v$DASHARO_REL_VER/${DASHARO_REL_NAME}_v${DASHARO_REL_VER}_ddr5.rom"
               BIOS_LINK_DPP="${FW_STORE_URL_DPP}/MS-7E06/v${DASHARO_REL_VER_DPP}/${DASHARO_REL_NAME}_v${DASHARO_REL_VER_DPP}_ddr5.rom"
+              BIOS_LINK_DPP_CAP="${FW_STORE_URL_DPP}/MS-7E06/v${DASHARO_REL_VER_DPP_CAP}/${DASHARO_REL_NAME_CAP}_v${DASHARO_REL_VER_DPP_CAP}_ddr5.cap"
               HEADS_LINK_DPP="${FW_STORE_URL_DPP}/MS-7E06/v${HEADS_REL_VER_DPP}/${DASHARO_REL_NAME}_v${HEADS_REL_VER_DPP}_ddr5_heads.rom"
               ;;
             *)
