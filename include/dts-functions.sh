@@ -1663,42 +1663,52 @@ send_dts_logs(){
 }
 
 check_if_fused() {
-  file_path="/sys/class/mei/mei0/fw_status"
+  local _file_path
+  _file_path="/sys/class/mei/mei0/fw_status"
+  local _file_content
+  local _hfsts6_value
+  local _line_number
+  local _hfsts6_binary
+  local _binary_length
+  local _padding
+  local _zeros
+  local _bit_30_value
 
-  if [[ ! -f $file_path ]]; then
-    echo "File not found: $file_path"
+  if ! $FSREAD_TOOL test -f "$_file_path"; then
+    print_error "File not found: $_file_path"
     return 2
   fi
 
-  hfsts6_value=""
-  line_number=1
+  _file_content="$($FSREAD_TOOL cat $_file_path)"
+
+  _fsts6_value=""
+  _line_number=1
   while IFS= read -r line; do
-    if [[ $line_number -eq 6 ]]; then
-      hfsts6_value=$line
+    if [[ $_line_number -eq 6 ]]; then
+      _hfsts6_value="$line"
       break
     fi
-    ((line_number++))
-  done <"$file_path"
+    ((_line_number++))
+  done <<< "$_file_content"
 
-  if [[ -z $hfsts6_value ]]; then
-    echo "Failed to read HFSTS6 value"
+  if [[ -z "$_hfsts6_value" ]]; then
+    print_error "Failed to read HFSTS6 value"
     exit 1
   fi
 
-  hfsts6_binary=$(echo "ibase=16; obase=2; $hfsts6_value" | bc)
-
-  binary_length=${#hfsts6_binary}
+  _hfsts6_binary=$(echo "ibase=16; obase=2; $_hfsts6_value" | bc)
+  _binary_length=${#_hfsts6_binary}
 
   # Add leading zeros
-  if [ $binary_length -lt 32 ]; then
-    padding=$((32 - $binary_length))
-    zeros=$(printf "%${padding}s" | tr ' ' "0")
-    hfsts6_binary=$zeros$hfsts6_binary
+  if [ $_binary_length -lt 32 ]; then
+    _padding=$((32 - $_binary_length))
+    _zeros=$(printf "%${_padding}s" | tr ' ' "0")
+    _hfsts6_binary=$_zeros$_hfsts6_binary
   fi
 
-  bit_30_value=${hfsts6_binary:1:1}
+  _bit_30_value=${_hfsts6_binary:1:1}
 
-  if [ $bit_30_value == 0 ]; then
+  if [ $_bit_30_value == 0 ]; then
     return 1
   else
     return 0
