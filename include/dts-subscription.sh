@@ -90,9 +90,11 @@ get_dpp_creds() {
 login_to_dpp_server(){
   # Check if the user is already logged in, log in if not:
   if [ -z "$(mc alias list | grep ${CLOUDSEND_DOWNLOAD_URL})" ]; then
-    mc alias set $DPP_SERVER_USER_ALIAS $DPP_SERVER_ADDRESS $CLOUDSEND_DOWNLOAD_URL $CLOUDSEND_PASSWORD || return 1
-    if [ $? -ne 0 ]; then
-      print_error "Error while logging in to DPP server!"
+    if ! mc alias set $DPP_SERVER_USER_ALIAS $DPP_SERVER_ADDRESS $CLOUDSEND_DOWNLOAD_URL $CLOUDSEND_PASSWORD >> $ERR_LOG_FILE 2>&1 ; then
+      print_error "Your credentials do not have access to DPP packages. If you bought one, check the"
+      print_error "credentials you have used, and contact support. If you did not buy any DPP"
+      print_error "packages - feel free to continue."
+      read -p "Press enter to continue"
       return 1
     fi
   fi
