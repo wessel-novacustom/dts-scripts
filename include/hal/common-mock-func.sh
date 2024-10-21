@@ -504,3 +504,27 @@ lscpu_common_mock(){
 
   return 0
 }
+################################################################################
+# rdmsr
+################################################################################
+TEST_MSR_CAN_BE_READ="${TEST_MSR_CAN_BE_READ:-true}"
+TEST_FPF_PROGRAMMED="${TEST_FPF_PROGRAMMED:-0}"
+TEST_VERIFIED_BOOT_ENABLED="${TEST_VERIFIED_BOOT_ENABLED:-0}"
+
+rdmsr_boot_guard_status_mock(){
+  local _bits_8_5="0"
+  # Emulating MSR accessibility, for more inf. check
+  # check_if_boot_guard_enabled func.:
+  [ "$TEST_MSR_CAN_BE_READ" != "true" ] && return 1
+
+  # Emulating Boot Guard status. 0000000000000000 - FPF not fused and Verified
+  # Boot disabled, 0000000000000010 - FPF fused and Verified Boot disabled,
+  # 0000000000000020 - FPF not fused and Verified Boot enabled, 0000000000000030
+  # - FPF fused and Verified Boot enabled. For more inf. check
+  # check_if_boot_guard_enabled func.:
+  _bits_8_5=$((${_bits_8_5} + ${TEST_FPF_PROGRAMMED} + ${TEST_VERIFIED_BOOT_ENABLED}))
+
+  echo "00000000000000${_bits_8_5}0"
+
+  return 0
+}

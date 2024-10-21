@@ -1716,29 +1716,37 @@ check_if_fused() {
 }
 
 check_if_boot_guard_enabled() {
+  local _msr_hex
+  local _msr_binary
+  local _binary_length
+  local _padding
+  local _zeros
+  local _facb_fpf
+  local _verified_boot
+
   # MSR cannot be read
-  if ! rdmsr 0x13a -0; then
+  if ! $RDMSR boot_guard_status_mock 0x13a -0; then
     return 1
   fi
 
-  msr_hex=$(rdmsr 0x13a -0 | tr '[:lower:]' '[:upper:]')
-  msr_binary=$(echo "ibase=16; obase=2; $msr_hex" | bc)
+  _msr_hex=$($RDMSR boot_guard_status_mock 0x13a -0 | tr '[:lower:]' '[:upper:]')
+  _msr_binary=$(echo "ibase=16; obase=2; $_msr_hex" | bc)
 
-  binary_length=${#msr_binary}
-
-  if [ $binary_length -lt 64 ]; then
-    padding=$((64 - $binary_length))
-    zeros=$(printf "%${padding}s" | tr ' ' "0")
-    msr_binary=$zeros$msr_binary
+  _binary_length=${#_msr_binary}
+arkuszu
+  if [ $_binary_length -lt 64 ]; then
+    _padding=$((64 - $_binary_length))
+    _zeros=$(printf "%${_padding}s" | tr ' ' "0")
+    _msr_binary=$_zeros$_msr_binary
   fi
 
   # Bit 4
-  facb_fpf=${msr_binary:59:1}
+  _facb_fpf=${_msr_binary:59:1}
 
   # Bit 6
-  verified_boot=${msr_binary:57:1}
+  _verified_boot=${_msr_binary:57:1}
 
-  if [ $facb_fpf == 1 ] && [ $verified_boot == 1 ]; then
+  if [ $_facb_fpf == 1 ] && [ $_verified_boot == 1 ]; then
     return 0
   fi
   return 1

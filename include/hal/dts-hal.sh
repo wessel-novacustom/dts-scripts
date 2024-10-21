@@ -55,6 +55,7 @@ LSCPU="tool_wrapper lscpu"
 # System commands:
 POWEROFF="tool_wrapper poweroff"
 REBOOT="tool_wrapper reboot"
+RDMSR="tool_wrapper rdmsr"
 
 ################################################################################
 # Tools wrapper.
