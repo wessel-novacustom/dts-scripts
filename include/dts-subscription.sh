@@ -59,9 +59,9 @@ check_for_dasharo_firmware() {
     fi
   fi
 
-  print_warning "Something may be wrong with the DPP credentials or you may not\n
-		have access to Dasharo Firmware. If so, consider getting Dasharo\n
-		Subscription and improving security of your platform!"
+  print_warning "Something may be wrong with the DPP credentials or you may not"
+  print_warning "have access to Dasharo Firmware. If so, consider getting Dasharo"
+  print_warning "Subscription and improving security of your platform!"
 
   read -p "Press any key to continue"
   return 1
