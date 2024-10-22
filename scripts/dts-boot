@@ -29,7 +29,7 @@ export DTS_ENV="$SBIN_DIR/dts-environment.sh"
 export DTS_SUBS="$SBIN_DIR/dts-subscription.sh"
 export DTS_LOG_FILE="/tmp/${log_filename}"
 
-if [ -d $FUM_EFIVAR ]; then
+if [ -f $FUM_EFIVAR ]; then
     $SBIN_DIR/dasharo-deploy update fum
 else
     $BIN_DIR/script -c $SBIN_DIR/dts "$DTS_LOG_FILE"
