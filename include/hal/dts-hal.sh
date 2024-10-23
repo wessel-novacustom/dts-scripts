@@ -61,6 +61,14 @@ RDMSR="tool_wrapper rdmsr"
 # Tools wrapper.
 ################################################################################
 tool_wrapper(){
+# Usage: tool_wrapper TOOL_NAME MOCK_FUNC_NAME TOOL_ARGS
+#
+#    TOOL_NAME: the name of the tool being wrapped
+#    MOCK_FUNC_NAME: the name of mocking function (optional, check comments
+#    below for more inf.)
+#    TOOL_ARGS: the arguments that the tool gets if being called, for example
+#    for dmidecode -s system-vendor it will be "-s system-vendor".
+#
 # This function is a bridge between common DTS logic and hardware-specific DTS
 # logic or functions. There is two paths a call to this function can be
 # redirected to: real HAL for running on real platform and Tests HAL for testing
