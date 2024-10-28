@@ -27,6 +27,40 @@ declare CAN_SWITCH_TO_HEADS
 CMD="$1"
 FUM="$2"
 
+print_firm_access_warning() {
+# This function prints standard warning informing user that a specific DPP
+# firmware is available but he does not have access to it. Arguments: dpp,
+# dpp_cap, seabios, and heads:
+  local _firm_type="$1"
+  local _firm_type_print
+
+  case $_firm_type in
+    dpp)
+      _firm_type_print="coreboot + UEFI"
+      ;;
+    dpp_cap)
+      _firm_type_print="coreboot + UEFI via Capsule Update"
+      ;;
+    seabios)
+      _firm_type_print="coreboot + SeaBIOS"
+      ;;
+    heads)
+      _firm_type_print="coreboot + Heads"
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+
+  print_warning "  DPP version (${_firm_type_print}) available but you don't have access"
+  print_warning "  to it, if you are interested, please visit"
+  print_warning "  https://shop.3mdeb.com/product-category/dasharo-pro-package/"
+  # Just a new line:
+  echo
+
+  return 0
+}
+
 check_for_firmware_access() {
 # DPP credentials are being provided outside of this script, this script only
 # has to check whether the credentials give access to appropriate firmware. The
@@ -113,11 +147,7 @@ ask_for_version() {
         echo "  d) DPP version (coreboot + UEFI)"
 	_might_be_dpp="true"
       else
-        print_warning "  DPP version (coreboot + UEFI) available but you don't have access"
-        print_warning "  to it, if you are interested, please visit"
-        print_warning "  https://shop.3mdeb.com/product-category/dasharo-pro-package/"
-
-        echo
+        print_firm_access_warning dpp
       fi
     fi
 
@@ -126,11 +156,7 @@ ask_for_version() {
         echo "  s) DPP version (coreboot + SeaBIOS)"
 	_might_be_seabios="true"
       else
-        print_warning "  DPP version (coreboot + SeaBIOS) available but you don't have access"
-        print_warning "  to it, if you are interested, please visit"
-        print_warning "  https://shop.3mdeb.com/product-category/dasharo-pro-package/"
-
-        echo
+        print_firm_access_warning seabios
       fi
     fi
 
@@ -197,9 +223,7 @@ choose_version(){
 
       return 0
     else
-      print_warning "Dasharo Heads firmware version is available, but your"
-      print_warning "subscription does not give you the access to this firmware."
-      print_warning "If you are interested, please visit https://shop.3mdeb.com/product-category/dasharo-pro-package/"
+      print_firm_access_warning heads
     fi
   fi
 
@@ -209,10 +233,7 @@ choose_version(){
 
       return 0
     else
-      print_warning "Dasharo Subscription firmware version with UEFI Capsule Update"
-      print_warning "is available, but your subscription does not give you the access"
-      print_warning "to this firmware."
-      print_warning "If you are interested, please visit https://shop.3mdeb.com/product-category/dasharo-pro-package/"
+      print_firm_access_warning dpp_cap
     fi
   fi
 
@@ -222,9 +243,7 @@ choose_version(){
 
       return 0
     else
-      print_warning "Dasharo Subscription firmware version is available, but your"
-      print_warning "subscription does not give you the access to this firmware."
-      print_warning "If you are interested, please visit https://shop.3mdeb.com/product-category/dasharo-pro-package/"
+      print_firm_access_warning dpp
     fi
   fi
 
