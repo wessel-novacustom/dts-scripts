@@ -96,7 +96,7 @@ OS_VERSION_FILE="/etc/os-release"
 KEYS_DIR="/tmp/devkeys"
 
 # Paths to system commands:
-SHELL="bash"
+CMD_SHELL="bash"
 
 # Paths to DTS commands:
 CMD_DASHARO_HCL_REPORT="/usr/sbin/dasharo-hcl-report"
