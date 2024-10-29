@@ -42,14 +42,14 @@ check_if_dasharo() {
 check_if_ac() {
   local _ac_file="/sys/class/power_supply/AC/online"
 
-  if [ ! -e "${_ac_file}" ]; then
+  if ! $FSREAD_TOOL test -e "${_ac_file}"; then
     # We want to silently skip if AC file is not there. Most likely this is
     # not battery-powered device then.
     return 0
   fi
 
   while true; do
-    ac_status=$($FSREAD_TOOL check_if_ac_mock cat ${_ac_file})
+    ac_status=$($FSREAD_TOOL cat ${_ac_file})
 
     if [ "$ac_status" -eq 1 ]; then
       echo "AC adapter is connected. Continuing with firmware update."

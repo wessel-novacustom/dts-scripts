@@ -422,8 +422,10 @@ fsread_tool_common_mock(){
 fsread_tool_test_mock(){
   local _arg_d
   local _arg_f
+  local _arg_e
   _arg_d="$(parse_for_arg_return_next -d "$@")"
   _arg_f="$(parse_for_arg_return_next -f "$@")"
+  _arg_e="$(parse_for_arg_return_next -e "$@")"
 
   if [ "$_arg_d" = "/sys/class/pci_bus/0000:00/device/0000:00:16.0" ]; then
   # Here we emulate the HCI hardware presence checked by function
@@ -436,6 +438,11 @@ fsread_tool_test_mock(){
   # Here we emulate MEI controller status file presence, check check_if_fused
   # func for more inf.:
     [ "$TEST_MEI_CONF_PRESENT" = "true" ] && return 0
+  fi
+
+  if [ "$_arg_e" = "/sys/class/power_supply/AC/online" ]; then
+  # Emulating AC status file presence, check check_if_ac func. for more inf.:
+    [ "$TEST_AC_PRESENT" = "true" ] && return 0
   fi
 
   return 1
@@ -455,9 +462,13 @@ fsread_tool_cat_mock(){
   elif [ "$_file_to_cat" = "/sys/bus/i2c/devices/Test/firmware_node/path" ] && [ -n "$TEST_TOUCHPAD_PATH" ]; then
   # Used in touchpad-info script.
     echo "$TEST_TOUCHPAD_PATH" 1>&1
-  elif [ "$_file_to_cat" = "/sys/class/power_supply/AC/online" ] && [ "$TEST_AC_PRESENT" = "true" ]; then
+  elif [ "$_file_to_cat" = "/sys/class/power_supply/AC/online" ]; then
   # Emulating AC adadpter presence, used in check_if_ac func.:
-    echo "1" 1>&1
+    if [ "$TEST_AC_PRESENT" = "true" ]; then
+      echo "1"
+    else
+      echo "0"
+    fi
   elif [ "$_file_to_cat" = "/sys/class/mei/mei0/fw_status" ] && [ "$TEST_MEI_CONF_PRESENT" = "true" ]; then
   # Emulating MEI firmware status file, for more inf., check check_if_fused
   # func.:
