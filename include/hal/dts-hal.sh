@@ -111,7 +111,7 @@ tool_wrapper(){
   fi
   # Other arguments for this function are the arguments which are sent to a tool
   # e.g. -s system-vendor for dmidecode, etc.:
-  local _arguments="$*"
+  local _arguments=( "$@" )
 
   if [ -n "$DTS_TESTING" ]; then
     # This is the order of calling mocking functions:
