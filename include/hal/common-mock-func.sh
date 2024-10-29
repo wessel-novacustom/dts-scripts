@@ -77,7 +77,7 @@ flashrom_check_flash_lock_mock(){
 flashrom_flash_chip_name_mock(){
 # For flash chip name check emulation, for more inf. check check_flash_chip
 # func.:
-    echo "Test Flash Chip" 1>&1
+    echo "Test Flash Chip"
 
     return 0
 }
@@ -85,7 +85,7 @@ flashrom_flash_chip_name_mock(){
 flashrom_flash_chip_size_mock(){
 # For flash chip size check emulation, for more inf. check check_flash_chip
 # func..
-  echo "$TEST_FLASH_CHIP_SIZE" 1>&1
+  echo "$TEST_FLASH_CHIP_SIZE"
 
   return 0
 }
@@ -163,9 +163,9 @@ flashrom_get_ec_firm_version_mock(){
 # Emulating wrong EC firmware version, check deploy_ec_firmware func. and
 # ec_transition script for more inf.:
   if [ -n "$TEST_COMPATIBLE_EC_VERSION" ]; then
-    echo "Mainboard EC Version: $COMPATIBLE_EC_FW_VERSION" 1>&1
+    echo "Mainboard EC Version: $COMPATIBLE_EC_FW_VERSION"
   else
-    echo "Mainboard EC Version: 0000-00-00-0000000" 1>&1
+    echo "Mainboard EC Version: 0000-00-00-0000000"
   fi
 
   return 0
@@ -189,11 +189,11 @@ dasharo_ectool_check_for_opensource_firm_mock(){
 
 novacustom_check_sys_model_mock(){
   if [ -n "$TEST_NOVACUSTOM_MODEL" ]; then
-    echo "Dasharo EC Tool Mock - Info Command" 1>&1
-    echo "-----------------------------------" 1>&1
-    echo "board: novacustom/$TEST_NOVACUSTOM_MODEL" 1>&1
-    echo "version: 0000-00-00_0000000" 1>&1
-    echo "-----------------------------------" 1>&1
+    echo "Dasharo EC Tool Mock - Info Command"
+    echo "-----------------------------------"
+    echo "board: novacustom/$TEST_NOVACUSTOM_MODEL"
+    echo "version: 0000-00-00_0000000"
+    echo "-----------------------------------"
 
     return 0
   fi
@@ -214,7 +214,7 @@ TEST_BASEBOARD_SERIAL_NUMBER="${TEST_BASEBOARD_SERIAL_NUMBER:-}"
 
 dmidecode_common_mock(){
 # Emulating dumping dmidecode inf.:
-  echo "${FUNCNAME[0]}: using dmidecode..." 1>&1
+  echo "${FUNCNAME[0]}: using dmidecode..."
 
   return 0
 }
@@ -230,55 +230,55 @@ dmidecode_dump_var_mock(){
 
     [ -z "$TEST_SYSTEM_VENDOR" ] && return 1
 
-    echo "$TEST_SYSTEM_VENDOR" 1>&1
+    echo "$TEST_SYSTEM_VENDOR"
     ;;
     system-product-name)
 
     [ -z "$TEST_SYSTEM_MODEL" ] && return 1
 
-    echo "$TEST_SYSTEM_MODEL" 1>&1
+    echo "$TEST_SYSTEM_MODEL"
     ;;
     baseboard-version)
 
     [ -z "$TEST_BOARD_MODEL" ] && return 1
 
-    echo "$TEST_BOARD_MODEL" 1>&1
+    echo "$TEST_BOARD_MODEL"
     ;;
     baseboard-product-name)
 
     [ -z "$TEST_BOARD_MODEL" ] && return 1
 
-    echo "$TEST_BOARD_MODEL" 1>&1
+    echo "$TEST_BOARD_MODEL"
     ;;
     processor-version)
 
     [ -z "$TEST_CPU_VERSION" ] && return 1
 
-    echo "$TEST_CPU_VERSION" 1>&1
+    echo "$TEST_CPU_VERSION"
     ;;
     bios-vendor)
 
     [ -z "$TEST_BIOS_VENDOR" ] && return 1
 
-    echo "$TEST_BIOS_VENDOR" 1>&1
+    echo "$TEST_BIOS_VENDOR"
     ;;
     bios-version)
 
     [ -z "$TEST_BIOS_VERSION" ] && return 1
 
-    echo "$TEST_BIOS_VERSION" 1>&1
+    echo "$TEST_BIOS_VERSION"
     ;;
     system-uuid)
 
     [ -z "$TEST_SYSTEM_UUID" ] && return 1
 
-    echo "$TEST_SYSTEM_UUID" 1>&1
+    echo "$TEST_SYSTEM_UUID"
     ;;
     baseboard-serial-number)
 
     [ -z "$TEST_BASEBOARD_SERIAL_NUMBER" ] && return 1
 
-    echo "$TEST_BASEBOARD_SERIAL_NUMBER" 1>&1
+    echo "$TEST_BASEBOARD_SERIAL_NUMBER"
     ;;
   esac
 
@@ -293,7 +293,7 @@ TEST_ME_OFFSET="${TEST_ME_OFFSET:-}"
 ifdtool_check_blobs_in_binary_mock(){
 # Emulating ME offset value check, check check_blobs_in_binary func. for more
 # inf.:
-  echo "Flash Region 2 (Intel ME): $TEST_ME_OFFSET" 1>&1
+  echo "Flash Region 2 (Intel ME): $TEST_ME_OFFSET"
 
   return 0
 }
@@ -307,8 +307,8 @@ cbmem_check_if_me_disabled_mock(){
 # Emulating ME state checked in Coreboot table, check check_if_me_disabled func.
 # for more inf.:
   if [ "$TEST_ME_DISABLED" = "true" ]; then
-    echo "ME is disabled" 1>&1
-    echo "ME is HAP disabled" 1>&1
+    echo "ME is disabled"
+    echo "ME is HAP disabled"
 
     return 0
   fi
@@ -327,13 +327,13 @@ cbfstool_layout_mock(){
 # Emulating some fields in Coreboot Files System layout table:
   local _file_to_check="$1"
 
-  echo "This image contains the following sections that can be accessed with this tool:" 1>&1
-  echo "" 1>&1
+  echo "This image contains the following sections that can be accessed with this tool:"
+  echo ""
   # Emulating ROMHOLE presence, check romhole_migration function for more inf.:
-  [ "$TEST_ROMHOLE_MIGRATION" = "true" ] && echo "'ROMHOLE' (test)" 1>&1
+  [ "$TEST_ROMHOLE_MIGRATION" = "true" ] && echo "'ROMHOLE' (test)"
   # Emulating difference in Coreboot FS, check function
   # set_flashrom_update_params for more inf.:
-  [ "$TEST_DIFFERENT_FMAP" = "true" ] && [ "$_file_to_check" != "$BIOS_DUMP_FILE" ] && echo "test" 1>&1
+  [ "$TEST_DIFFERENT_FMAP" = "true" ] && [ "$_file_to_check" != "$BIOS_DUMP_FILE" ] && echo "test"
 
   return 0
 }
@@ -374,7 +374,7 @@ dmesg_i2c_hid_detect_mock(){
 # Emulating touchpad presence and name detection, check touchpad-info script for
 # more inf.:
   if [ "$TEST_TOUCHPAD_ENABLED" = "true" ]; then
-    echo "hid-multitouch: I2C HID Test" 1>&1
+    echo "hid-multitouch: I2C HID Test"
   fi
 
   return 0
@@ -456,12 +456,12 @@ fsread_tool_cat_mock(){
   # called before fsread_tool_cat_mock in touchpad-info script:
   if [ "$_file_to_cat" = "/sys/bus/i2c/devices/Test/firmware_node/hid" ] && [ -n "$TEST_TOUCHPAD_HID" ]; then
   # Used in touchpad-info script.
-    echo "$TEST_TOUCHPAD_HID" 1>&1
+    echo "$TEST_TOUCHPAD_HID"
   # Note, Test folder here comes from dmesg_i2c_hid_detect_mock, which is being
   # called before fsread_tool_cat_mock in touchpad-info script:
   elif [ "$_file_to_cat" = "/sys/bus/i2c/devices/Test/firmware_node/path" ] && [ -n "$TEST_TOUCHPAD_PATH" ]; then
   # Used in touchpad-info script.
-    echo "$TEST_TOUCHPAD_PATH" 1>&1
+    echo "$TEST_TOUCHPAD_PATH"
   elif [ "$_file_to_cat" = "/sys/class/power_supply/AC/online" ]; then
   # Emulating AC adadpter presence, used in check_if_ac func.:
     if [ "$TEST_AC_PRESENT" = "true" ]; then
@@ -472,15 +472,15 @@ fsread_tool_cat_mock(){
   elif [ "$_file_to_cat" = "/sys/class/mei/mei0/fw_status" ] && [ "$TEST_MEI_CONF_PRESENT" = "true" ]; then
   # Emulating MEI firmware status file, for more inf., check check_if_fused
   # func.:
-    echo "smth" 1>&1
-    echo "smth" 1>&1
-    echo "smth" 1>&1
-    echo "smth" 1>&1
-    echo "smth" 1>&1
+    echo "smth"
+    echo "smth"
+    echo "smth"
+    echo "smth"
+    echo "smth"
     # Emulating Intel Secure Boot Fuse status, check check_if_fused func. for
     # more inf. 4... if fused, and 0 if not:
-    echo "${TEST_INTEL_FUSE_STATUS}0000000" 1>&1
-    echo "smth" 1>&1
+    echo "${TEST_INTEL_FUSE_STATUS}0000000"
+    echo "smth"
   else
     echo "${FUNCNAME[0]}: ${_file_to_cat}: No such file or directory"
 
@@ -498,7 +498,7 @@ TEST_ME_OP_MODE="${TEST_ME_OP_MODE:-0}"
 setpci_check_me_op_mode_mock(){
 # Emulating current ME operation mode, check functions check_if_me_disabled and
 # check_me_op_mode:
-  echo "0$TEST_ME_OP_MODE" 1>&1
+  echo "0$TEST_ME_OP_MODE"
 
   return 0
 }

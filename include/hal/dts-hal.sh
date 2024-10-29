@@ -192,7 +192,7 @@ check_me_op_mode(){
 
   _mode="$($SETPCI check_me_op_mode_mock -s 00:16.0 42.B 2> /dev/null | cut -c2-)"
 
-  echo "$_mode" 1>&1
+  echo "$_mode"
 
   return 0
 }
