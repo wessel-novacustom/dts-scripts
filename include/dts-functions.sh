@@ -228,20 +228,20 @@ board_config() {
   echo "Checking if board is Dasharo compatible."
   case "$SYSTEM_VENDOR" in
     "Notebook")
+      # Common settings for all Notebooks:
+      CAN_USE_FLASHROM="true"
+      HAVE_EC="true"
+      NEED_EC_RESET="true"
+      PLATFORM_SIGN_KEY="customer-keys/novacustom/novacustom-open-source-firmware-release-1.x-key.asc \
+        customer-keys/novacustom/dasharo-release-0.9.x-for-novacustom-signing-key.asc"
+      NEED_SMMSTORE_MIGRATION="true"
+
       case "$SYSTEM_MODEL" in
         "NV4XMB,ME,MZ")
           DASHARO_REL_NAME="novacustom_nv4x_tgl"
           DASHARO_REL_VER="1.5.2"
-          BIOS_LINK_COMM="$FW_STORE_URL/$DASHARO_REL_NAME/v$DASHARO_REL_VER/${DASHARO_REL_NAME}_v${DASHARO_REL_VER}.rom"
-          EC_LINK_COMM="$FW_STORE_URL/$DASHARO_REL_NAME/v$DASHARO_REL_VER/${DASHARO_REL_NAME}_ec_v${DASHARO_REL_VER}.rom"
           CAN_INSTALL_BIOS="true"
-          HAVE_EC="true"
-          NEED_EC_RESET="true"
           COMPATIBLE_EC_FW_VERSION="2022-10-07_c662165"
-          PLATFORM_SIGN_KEY="customer-keys/novacustom/novacustom-open-source-firmware-release-1.x-key.asc \
-             customer-keys/novacustom/dasharo-release-0.9.x-for-novacustom-signing-key.asc"
-          NEED_SMMSTORE_MIGRATION="true"
-          PROGRAMMER_EC="ite_ec:boardmismatch=force,romsize=128K,autoload=disable"
           if check_if_dasharo; then
           # if v1.5.1 or older, flash the whole bios region
           # TODO: Let DTS determine which parameters are suitable.
@@ -259,16 +259,8 @@ board_config() {
         "NS50_70MU")
           DASHARO_REL_NAME="novacustom_ns5x_tgl"
           DASHARO_REL_VER="1.5.2"
-          BIOS_LINK_COMM="$FW_STORE_URL/$DASHARO_REL_NAME/v$DASHARO_REL_VER/${DASHARO_REL_NAME}_v${DASHARO_REL_VER}.rom"
-          EC_LINK_COMM="$FW_STORE_URL/$DASHARO_REL_NAME/v$DASHARO_REL_VER/${DASHARO_REL_NAME}_ec_v${DASHARO_REL_VER}.rom"
           CAN_INSTALL_BIOS="true"
-          HAVE_EC="true"
-          NEED_EC_RESET="true"
           COMPATIBLE_EC_FW_VERSION="2022-08-31_cbff21b"
-          PLATFORM_SIGN_KEY="customer-keys/novacustom/novacustom-open-source-firmware-release-1.x-key.asc \
-             customer-keys/novacustom/dasharo-release-0.9.x-for-novacustom-signing-key.asc"
-          NEED_SMMSTORE_MIGRATION="true"
-          PROGRAMMER_EC="ite_ec:boardmismatch=force,romsize=128K,autoload=disable"
           if check_if_dasharo; then
           # if v1.5.1 or older, flash the whole bios region
           # TODO: Let DTS determine which parameters are suitable.
@@ -286,15 +278,7 @@ board_config() {
         "NS5x_NS7xPU")
           DASHARO_REL_NAME="novacustom_ns5x_adl"
           DASHARO_REL_VER="1.7.2"
-          BIOS_LINK_COMM="$FW_STORE_URL/$DASHARO_REL_NAME/v$DASHARO_REL_VER/${DASHARO_REL_NAME}_v${DASHARO_REL_VER}.rom"
-          EC_LINK_COMM="$FW_STORE_URL/$DASHARO_REL_NAME/v$DASHARO_REL_VER/${DASHARO_REL_NAME}_ec_v${DASHARO_REL_VER}.rom"
-          HAVE_EC="true"
-          NEED_EC_RESET="true"
           COMPATIBLE_EC_FW_VERSION="2022-08-31_cbff21b"
-          PLATFORM_SIGN_KEY="customer-keys/novacustom/novacustom-open-source-firmware-release-1.x-key.asc \
-             customer-keys/novacustom/dasharo-release-0.9.x-for-novacustom-signing-key.asc"
-          NEED_SMMSTORE_MIGRATION="true"
-          PROGRAMMER_EC="ite_ec:boardmismatch=force,romsize=128K,autoload=disable"
           if check_if_dasharo; then
           # if v1.7.2 or older, flash the whole bios region
           # TODO: Let DTS determine which parameters are suitable.
@@ -315,15 +299,7 @@ board_config() {
           HEADS_REL_VER_DPP="0.9.1"
           HEADS_LINK_DPP="${FW_STORE_URL_DPP}/${DASHARO_REL_NAME}/v${HEADS_REL_VER_DPP}/${DASHARO_REL_NAME}_v${HEADS_REL_VER_DPP}_heads.rom"
           HEADS_SWITCH_FLASHROM_OPT_OVERRIDE="--ifd -i bios"
-          BIOS_LINK_COMM="$FW_STORE_URL/$DASHARO_REL_NAME/v$DASHARO_REL_VER/${DASHARO_REL_NAME}_v${DASHARO_REL_VER}.rom"
-          EC_LINK_COMM="$FW_STORE_URL/$DASHARO_REL_NAME/v$DASHARO_REL_VER/${DASHARO_REL_NAME}_ec_v${DASHARO_REL_VER}.rom"
-          HAVE_EC="true"
-          NEED_EC_RESET="true"
           COMPATIBLE_EC_FW_VERSION="2022-08-31_cbff21b"
-          PLATFORM_SIGN_KEY="customer-keys/novacustom/novacustom-open-source-firmware-release-1.x-key.asc \
-             customer-keys/novacustom/dasharo-release-0.9.x-for-novacustom-signing-key.asc"
-          NEED_SMMSTORE_MIGRATION="true"
-          PROGRAMMER_EC="ite_ec:boardmismatch=force,romsize=128K,autoload=disable"
           if check_if_dasharo; then
           # if v1.7.2 or older, flash the whole bios region
           # TODO: Let DTS determine which parameters are suitable.
@@ -356,14 +332,8 @@ board_config() {
 
           # Common configuration for all V54x_6x_TU:
           DASHARO_REL_VER="0.9.0"
-          HAVE_EC="true"
-          NEED_EC_RESET="true"
           COMPATIBLE_EC_FW_VERSION="2024-07-17_4ae73b9"
-          PLATFORM_SIGN_KEY="customer-keys/novacustom/novacustom-open-source-firmware-release-1.x-key.asc \
-            customer-keys/novacustom/dasharo-release-0.9.x-for-novacustom-signing-key.asc"
-          NEED_SMMSTORE_MIGRATION="true"
           NEED_BOOTSPLASH_MIGRATION="true"
-          PROGRAMMER_EC="ite_ec:boardmismatch=force,romsize=128K,autoload=disable"
 
           case $BOARD_MODEL in
             "V540TU")
@@ -377,9 +347,6 @@ board_config() {
               return 1
               ;;
           esac
-
-          BIOS_LINK_COMM="$FW_STORE_URL/$DASHARO_REL_NAME/v$DASHARO_REL_VER/${DASHARO_REL_NAME}_v${DASHARO_REL_VER}.rom"
-          EC_LINK_COMM="$FW_STORE_URL/$DASHARO_REL_NAME/v$DASHARO_REL_VER/${DASHARO_REL_NAME}_ec_v${DASHARO_REL_VER}.rom"
           ;;
         "V5xTNC_TND_TNE")
           if check_if_dasharo; then
@@ -388,13 +355,7 @@ board_config() {
             ask_for_model V540TNx V560TNx
           fi
 
-          PLATFORM_SIGN_KEY="customer-keys/novacustom/novacustom-open-source-firmware-release-1.x-key.asc \
-                customer-keys/novacustom/dasharo-release-0.9.x-for-novacustom-signing-key.asc"
-          NEED_SMMSTORE_MIGRATION="true"
           NEED_BOOTSPLASH_MIGRATION="true"
-          PROGRAMMER_EC="ite_ec:boardmismatch=force,romsize=128K,autoload=disable"
-          HAVE_EC="true"
-          NEED_EC_RESET="true"
 
           case $BOARD_MODEL in
             "V540TNx")
@@ -412,15 +373,14 @@ board_config() {
               return 1
               ;;
           esac
-
-          BIOS_LINK_COMM="$FW_STORE_URL/$DASHARO_REL_NAME/v$DASHARO_REL_VER/${DASHARO_REL_NAME}_v${DASHARO_REL_VER}.rom"
-          EC_LINK_COMM="$FW_STORE_URL/$DASHARO_REL_NAME/v$DASHARO_REL_VER/${DASHARO_REL_NAME}_ec_v${DASHARO_REL_VER}.rom"
           ;;
         *)
           print_error "Board model $SYSTEM_MODEL is currently not supported"
           return 1
           ;;
       esac
+      BIOS_LINK_COMM="$FW_STORE_URL/$DASHARO_REL_NAME/v$DASHARO_REL_VER/${DASHARO_REL_NAME}_v${DASHARO_REL_VER}.rom"
+      EC_LINK_COMM="$FW_STORE_URL/$DASHARO_REL_NAME/v$DASHARO_REL_VER/${DASHARO_REL_NAME}_ec_v${DASHARO_REL_VER}.rom"
       ;;
     "Micro-Star International Co., Ltd.")
       case "$SYSTEM_MODEL" in
