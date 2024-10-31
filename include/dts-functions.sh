@@ -1702,9 +1702,18 @@ footer_options(){
     "${VERBOSE_OPT}" | "${VERBOSE_OPT_LOW}")
       if [ "${VERBOSE_ACTIVE}" == "true" ]; then
         unset VERBOSE_ACTIVE
+        # Remove the -x option
+        CMD_DASHARO_DEPLOY=$(echo $CMD_DASHARO_DEPLOY | sed 's|^/usr/bin/env bash -x ||')
+        CMD_DASHARO_HCL_REPORT=$(echo $CMD_DASHARO_HCL_REPORT | sed 's|^/usr/bin/env bash -x ||')
+        CMD_EC_TRANSITION=$(echo $CMD_EC_TRANSITION | sed 's|^/usr/bin/env bash -x ||')
+        CMD_CLOUD_LIST=$(echo $CMD_CLOUD_LIST | sed 's|^/usr/bin/env bash -x ||')
         set +x
       else
         VERBOSE_ACTIVE="true"
+        CMD_DASHARO_DEPLOY="/usr/bin/env bash -x $CMD_DASHARO_DEPLOY"
+        CMD_DASHARO_HCL_REPORT="/usr/bin/env bash -x $CMD_DASHARO_HCL_REPORT"
+        CMD_EC_TRANSITION="/usr/bin/env bash -x $CMD_EC_TRANSITION"
+        CMD_CLOUD_LIST="/usr/bin/env bash -x $CMD_CLOUD_LIST"
         set -x
       fi
       ;;
