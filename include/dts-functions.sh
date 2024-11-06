@@ -1676,8 +1676,7 @@ footer_options(){
       echo "Entering shell, to leave type exit and press Enter or press LCtrl+D"
       echo ""
       send_dts_logs
-      set +x
-      unset VERBOSE_ACTIVE
+      set_verbose "false"
       ${CMD_SHELL}
 
       # If in submenu before going to shell - return to main menu after exiting
@@ -1701,11 +1700,9 @@ footer_options(){
       ;;
     "${VERBOSE_OPT}" | "${VERBOSE_OPT_LOW}")
       if [ "${VERBOSE_ACTIVE}" == "true" ]; then
-        unset VERBOSE_ACTIVE
-        set +x
+        set_verbose "false"
       else
-        VERBOSE_ACTIVE="true"
-        set -x
+        set_verbose "true"
       fi
       ;;
   esac
@@ -1715,11 +1712,37 @@ footer_options(){
 
 send_dts_logs(){
   if [ "${SEND_LOGS_ACTIVE}" == "true" ]; then
+    log_dir=$(dmidecode -s system-manufacturer)_$(dmidecode -s system-product-name)_$(dmidecode -s bios-version)
+
+    uuid_string="$(cat /sys/class/net/$(ip route show default | head -1 | awk '/default/ {print $5}')/address)"
+    uuid_string+="_$(dmidecode -s system-product-name)"
+    uuid_string+="_$(dmidecode -s system-manufacturer)"
+
+    uuid=`uuidgen -n @x500 -N $uuid_string -s`
+
+    log_dir+="_$uuid_$(date +'%Y_%m_%d_%H_%M_%S_%N')"
+    log_dir="${log_dir// /_}"
+    log_dir="${log_dir//\//_}"
+    log_dir="/tmp/${log_dir}"
+
+    mkdir $log_dir
+    cp ${DTS_LOG_FILE} $log_dir
+
+    if [ -f ${ERR_LOG_FILE} ]; then
+      cp ${ERR_LOG_FILE} $log_dir
+    fi
+
+    if [ -f ${FLASHROM_LOG_FILE} ]; then
+      cp ${FLASHROM_LOG_FILE} $log_dir
+    fi
+    tar czf "${log_dir}.tar.gz" $log_dir
+
     FULL_DTS_URL="https://cloud.3mdeb.com/index.php/s/"${BASE_DTS_LOGS_URL}
+
     CLOUDSEND_PASSWORD=${DTS_LOGS_PASSWORD} cloudsend.sh \
       "-e" \
-      "${DTS_LOG_FILE}" \
-      "${FULL_DTS_URL}" \
+      "${log_dir}.tar.gz" \
+      "${FULL_DTS_URL}"
 
     if [ "$?" -ne "0" ]; then
       echo "Failed to send logs to the cloud"
@@ -1816,4 +1839,23 @@ check_if_intel() {
     return 0
   fi
   return 1
+}
+
+set_verbose() {
+  if [ $1 == "true" ]; then
+    VERBOSE_ACTIVE="true"
+    CMD_DASHARO_DEPLOY="/usr/bin/env bash -x $CMD_DASHARO_DEPLOY"
+    CMD_DASHARO_HCL_REPORT="/usr/bin/env bash -x $CMD_DASHARO_HCL_REPORT"
+    CMD_EC_TRANSITION="/usr/bin/env bash -x $CMD_EC_TRANSITION"
+    CMD_CLOUD_LIST="/usr/bin/env bash -x $CMD_CLOUD_LIST"
+    set -x
+  elif [ $1 == "false" ]; then
+    unset VERBOSE_ACTIVE
+    # Remove the -x option
+    CMD_DASHARO_DEPLOY=$(echo $CMD_DASHARO_DEPLOY | sed 's|^/usr/bin/env bash -x ||')
+    CMD_DASHARO_HCL_REPORT=$(echo $CMD_DASHARO_HCL_REPORT | sed 's|^/usr/bin/env bash -x ||')
+    CMD_EC_TRANSITION=$(echo $CMD_EC_TRANSITION | sed 's|^/usr/bin/env bash -x ||')
+    CMD_CLOUD_LIST=$(echo $CMD_CLOUD_LIST | sed 's|^/usr/bin/env bash -x ||')
+    set +x
+  fi
 }
