@@ -806,13 +806,6 @@ download_ec() {
   fi
 }
 
-download_artifacts() {
-  echo -n "Downloading Dasharo firmware..."
-  download_bios
-  download_ec
-  print_ok "Done"
-}
-
 download_keys() {
   mkdir $KEYS_DIR
   wget -O $KEYS_DIR/recovery_key.vbpubk https://github.com/Dasharo/vboot/raw/dasharo/tests/devkeys/recovery_key.vbpubk >> $ERR_LOG_FILE 2>&1
