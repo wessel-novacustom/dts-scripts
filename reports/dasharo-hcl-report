@@ -63,8 +63,6 @@ fi
 
 FULL_UPLOAD_URL="https://cloud.3mdeb.com/index.php/s/"${CLOUDSEND_LOGS_URL}
 
-check_flash_chip
-
 mkdir logs
 if [ $DEPLOY_REPORT = "false" ]; then
   echo "Getting hardware information. It will take a few minutes..."
@@ -175,34 +173,39 @@ cat /sys/class/input/input*/id/bustype > logs/input_bustypes.log
 update_result "Input bus types"  logs/ioports.err.log
 printf '################################                                   |\r'
 
-# echo "Trying to read firmware image with flashrom..."
-# Some regions may be not available so we need to use specific regions to read
-check_intel_regions
-if [ $BOARD_HAS_FD_REGION -eq 1 ]; then
-  # Use safe defaults. Descriptor may contain additional regions not detected
-  # by flashrom and will return failure when attempted to be read. BIOS and
-  # Flash descriptor regions should always be readable. If not, then we have
-  # some ugly case, hard to deal with.
-  FLASHROM_ADD_OPT_READ="--ifd -i fd -i bios"
-  if [ $BOARD_HAS_ME_REGION -eq 1 ] && [ $BOARD_ME_REGION_LOCKED -eq 0 ]; then
-    # ME region is not locked, read it as well
-    FLASHROM_ADD_OPT_READ+=" -i me"
-  fi
-  if [ $BOARD_HAS_GBE_REGION -eq 1 ] && [ $BOARD_GBE_REGION_LOCKED -eq 0 ]; then
-    # GBE region is present and not locked, read it as well
-    FLASHROM_ADD_OPT_READ+=" -i gbe"
-  fi
-else
-  # No descriptor, probably safe to read everything
-  FLASHROM_ADD_OPT_READ=""
-fi
+# flashrom does not support QEMU. TODO: this could be handled in a better way:
+if [ "${SYSTEM_VENDOR}" != "QEMU" ] && [ "${SYSTEM_VENDOR}" != "Emulation" ]; then
+  check_flash_chip
+  check_intel_regions
 
-$FLASHROM -V -p internal:laptop=force_I_want_a_brick ${FLASH_CHIP_SELECT} -r logs/rom.bin ${FLASHROM_ADD_OPT_READ} > logs/flashrom_read.log 2> logs/flashrom_read.err.log
-if [ $? -ne 0 ]; then
-  echo "CRITICAL ERROR: cannot dump firmware"
+  # echo "Trying to read firmware image with flashrom..."
+  # Some regions may be not available so we need to use specific regions to read
+  if [ $BOARD_HAS_FD_REGION -eq 1 ]; then
+    # Use safe defaults. Descriptor may contain additional regions not detected
+    # by flashrom and will return failure when attempted to be read. BIOS and
+    # Flash descriptor regions should always be readable. If not, then we have
+    # some ugly case, hard to deal with.
+    FLASHROM_ADD_OPT_READ="--ifd -i fd -i bios"
+    if [ $BOARD_HAS_ME_REGION -eq 1 ] && [ $BOARD_ME_REGION_LOCKED -eq 0 ]; then
+      # ME region is not locked, read it as well
+      FLASHROM_ADD_OPT_READ+=" -i me"
+    fi
+    if [ $BOARD_HAS_GBE_REGION -eq 1 ] && [ $BOARD_GBE_REGION_LOCKED -eq 0 ]; then
+      # GBE region is present and not locked, read it as well
+      FLASHROM_ADD_OPT_READ+=" -i gbe"
+    fi
+  else
+    # No descriptor, probably safe to read everything
+    FLASHROM_ADD_OPT_READ=""
+  fi
+
+  $FLASHROM -V -p internal:laptop=force_I_want_a_brick ${FLASH_CHIP_SELECT} -r logs/rom.bin ${FLASHROM_ADD_OPT_READ} > logs/flashrom_read.log 2> logs/flashrom_read.err.log
+  if [ $? -ne 0 ]; then
+    echo "CRITICAL ERROR: cannot dump firmware"
+  fi
+  update_result "Firmware image" logs/flashrom_read.err.log
+  printf '##################################                                 |\r'
 fi
-update_result "Firmware image" logs/flashrom_read.err.log
-printf '##################################                                 |\r'
 
 # echo "Probing all I2C buses..."
 MAX_I2C_ID=$(i2cdetect -l | awk 'BEGIN{c1=0} //{c1++} END{print "",--c1}')

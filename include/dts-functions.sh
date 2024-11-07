@@ -1357,10 +1357,14 @@ show_main_menu() {
   echo -e "${BLUE}**${YELLOW}     ${HCL_REPORT_OPT})${BLUE} Dasharo HCL report${NORMAL}"
   if check_if_dasharo; then
     echo -e "${BLUE}**${YELLOW}     ${DASHARO_FIRM_OPT})${BLUE} Update Dasharo Firmware${NORMAL}"
-  else
+  # flashrom does not support QEMU. TODO: this could be handled in a better way:
+  elif [ "${SYSTEM_VENDOR}" != "QEMU" ] && [ "${SYSTEM_VENDOR}" != "Emulation" ]; then
     echo -e "${BLUE}**${YELLOW}     ${DASHARO_FIRM_OPT})${BLUE} Install Dasharo Firmware${NORMAL}"
   fi
-  echo -e "${BLUE}**${YELLOW}     ${REST_FIRM_OPT})${BLUE} Restore firmware from Dasharo HCL report${NORMAL}"
+  # flashrom does not support QEMU. TODO: this could be handled in a better way:
+  if [ "${SYSTEM_VENDOR}" != "QEMU" ] && [ "${SYSTEM_VENDOR}" != "Emulation" ]; then
+    echo -e "${BLUE}**${YELLOW}     ${REST_FIRM_OPT})${BLUE} Restore firmware from Dasharo HCL report${NORMAL}"
+  fi
   if [ -n "${DPP_IS_LOGGED}" ]; then
     echo -e "${BLUE}**${YELLOW}     ${DPP_KEYS_OPT})${BLUE} Edit your DPP keys${NORMAL}"
   else
@@ -1406,6 +1410,10 @@ main_menu_options(){
       ;;
     "${DASHARO_FIRM_OPT}")
       if ! check_if_dasharo; then
+        # flashrom does not support QEMU, but installation depends on flashrom.
+        # TODO: this could be handled in a better way:
+        [ "${SYSTEM_VENDOR}" = "QEMU" ] || [ "${SYSTEM_VENDOR}" = "Emulation" ] && return 0
+
         if wait_for_network_connection; then
           echo "Preparing ..."
           if [ -z "${LOGS_SENT}" ]; then
@@ -1424,6 +1432,7 @@ main_menu_options(){
           ${CMD_DASHARO_DEPLOY} install
         fi
       else
+        # TODO: This should be placed in dasharo-deploy:
         # For NovaCustom TGL laptops with Dasharo version lower than 1.3.0,
         # we shall run the ec_transition script instead. See:
         # https://docs.dasharo.com/variants/novacustom_nv4x_tgl/releases/#v130-2022-10-18
@@ -1455,6 +1464,10 @@ main_menu_options(){
       return 0
       ;;
     "${REST_FIRM_OPT}")
+      # flashrom does not support QEMU, but restore depends on flashrom.
+      # TODO: this could be handled in a better way:
+      [ "${SYSTEM_VENDOR}" = "QEMU" ] || [ "${SYSTEM_VENDOR}" = "Emulation" ] && return 0
+
       if check_if_dasharo; then
         ${CMD_DASHARO_DEPLOY} restore
       fi

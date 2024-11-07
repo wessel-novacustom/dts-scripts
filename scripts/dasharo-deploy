@@ -1183,12 +1183,15 @@ if [ "$FUM" == "fum" ]; then
     wait_for_network_connection
 fi
 
-# Size of flashchip should be checked before board_config func. because the
-# func. assigns some configs based on the chip size detected for ASUS boards
-# (FIXME).
-check_flash_chip
+# flashrom does not support QEMU. TODO: this could be handled in a better way:
+if [ "${SYSTEM_VENDOR}" != "QEMU" ] && [ "${SYSTEM_VENDOR}" != "Emulation" ]; then
+  # Size of flashchip should be checked before board_config func. because the
+  # func. assigns some configs based on the chip size detected for ASUS boards
+  # (FIXME).
+  check_flash_chip
+fi
+
 board_config
-check_flash_chip
 
 if [ -n "$PLATFORM_SIGN_KEY" ]; then
     get_signing_keys
