@@ -1588,6 +1588,8 @@ footer_options(){
 
 send_dts_logs(){
   if [ "${SEND_LOGS_ACTIVE}" == "true" ]; then
+    echo "Sending logs..."
+
     log_dir=$(dmidecode -s system-manufacturer)_$(dmidecode -s system-product-name)_$(dmidecode -s bios-version)
 
     uuid_string="$(cat /sys/class/net/$(ip route show default | head -1 | awk '/default/ {print $5}')/address)"

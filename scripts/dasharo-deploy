@@ -916,6 +916,9 @@ install_workflow() {
   echo -n "Syncing disks... "
   sync
   echo "Done."
+
+  send_dts_logs
+
   if [ "$NEED_EC_RESET" == "true" ]; then
     echo "The computer will shut down automatically in 5 seconds"
   else
@@ -938,7 +941,6 @@ install_workflow() {
   if [ "$NEED_EC_RESET" == "true" ]; then
     it5570_shutdown
   else
-    send_dts_logs
     ${REBOOT}
   fi
 }
@@ -1021,6 +1023,8 @@ update_workflow() {
     print_ok "Successfully updated Dasharo firmware."
   fi
 
+  send_dts_logs
+
   # Post update routine:
   if [ "$HAVE_EC" == "true" ]; then
     echo "Updating Embedded Controller firmware. Your computer will power off automatically when done."
@@ -1044,7 +1048,6 @@ update_workflow() {
     sleep 0.5
     echo "Rebooting"
     sleep 1
-    send_dts_logs
     ${REBOOT}
   fi
 }
