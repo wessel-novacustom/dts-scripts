@@ -259,6 +259,13 @@ intelmetool -m > logs/intelmetool.log 2> logs/intelmetool.err.log
 update_result "ME information" logs/intelmetool.err.log
 printf '#####################################################              |\r'
 
+# echo "Getting graphics VBT"
+files=$(find /sys/kernel/debug/dri -maxdepth 2 -name "i915_vbt")
+for file in $files; do
+  # copy $file to logs/dri_<directory>_<filename>
+  cp "$file" "logs/dri_$(basename "$(dirname "$file")")_$(basename "$file")"
+done
+update_result "Graphics VBT" 0 UNKNOWN
 printf '#######################################################            |\r'
 printf '#########################################################          |\r'
 printf '###########################################################        |\r'
