@@ -12,6 +12,7 @@ trap : 2
 trap : 3
 
 while : ; do
+  clear
   # Do some subscription routine each time menu is rendered:
   subscription_routine
 
@@ -28,7 +29,7 @@ while : ; do
   show_footer
 
   echo
-  read OPTION
+  read -n 1 OPTION
   echo
 
   # If OPTION is being matched with smth inside *_options functions the

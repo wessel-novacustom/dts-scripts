@@ -1302,7 +1302,7 @@ show_hardsoft_inf() {
   echo -e "${BLUE}*********************************************************${NORMAL}"
   echo -e "${BLUE}**${NORMAL}                FIRMWARE INFORMATION ${NORMAL}"
   echo -e "${BLUE}*********************************************************${NORMAL}"
-  echo -e "${BLUE}**${YELLOW}      BIOS Inf.: ${NORMAL}${BIOS_VENDOR} ${BIOS_VERSION}"
+  echo -e "${BLUE}**${YELLOW} BIOS Inf.: ${NORMAL}${BIOS_VENDOR} ${BIOS_VERSION}"
   echo -e "${BLUE}*********************************************************${NORMAL}"
 }
 
