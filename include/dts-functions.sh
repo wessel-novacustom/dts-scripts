@@ -768,41 +768,25 @@ download_bios() {
 
 download_ec() {
   if [ "${BIOS_LINK}" = "${BIOS_LINK_COMM}" ] || [ "${BIOS_LINK}" = "${BIOS_LINK_COMM_CAP}" ]; then
-    if [ "$HAVE_EC" == "true" ]; then
-      curl -s -L -f "$EC_LINK" -o "$EC_UPDATE_FILE"
-      error_check "Cannot access $FW_STORE_URL while downloading binary. Please
+    curl -s -L -f "$EC_LINK" -o "$EC_UPDATE_FILE"
+    error_check "Cannot access $FW_STORE_URL while downloading binary. Please
      check your internet connection"
-      curl -s -L -f "$EC_HASH_LINK" -o $EC_HASH_FILE
-      error_check "Cannot access $FW_STORE_URL while downloading signature. Please
+    curl -s -L -f "$EC_HASH_LINK" -o $EC_HASH_FILE
+    error_check "Cannot access $FW_STORE_URL while downloading signature. Please
      check your internet connection"
-      curl -s -L -f "$EC_SIGN_LINK" -o $EC_SIGN_FILE
-      error_check "Cannot access $FW_STORE_URL while downloading signature. Please
+    curl -s -L -f "$EC_SIGN_LINK" -o $EC_SIGN_FILE
+    error_check "Cannot access $FW_STORE_URL while downloading signature. Please
      check your internet connection"
-    fi
   else
-    if [ "$HAVE_EC" == "true" ]; then
-      if [ "${EC_LINK}" = "${EC_LINK_COMM}" ] || [ "${EC_LINK}" = "${EC_LINK_COMM_CAP}" ]; then
-        curl -s -L -f "$EC_LINK" -o "$EC_UPDATE_FILE"
-        error_check "Cannot access $FW_STORE_URL while downloading binary. Please
-          check your internet connection"
-        curl -s -L -f "$EC_HASH_LINK" -o $EC_HASH_FILE
-        error_check "Cannot access $FW_STORE_URL while downloading signature. Please
-          check your internet connection"
-        curl -s -L -f "$EC_SIGN_LINK" -o $EC_SIGN_FILE
-        error_check "Cannot access $FW_STORE_URL while downloading signature. Please
-          check your internet connection"
-      else
-        curl -s -L -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$EC_LINK" -o $EC_UPDATE_FILE
-        error_check "Cannot access $FW_STORE_URL while downloading binary. Please
-          check your internet connection and credentials"
-        curl -s -L -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$EC_HASH_LINK" -o $EC_HASH_FILE
-        error_check "Cannot access $FW_STORE_URL while downloading signature. Please
-          check your internet connection and credentials"
-        curl -s -L -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$EC_SIGN_LINK" -o $EC_SIGN_FILE
-        error_check "Cannot access $FW_STORE_URL while downloading signature. Please
-          check your internet connection and credentials"
-     fi
-    fi
+    curl -s -L -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$EC_LINK" -o $EC_UPDATE_FILE
+    error_check "Cannot access $FW_STORE_URL while downloading binary. Please
+     check your internet connection and credentials"
+    curl -s -L -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$EC_HASH_LINK" -o $EC_HASH_FILE
+    error_check "Cannot access $FW_STORE_URL while downloading signature. Please
+     check your internet connection and credentials"
+    curl -s -L -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$EC_SIGN_LINK" -o $EC_SIGN_FILE
+    error_check "Cannot access $FW_STORE_URL while downloading signature. Please
+     check your internet connection and credentials"
   fi
 }
 
