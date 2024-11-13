@@ -228,12 +228,19 @@ choose_version(){
   fi
 
   if [ -n "$DASHARO_REL_VER_DPP_CAP" ]; then
-    if check_for_firmware_access dpp_cap; then
-      FIRMWARE_VERSION="dpp_cap"
+    [ -z "$DASHARO_SUPPORT_CAP_FROM" ] && print_error "Variable DASHARO_SUPPORT_CAP_FROM must be set!"
 
-      return 0
-    else
-      print_firm_access_warning dpp_cap
+    # Check, whether currently installed firmware supports Capsule Update (
+    # check comments for DASHARO_SUPPORT_CAP_FROM in dts-environment.sh for more
+    # inf):
+    if compare_versions "$DASHARO_VERSION" "$DASHARO_SUPPORT_CAP_FROM" ; then
+      if check_for_firmware_access dpp_cap; then
+        FIRMWARE_VERSION="dpp_cap"
+
+        return 0
+      else
+        print_firm_access_warning dpp_cap
+      fi
     fi
   fi
 
@@ -248,9 +255,16 @@ choose_version(){
   fi
 
   if [ -n "$DASHARO_REL_VER_CAP" ]; then
-    FIRMWARE_VERSION="community_cap"
+    [ -z "$DASHARO_SUPPORT_CAP_FROM" ] && print_error "Variable DASHARO_SUPPORT_CAP_FROM must be set!"
 
-    return 0
+    # Check, whether currently installed firmware supports Capsule Update (
+    # check comments for DASHARO_SUPPORT_CAP_FROM in dts-environment.sh for more
+    # inf):
+    if compare_versions "$DASHARO_VERSION" "$DASHARO_SUPPORT_CAP_FROM" ; then
+      FIRMWARE_VERSION="community_cap"
+
+      return 0
+    fi
   fi
 
   # Last resort:

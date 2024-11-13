@@ -402,6 +402,7 @@ board_config() {
           # Add capsules:
           DASHARO_REL_NAME_CAP="$DASHARO_REL_NAME"
           DASHARO_REL_VER_DPP_CAP="$DASHARO_REL_VER_DPP"
+          DASHARO_SUPPORT_CAP_FROM="1.1.4"
 
           if check_if_dasharo; then
             # if v1.1.3 or older, flash the whole bios region
@@ -452,6 +453,7 @@ board_config() {
           # Add capsules:
           DASHARO_REL_NAME_CAP="$DASHARO_REL_NAME"
           DASHARO_REL_VER_DPP_CAP="$DASHARO_REL_VER_DPP"
+          DASHARO_SUPPORT_CAP_FROM="0.9.2"
 
           if check_if_dasharo; then
             # if v0.9.1 or older, flash the whole bios region
@@ -637,6 +639,7 @@ board_config() {
            # Download and versioning variables:
            DASHARO_REL_NAME_CAP="qemu_q35"
            DASHARO_REL_VER_CAP="0.2.0"
+           DASHARO_SUPPORT_CAP_FROM="0.2.0"
            # TODO: wait till the binaries will be uploaded to the server.
            BIOS_LINK_COMM_CAP="${FW_STORE_URL}/${DASHARO_REL_NAME_CAP}/v${DASHARO_REL_VER_CAP}/"
 	  ;;

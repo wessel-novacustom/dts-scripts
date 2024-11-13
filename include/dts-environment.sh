@@ -118,6 +118,13 @@ declare COMPATIBLE_EC_FW_VERSION
 # and for capsules:
 declare DASHARO_REL_VER_CAP
 declare DASHARO_REL_VER_DPP_CAP
+# To use capsule update a platform should already run a firmware with capsule
+# update support. Therefore DTS should check, from which Dasharo firmware
+# version capsule update is supported for the platform and compare with the
+# version of the currently installed firmware. This variable holds the version
+# from which Dasharo firmware supports capsule update for current patform. It is
+# set in board_config:
+declare DASHARO_SUPPORT_CAP_FROM
 # Links to files:
 declare BIOS_LINK_COMM
 declare BIOS_HASH_LINK_COMM
