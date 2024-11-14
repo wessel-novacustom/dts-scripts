@@ -481,7 +481,7 @@ board_config() {
             "PRO Z690-A WIFI DDR4(MS-7D25)" | "PRO Z690-A DDR4(MS-7D25)")
               DASHARO_REL_NAME="msi_ms7d25"
               DASHARO_REL_VER="1.1.1"
-              DASHARO_REL_VER_DPP="1.1.3"
+              DASHARO_REL_VER_DPP="1.1.4"
               BIOS_LINK_COMM="${FW_STORE_URL}/${DASHARO_REL_NAME}/v${DASHARO_REL_VER}/${DASHARO_REL_NAME}_v${DASHARO_REL_VER}_ddr4.rom"
               BIOS_LINK_DPP="${FW_STORE_URL_DPP}/MS-7D25/v${DASHARO_REL_VER_DPP}/${DASHARO_REL_NAME}_v${DASHARO_REL_VER_DPP}_ddr4.rom"
               HAVE_HEADS_FW="true"
@@ -520,7 +520,7 @@ board_config() {
             "PRO Z690-A WIFI (MS-7D25)" | "PRO Z690-A (MS-7D25)")
               DASHARO_REL_NAME="msi_ms7d25"
               DASHARO_REL_VER="1.1.1"
-              DASHARO_REL_VER_DPP="1.1.3"
+              DASHARO_REL_VER_DPP="1.1.4"
               BIOS_LINK_COMM="${FW_STORE_URL}/${DASHARO_REL_NAME}/v${DASHARO_REL_VER}/${DASHARO_REL_NAME}_v${DASHARO_REL_VER}_ddr5.rom"
               BIOS_LINK_DPP="${FW_STORE_URL_DPP}/MS-7D25/v${DASHARO_REL_VER_DPP}/${DASHARO_REL_NAME}_v${DASHARO_REL_VER_DPP}_ddr5.rom"
               HAVE_HEADS_FW="true"
@@ -567,7 +567,7 @@ board_config() {
             "PRO Z790-P WIFI DDR4(MS-7E06)" | "PRO Z790-P DDR4(MS-7E06)" | "PRO Z790-P WIFI DDR4 (MS-7E06)" | "PRO Z790-P DDR4 (MS-7E06)")
               DASHARO_REL_NAME="msi_ms7e06"
               #DASHARO_REL_VER=""
-              DASHARO_REL_VER_DPP="0.9.1"
+              DASHARO_REL_VER_DPP="0.9.2"
               #BIOS_LINK_COMM="$FW_STORE_URL/$DASHARO_REL_NAME/v$DASHARO_REL_VER/${DASHARO_REL_NAME}_v${DASHARO_REL_VER}_ddr4.rom"
               BIOS_LINK_DPP="${FW_STORE_URL_DPP}/MS-7E06/v${DASHARO_REL_VER_DPP}/${DASHARO_REL_NAME}_v${DASHARO_REL_VER_DPP}_ddr4.rom"
               HAVE_HEADS_FW="true"
@@ -605,7 +605,7 @@ board_config() {
             "PRO Z790-P WIFI (MS-7E06)" | "PRO Z790-P (MS-7E06)")
               DASHARO_REL_NAME="msi_ms7e06"
               #DASHARO_REL_VER=""
-              DASHARO_REL_VER_DPP="0.9.1"
+              DASHARO_REL_VER_DPP="0.9.2"
               #BIOS_LINK_COMM="$FW_STORE_URL/$DASHARO_REL_NAME/v$DASHARO_REL_VER/${DASHARO_REL_NAME}_v${DASHARO_REL_VER}_ddr5.rom"
               BIOS_LINK_DPP="${FW_STORE_URL_DPP}/MS-7E06/v${DASHARO_REL_VER_DPP}/${DASHARO_REL_NAME}_v${DASHARO_REL_VER_DPP}_ddr5.rom"
               HAVE_HEADS_FW="true"
