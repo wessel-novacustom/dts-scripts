@@ -689,6 +689,8 @@ deploy_ec_firmware() {
       return 0
     fi
 
+    echo "Updating Embedded Controller firmware. Your computer will power off automatically when done."
+
     # Following command will reset device, so the function will not quit:
     $DASHARO_ECTOOL flash "$EC_UPDATE_FILE" &>> $ERR_LOG_FILE
     error_check "Failed to update EC firmware"
@@ -1041,29 +1043,28 @@ update_workflow() {
 
   # Post update routine:
   if [ "$HAVE_EC" == "true" ]; then
-    echo "Updating Embedded Controller firmware. Your computer will power off automatically when done."
     deploy_ec_firmware update
-  else
-    echo -n "Syncing disks... "
-    sync
-    echo "Done."
-    echo "The computer will reboot automatically in 5 seconds"
-    sleep 0.5
-    echo "Rebooting in 5s:"
-    echo "5..."
-    sleep 1
-    echo "4..."
-    sleep 1
-    echo "3..."
-    sleep 1
-    echo "2..."
-    sleep 1
-    echo "1..."
-    sleep 0.5
-    echo "Rebooting"
-    sleep 1
-    ${REBOOT}
   fi
+
+  echo -n "Syncing disks... "
+  sync
+  echo "Done."
+  echo "The computer will reboot automatically in 5 seconds"
+  sleep 0.5
+  echo "Rebooting in 5s:"
+  echo "5..."
+  sleep 1
+  echo "4..."
+  sleep 1
+  echo "3..."
+  sleep 1
+  echo "2..."
+  sleep 1
+  echo "1..."
+  sleep 0.5
+  echo "Rebooting"
+  sleep 1
+  ${REBOOT}
 }
 
 restore() {
