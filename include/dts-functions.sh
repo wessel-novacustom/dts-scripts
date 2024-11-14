@@ -1579,13 +1579,13 @@ send_dts_logs(){
 
     log_dir=$(dmidecode -s system-manufacturer)_$(dmidecode -s system-product-name)_$(dmidecode -s bios-version)
 
-    uuid_string="$(cat /sys/class/net/$(ip route show default | head -1 | awk '/default/ {print $5}')/address)"
+    uuid_string="$(cat /sys/class/net/"$(ip route show default | head -1 | awk '/default/ {print $5}')"/address)"
     uuid_string+="_$(dmidecode -s system-product-name)"
     uuid_string+="_$(dmidecode -s system-manufacturer)"
 
     uuid=`uuidgen -n @x500 -N $uuid_string -s`
 
-    log_dir+="_$uuid_$(date +'%Y_%m_%d_%H_%M_%S_%N')"
+    log_dir+="_${uuid}_$(date +'%Y_%m_%d_%H_%M_%S_%N')"
     log_dir="${log_dir// /_}"
     log_dir="${log_dir//\//_}"
     log_dir="/tmp/${log_dir}"
