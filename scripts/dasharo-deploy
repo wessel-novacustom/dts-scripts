@@ -980,11 +980,23 @@ update_workflow() {
   prepare_env update
 
   print_ok "Current Dasharo version: $DASHARO_VERSION"
-  print_ok "Latest available Dasharo version: $UPDATE_VERSION"
+  print_ok "Latest available Dasharo version for your subscribtion: $UPDATE_VERSION"
+
 
   # TODO: Why do we separate Heads firmware-related code from other code? A
   # common way to handle this should be found.
-  handle_fw_switching $CAN_SWITCH_TO_HEADS
+  #
+  # Versions should be compared in case we are not switching to Heads, because
+  # heads version is not set at this moment, it is being set and compared in
+  # handle_fw_switching:
+  if [ "$CAN_SWITCH_TO_HEADS" = "true" ]; then
+    handle_fw_switching $CAN_SWITCH_TO_HEADS
+  else
+    compare_versions $DASHARO_VERSION $UPDATE_VERSION
+    if [ $? -ne 1 ]; then
+      error_exit "No update available for your machine"
+    fi
+  fi
 
   # TODO: It is not a good practice to do some target specific work in the code
   # of a scallable product, this should be handled in a more scallable way:
