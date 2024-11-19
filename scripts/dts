@@ -10,6 +10,15 @@ source $DTS_SUBS
 
 trap : 2
 trap : 3
+trap wait_for_input EXIT
+
+wait_for_input() {
+  code=$?
+  if [[ $code -ne 0 ]]; then
+    read -p "Press Enter to continue."
+  fi
+  exit $code
+}
 
 while : ; do
   clear
