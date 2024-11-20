@@ -5,8 +5,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # shellcheck disable=SC2034
-# shellcheck source=../include/dts-environment.sh
-source $DTS_ENV
 
 check_for_dasharo_firmware() {
   # This function checks if Dasharo firmware is available for the current
@@ -18,12 +16,12 @@ check_for_dasharo_firmware() {
   local _check_dwn_req_resp_heads="0"
   local _check_dwn_req_resp_seabios="0"
   local _check_logs_req_resp="0"
-  # Ignore "SC2154 (warning): DPP_credential_file is referenced but not assigned"
+  # Ignore "SC2154 (warning): DPP_CREDENTIAL_FILE is referenced but not assigned"
   # for external variable:
   # shellcheck disable=SC2154
-  CLOUDSEND_LOGS_URL=$(sed -n '1p' < ${DPP_credential_file} | tr -d '\n')
-  CLOUDSEND_DOWNLOAD_URL=$(sed -n '2p' < ${DPP_credential_file} | tr -d '\n')
-  CLOUDSEND_PASSWORD=$(sed -n '3p' < ${DPP_credential_file} | tr -d '\n')
+  CLOUDSEND_LOGS_URL=$(sed -n '1p' < ${DPP_CREDENTIAL_FILE} | tr -d '\n')
+  CLOUDSEND_DOWNLOAD_URL=$(sed -n '2p' < ${DPP_CREDENTIAL_FILE} | tr -d '\n')
+  CLOUDSEND_PASSWORD=$(sed -n '3p' < ${DPP_CREDENTIAL_FILE} | tr -d '\n')
   USER_DETAILS="$CLOUDSEND_DOWNLOAD_URL:$CLOUDSEND_PASSWORD"
 
   # Check the board information:
@@ -33,27 +31,33 @@ check_for_dasharo_firmware() {
   TEST_LOGS_URL="https://cloud.3mdeb.com/index.php/s/${CLOUDSEND_LOGS_URL}/authenticate/showShare"
 
   # If board_config function has not set firmware links - exit with warning:
-  if [ ! -v BIOS_LINK_DPP ] && [ ! -v HEADS_LINK_DPP ] && [ ! -v BIOS_LINK_DPP_SEABIOS ]; then
+  if [ -z "$BIOS_LINK_DPP" ] && [ -z "$HEADS_LINK_DPP" ] && [ -z "$BIOS_LINK_DPP_SEABIOS" ] && [ -z "$BIOS_LINK_DPP_CAP" ]; then
     print_warning "There is no Dasharo Firmware available for your platform."
     return 1
   fi
 
   # Check for firmware binaries:
   if wait_for_network_connection; then
-    if [ -v BIOS_LINK_DPP ]; then
+    if [ -n "$BIOS_LINK_DPP" ]; then
       _check_dwn_req_resp_uefi=$(curl -L -I -s -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_LINK_DPP" -o /dev/null -w "%{http_code}")
     fi
-    if [ -v HEADS_LINK_DPP ]; then
+
+    if [ -n "$BIOS_LINK_DPP_CAP" ]; then
+      _check_dwn_req_resp_uefi_cap=$(curl -L -I -s -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_LINK_DPP_CAP" -o /dev/null -w "%{http_code}")
+    fi
+
+    if [ -n "$HEADS_LINK_DPP" ]; then
       _check_dwn_req_resp_heads=$(curl -L -I -s -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$HEADS_LINK_DPP" -o /dev/null -w "%{http_code}")
     fi
-    if [ -v BIOS_LINK_DPP_SEABIOS ]; then
+
+    if [ -n "$BIOS_LINK_DPP_SEABIOS" ]; then
       _check_dwn_req_resp_seabios=$(curl -L -I -s -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_LINK_DPP_SEABIOS" -o /dev/null -w "%{http_code}")
     fi
 
     _check_logs_req_resp=$(curl -L -I -s -f -H "$CLOUD_REQUEST" "$TEST_LOGS_URL" -o /dev/null -w "%{http_code}")
 
     # Return 0 if any of Dasharo Firmware binaries is available:
-    if [ ${_check_dwn_req_resp_uefi} -eq 200 ] || [ ${_check_dwn_req_resp_heads} -eq 200 ] || [ ${_check_dwn_req_resp_seabios} -eq 200 ]; then
+    if [ ${_check_dwn_req_resp_uefi} -eq 200 ] || [ ${_check_dwn_req_resp_uefi_cap} -eq 200 ] || [ ${_check_dwn_req_resp_heads} -eq 200 ] || [ ${_check_dwn_req_resp_seabios} -eq 200 ]; then
       if [ ${_check_logs_req_resp} -eq 200 ]; then
         print_ok "A Dasharo Firmware binary has been found for your platform!"
         return 0
@@ -61,11 +65,11 @@ check_for_dasharo_firmware() {
     fi
   fi
 
-  print_warning "Something may be wrong with the DPP credentials or you may not\n
-		have access to Dasharo Firmware. If so, consider getting Dasharo\n
-		Subscription and improving security of your platform!"
+  print_warning "Something may be wrong with the DPP credentials or you may not"
+  print_warning "have access to Dasharo Firmware. If so, consider getting Dasharo"
+  print_warning "Subscription and improving security of your platform!"
 
-  read -p "Press any key to continue"
+  read -p "Press enter to continue"
   return 1
 }
 
@@ -80,9 +84,9 @@ get_dpp_creds() {
   # Export DPP creds to a file for future use. Currently these are being used
   # for both: MinIO (and its mc CLI) and cloudsend (deprecated, all DPP
   # sibscribtions will be megrated to MinIO):
-  echo ${TMP_CLOUDSEND_LOGS_URL} > ${DPP_credential_file}
-  echo ${TMP_CLOUDSEND_DOWNLOAD_URL} >> ${DPP_credential_file}
-  echo ${TMP_CLOUDSEND_PASSWORD} >> ${DPP_credential_file}
+  echo ${TMP_CLOUDSEND_LOGS_URL} > ${DPP_CREDENTIAL_FILE}
+  echo ${TMP_CLOUDSEND_DOWNLOAD_URL} >> ${DPP_CREDENTIAL_FILE}
+  echo ${TMP_CLOUDSEND_PASSWORD} >> ${DPP_CREDENTIAL_FILE}
 
   print_ok "Dasharo DPP credentials have been saved"
 }
@@ -91,10 +95,6 @@ login_to_dpp_server(){
   # Check if the user is already logged in, log in if not:
   if [ -z "$(mc alias list | grep ${CLOUDSEND_DOWNLOAD_URL})" ]; then
     if ! mc alias set $DPP_SERVER_USER_ALIAS $DPP_SERVER_ADDRESS $CLOUDSEND_DOWNLOAD_URL $CLOUDSEND_PASSWORD >> $ERR_LOG_FILE 2>&1 ; then
-      print_error "Your credentials do not have access to DPP packages. If you bought one, check the"
-      print_error "credentials you have used, and contact support. If you did not buy any DPP"
-      print_error "packages - feel free to continue."
-      read -p "Press enter to continue"
       return 1
     fi
   fi
@@ -116,10 +116,10 @@ subscription_routine(){
 
   # Each time the main menu is rendered, check for DPP credentials and export
   # them, if file exists
-  if [ -e "${DPP_credential_file}" ]; then
-    CLOUDSEND_LOGS_URL=$(sed -n '1p' < ${DPP_credential_file} | tr -d '\n')
-    CLOUDSEND_DOWNLOAD_URL=$(sed -n '2p' < ${DPP_credential_file} | tr -d '\n')
-    CLOUDSEND_PASSWORD=$(sed -n '3p' < ${DPP_credential_file} | tr -d '\n')
+  if [ -e "${DPP_CREDENTIAL_FILE}" ]; then
+    CLOUDSEND_LOGS_URL=$(sed -n '1p' < ${DPP_CREDENTIAL_FILE} | tr -d '\n')
+    CLOUDSEND_DOWNLOAD_URL=$(sed -n '2p' < ${DPP_CREDENTIAL_FILE} | tr -d '\n')
+    CLOUDSEND_PASSWORD=$(sed -n '3p' < ${DPP_CREDENTIAL_FILE} | tr -d '\n')
     export USER_DETAILS="$CLOUDSEND_DOWNLOAD_URL:$CLOUDSEND_PASSWORD"
     export DPP_IS_LOGGED="true"
   else

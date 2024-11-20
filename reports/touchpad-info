@@ -7,14 +7,17 @@
 # A script to get information on the touchpad devices. Currently supports only
 # Clevo devices.
 
-if ! dmesg | grep hid-multitouch | grep "I2C HID" > /dev/null; then
+# shellcheck source=../include/hal/dts-hal.sh
+source $DTS_HAL
+
+if ! $DMESG i2c_hid_detect_mock | grep hid-multitouch | grep "I2C HID" > /dev/null; then
   echo "No I2C touchpads detected. Exiting"
   exit 2
 fi
 
-devname=$(dmesg | grep hid-multitouch | awk 'NF>1{print $NF}')
-hid=$(cat "/sys/bus/i2c/devices/$devname/firmware_node/hid")
-path=$(cat "/sys/bus/i2c/devices/$devname/firmware_node/path")
+devname=$($DMESG i2c_hid_detect_mock | grep hid-multitouch | awk 'NF>1{print $NF}')
+hid=$($FSREAD_TOOL cat "/sys/bus/i2c/devices/$devname/firmware_node/hid")
+path=$($FSREAD_TOOL cat "/sys/bus/i2c/devices/$devname/firmware_node/path")
 
 ACPI_CALL_PATH="/proc/acpi/call"
 
