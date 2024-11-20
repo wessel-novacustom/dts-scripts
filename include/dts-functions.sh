@@ -1464,7 +1464,14 @@ main_menu_options(){
 
       # Try to log in using available DPP credentials, start loop over if login
       # was not successful:
-      login_to_dpp_server || return 0
+      login_to_dpp_server
+      if [ $? -ne 0 ]; then
+        print_warning "Your credentials do not have access to DPP packages. If you bought one, check the"
+        print_warning "credentials you have used, and contact support. If you did not buy any DPP"
+        print_warning "packages - feel free to continue."
+        read -p "Press enter to continue"
+        return 0
+      fi
 
       # Check if there is some packages available to install, start loop over if
       # no packages is available:
