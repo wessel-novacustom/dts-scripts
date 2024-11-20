@@ -986,10 +986,10 @@ update_workflow() {
   # TODO: Why do we separate Heads firmware-related code from other code? A
   # common way to handle this should be found.
   #
-  # Versions should be compared in case we are not switching to Heads, because
-  # heads version is not set at this moment, it is being set and compared in
-  # handle_fw_switching:
-  if [ "$CAN_SWITCH_TO_HEADS" = "true" ]; then
+  # Versions should be compared only in case we are not switching to Heads,
+  # because heads version is not set at this moment, it is being set and
+  # compared in handle_fw_switching:
+  if [ "$CAN_SWITCH_TO_HEADS" = "true" ] || [ "$DASHARO_FLAVOR" == "Dasharo (coreboot+heads)" ]; then
     handle_fw_switching $CAN_SWITCH_TO_HEADS
   else
     compare_versions $DASHARO_VERSION $UPDATE_VERSION
