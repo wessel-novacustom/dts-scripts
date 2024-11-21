@@ -69,7 +69,7 @@ check_for_dasharo_firmware() {
   print_warning "have access to Dasharo Firmware. If so, consider getting Dasharo"
   print_warning "Subscription and improving security of your platform!"
 
-  read -p "Press enter to continue"
+  read -p "Press Enter to continue."
   return 1
 }
 
