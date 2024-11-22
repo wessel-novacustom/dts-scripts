@@ -10,8 +10,18 @@ source $DTS_SUBS
 
 trap : 2
 trap : 3
+trap wait_for_input EXIT
+
+wait_for_input() {
+  code=$?
+  if [[ $code -ne 0 ]]; then
+    read -p "Press Enter to continue."
+  fi
+  exit $code
+}
 
 while : ; do
+  clear
   # Do some subscription routine each time menu is rendered:
   subscription_routine
 
@@ -28,7 +38,7 @@ while : ; do
   show_footer
 
   echo
-  read OPTION
+  read -n 1 OPTION
   echo
 
   # If OPTION is being matched with smth inside *_options functions the

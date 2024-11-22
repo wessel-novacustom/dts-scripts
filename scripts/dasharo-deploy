@@ -1045,7 +1045,7 @@ update_workflow() {
         print_warning "This is expected. Run OEM Factory Reset / Re-Ownership to finish deploying Heads."
         ;;
     esac
-    read -p "Press enter to continue" # Make sure the user acknowledges.
+    read -p "Press Enter to continue."
   else
     # Regular update flow
     print_ok "Successfully updated Dasharo firmware."
