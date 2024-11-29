@@ -338,9 +338,13 @@ board_config() {
           case $BOARD_MODEL in
             "V540TU")
               DASHARO_REL_NAME="novacustom_v54x_mtl"
+              FLASHROM_ADD_OPT_UPDATE_OVERRIDE="--ifd -i bios"
+              NEED_SMMSTORE_MIGRATION="true"
               ;;
             "V560TU")
               DASHARO_REL_NAME="novacustom_v56x_mtl"
+              FLASHROM_ADD_OPT_UPDATE_OVERRIDE="--ifd -i bios"
+              NEED_SMMSTORE_MIGRATION="true"
               ;;
             *)
               print_error "Board model $BOARD_MODEL is currently not supported"
@@ -362,11 +366,15 @@ board_config() {
               DASHARO_REL_NAME="novacustom_v54x_mtl"
               DASHARO_REL_VER="0.9.1"
               COMPATIBLE_EC_FW_VERSION="2024-09-10_3786c8c"
+              FLASHROM_ADD_OPT_UPDATE_OVERRIDE="--ifd -i bios"
+              NEED_SMMSTORE_MIGRATION="true"
               ;;
             "V560TNx")
               DASHARO_REL_NAME="novacustom_v56x_mtl"
               DASHARO_REL_VER="0.9.1"
               COMPATIBLE_EC_FW_VERSION="2024-09-10_3786c8c"
+              FLASHROM_ADD_OPT_UPDATE_OVERRIDE="--ifd -i bios"
+              NEED_SMMSTORE_MIGRATION="true"
               ;;
             *)
               print_error "Board model $BOARD_MODEL is currently not supported"
@@ -404,19 +412,13 @@ board_config() {
           DASHARO_REL_VER_DPP_CAP="$DASHARO_REL_VER_DPP"
           DASHARO_SUPPORT_CAP_FROM="1.1.4"
 
-          if check_if_dasharo; then
-            # if v1.1.3 or older, flash the whole bios region
-            # TODO: Let DTS determine which parameters are suitable.
-            # FIXME: Can we ever get rid of that? We change so much in each release,
-            # that we almost always need to flash whole BIOS region
-            # because of non-backward compatible or breaking changes.
-            compare_versions $DASHARO_VERSION 1.1.3
-            if [ $? -eq 1 ]; then
-              # For Dasharo version lesser than 1.1.3
-              NEED_BOOTSPLASH_MIGRATION="true"
-              FLASHROM_ADD_OPT_UPDATE_OVERRIDE="--ifd -i bios"
-            fi
-          fi
+          # flash the whole bios region
+          # TODO: Let DTS determine which parameters are suitable.
+          # FIXME: Can we ever get rid of that? We change so much in each release,
+          # that we almost always need to flash whole BIOS region
+          # because of non-backward compatible or breaking changes.
+          NEED_BOOTSPLASH_MIGRATION="true"
+          FLASHROM_ADD_OPT_UPDATE_OVERRIDE="--ifd -i bios"
 
           case "$BOARD_MODEL" in
             "PRO Z690-A WIFI DDR4(MS-7D25)" | "PRO Z690-A DDR4(MS-7D25)")
@@ -455,19 +457,13 @@ board_config() {
           DASHARO_REL_VER_DPP_CAP="$DASHARO_REL_VER_DPP"
           DASHARO_SUPPORT_CAP_FROM="0.9.2"
 
-          if check_if_dasharo; then
-            # if v0.9.1 or older, flash the whole bios region
-            # TODO: Let DTS determine which parameters are suitable.
-            # FIXME: Can we ever get rid of that? We change so much in each release,
-            # that we almost always need to flash whole BIOS region
-            # because of non-backward compatible or breaking changes.
-            compare_versions $DASHARO_VERSION 0.9.1
-            if [ $? -eq 1 ]; then
-              # For Dasharo version lesser than 0.9.1
-              NEED_BOOTSPLASH_MIGRATION="true"
-              FLASHROM_ADD_OPT_UPDATE_OVERRIDE="--ifd -i bios"
-            fi
-          fi
+          # flash the whole bios region
+          # TODO: Let DTS determine which parameters are suitable.
+          # FIXME: Can we ever get rid of that? We change so much in each release,
+          # that we almost always need to flash whole BIOS region
+          # because of non-backward compatible or breaking changes.
+          NEED_BOOTSPLASH_MIGRATION="true"
+          FLASHROM_ADD_OPT_UPDATE_OVERRIDE="--ifd -i bios"
 
           case "$BOARD_MODEL" in
             "PRO Z790-P WIFI DDR4(MS-7E06)" | "PRO Z790-P DDR4(MS-7E06)" | "PRO Z790-P WIFI DDR4 (MS-7E06)" | "PRO Z790-P DDR4 (MS-7E06)")
@@ -1018,7 +1014,7 @@ set_flashrom_update_params() {
       # Simply update RW_A fmap region if exists
       grep -q "RW_SECTION_A" <<< $BINARY_FMAP_LAYOUT
       if [ $? -eq 0 ]; then
-        FLASHROM_ADD_OPT_UPDATE="-N --fmap -i RW_SECTION_A"
+        FLASHROM_ADD_OPT_UPDATE="-N --fmap -i RW_SECTION_A -i WP_RO"
       else
         # RW_A does not exists, it means no vboot. Update COREBOOT region only
         FLASHROM_ADD_OPT_UPDATE="-N --fmap -i COREBOOT"
