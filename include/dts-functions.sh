@@ -339,12 +339,10 @@ board_config() {
             "V540TU")
               DASHARO_REL_NAME="novacustom_v54x_mtl"
               FLASHROM_ADD_OPT_UPDATE_OVERRIDE="--ifd -i bios"
-              NEED_SMMSTORE_MIGRATION="true"
               ;;
             "V560TU")
               DASHARO_REL_NAME="novacustom_v56x_mtl"
               FLASHROM_ADD_OPT_UPDATE_OVERRIDE="--ifd -i bios"
-              NEED_SMMSTORE_MIGRATION="true"
               ;;
             *)
               print_error "Board model $BOARD_MODEL is currently not supported"
@@ -367,14 +365,12 @@ board_config() {
               DASHARO_REL_VER="0.9.1"
               COMPATIBLE_EC_FW_VERSION="2024-09-10_3786c8c"
               FLASHROM_ADD_OPT_UPDATE_OVERRIDE="--ifd -i bios"
-              NEED_SMMSTORE_MIGRATION="true"
               ;;
             "V560TNx")
               DASHARO_REL_NAME="novacustom_v56x_mtl"
               DASHARO_REL_VER="0.9.1"
               COMPATIBLE_EC_FW_VERSION="2024-09-10_3786c8c"
               FLASHROM_ADD_OPT_UPDATE_OVERRIDE="--ifd -i bios"
-              NEED_SMMSTORE_MIGRATION="true"
               ;;
             *)
               print_error "Board model $BOARD_MODEL is currently not supported"
