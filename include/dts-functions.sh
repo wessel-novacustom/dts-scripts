@@ -490,7 +490,7 @@ board_config() {
     "Dell Inc.")
       # Common configuration for all Dell releases:
       DASHARO_REL_NAME="dell_optiplex_7010_9010"
-      DASHARO_REL_VER_DPP="0.1.0"
+      DASHARO_REL_VER_DPP="0.1.1"
       BIOS_LINK_DPP="$FW_STORE_URL_DPP/v$DASHARO_REL_VER_DPP/${DASHARO_REL_NAME}_v$DASHARO_REL_VER_DPP.rom"
       CAN_INSTALL_BIOS="true"
       NEED_SMBIOS_MIGRATION="true"
