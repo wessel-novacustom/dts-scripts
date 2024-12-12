@@ -261,6 +261,7 @@ board_config() {
           DASHARO_REL_VER="1.5.2"
           CAN_INSTALL_BIOS="true"
           COMPATIBLE_EC_FW_VERSION="2022-08-31_cbff21b"
+          PROGRAMMER_EC="ite_ec:romsize=128K,autoload=disable"
           if check_if_dasharo; then
           # if v1.5.1 or older, flash the whole bios region
           # TODO: Let DTS determine which parameters are suitable.
