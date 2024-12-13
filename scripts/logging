@@ -2,13 +2,38 @@
 
 start_logging() {
     local file=$1
-    CURRENT_TTY="$(tty)"
-    exec 1>> >(tee >(stdbuf -i0 -oL -eL ts "[%T]: " >> "$file")) 2>&1
+    if [ -z "$LOGGING" ]; then
+        LOGGING="Y"
+        if [ -z "$DESC" ]; then
+            exec {DESC}> >(tee >(stdbuf -i0 -oL -eL ts "[%T]: " >> "$file"))
+        fi
+        exec 1>&$DESC
+    fi
 }
 
 stop_logging() {
-    exec &>"$CURRENT_TTY"
+    if [ -n "$LOGGING" ]; then
+        exec &>"$(tty)"
+        LOGGING=
+    fi
+}
+
+start_trace_logging() {
+    local file=$1
+    if [ -z "$BASH_XTRACEFD" ]; then
+        exec {xtrace_fd}>>"$file"
+        export BASH_XTRACEFD=${xtrace_fd}
+        set -x
+    fi
+}
+
+stop_trace_logging() {
+    if [ -n "$BASH_XTRACEFD" ]; then
+        set +x
+        BASH_XTRACEFD=
+    fi
 }
 
 export PS4="+[\$(date +%T.%3N)]:\${BASH_SOURCE[0]}:\${LINENO[0]}:\${FUNCNAME[0]:-main}: "
-export CURRENT_TTY
+export LOGGING
+export DESC
