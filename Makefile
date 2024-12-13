@@ -19,6 +19,7 @@ install:
 	install -m 0755 scripts/dts $(DESTDIR)$(SBINDIR)
 	install -m 0755 scripts/dts-boot $(DESTDIR)$(SBINDIR)
 	install -m 0755 scripts/ec_transition $(DESTDIR)$(SBINDIR)
+	install -m 0755 scripts/logging $(DESTDIR)$(SBINDIR)/logging
 
 	install -m 0755 reports/dasharo-hcl-report $(DESTDIR)$(SBINDIR)
 	install -m 0755 reports/touchpad-info $(DESTDIR)$(SBINDIR)

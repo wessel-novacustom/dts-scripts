@@ -1527,11 +1527,6 @@ show_footer(){
   else
     echo -e "${RED}${SEND_LOGS_OPT}${NORMAL} to enable sending DTS logs ${NORMAL}"
   fi
-  if [ "${VERBOSE_ACTIVE}" == "true" ]; then
-    echo -ne "${RED}${VERBOSE_OPT}${NORMAL} to disable verbose mode ${NORMAL}"
-  else
-    echo -ne "${RED}${VERBOSE_OPT}${NORMAL} to enable verbose mode ${NORMAL}"
-  fi
   echo -ne "${YELLOW}\nEnter an option:${NORMAL}"
 }
 
@@ -1561,8 +1556,9 @@ footer_options(){
       echo "Entering shell, to leave type exit and press Enter or press LCtrl+D"
       echo ""
       send_dts_logs
-      set_verbose "false"
+      stop_logging
       ${CMD_SHELL}
+      start_logging "$DTS_LOG_FILE"
 
       # If in submenu before going to shell - return to main menu after exiting
       # shell:
@@ -1581,13 +1577,6 @@ footer_options(){
         unset SEND_LOGS_ACTIVE
       else
         export SEND_LOGS_ACTIVE="true"
-      fi
-      ;;
-    "${VERBOSE_OPT}" | "${VERBOSE_OPT_LOW}")
-      if [ "${VERBOSE_ACTIVE}" == "true" ]; then
-        set_verbose "false"
-      else
-        set_verbose "true"
       fi
       ;;
   esac
@@ -1614,6 +1603,7 @@ send_dts_logs(){
 
     mkdir $log_dir
     cp ${DTS_LOG_FILE} $log_dir
+    cp ${DTS_VERBOSE_LOG_FILE} $log_dir
 
     if [ -f ${ERR_LOG_FILE} ]; then
       cp ${ERR_LOG_FILE} $log_dir
@@ -1742,24 +1732,5 @@ check_if_intel() {
   cpu_vendor=$(cat /proc/cpuinfo | grep "vendor_id" | head -n 1 | sed 's/.*: //')
   if [ $cpu_vendor == "GenuineIntel" ]; then
     return 0
-  fi
-}
-
-set_verbose() {
-  if [ $1 == "true" ]; then
-    VERBOSE_ACTIVE="true"
-    CMD_DASHARO_DEPLOY="/usr/bin/env bash -x $CMD_DASHARO_DEPLOY"
-    CMD_DASHARO_HCL_REPORT="/usr/bin/env bash -x $CMD_DASHARO_HCL_REPORT"
-    CMD_EC_TRANSITION="/usr/bin/env bash -x $CMD_EC_TRANSITION"
-    CMD_CLOUD_LIST="/usr/bin/env bash -x $CMD_CLOUD_LIST"
-    set -x
-  elif [ $1 == "false" ]; then
-    unset VERBOSE_ACTIVE
-    # Remove the -x option
-    CMD_DASHARO_DEPLOY=$(echo $CMD_DASHARO_DEPLOY | sed 's|^/usr/bin/env bash -x ||')
-    CMD_DASHARO_HCL_REPORT=$(echo $CMD_DASHARO_HCL_REPORT | sed 's|^/usr/bin/env bash -x ||')
-    CMD_EC_TRANSITION=$(echo $CMD_EC_TRANSITION | sed 's|^/usr/bin/env bash -x ||')
-    CMD_CLOUD_LIST=$(echo $CMD_CLOUD_LIST | sed 's|^/usr/bin/env bash -x ||')
-    set +x
   fi
 }

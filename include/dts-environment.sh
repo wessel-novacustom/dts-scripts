@@ -50,8 +50,6 @@ SSH_OPT_UP="K"
 SSH_OPT_LOW="$(echo $SSH_OPT_UP | awk '{print tolower($0)}')"
 SEND_LOGS_OPT="L"
 SEND_LOGS_OPT_LOW="$(echo $SEND_LOGS_OPT | awk '{print tolower($0)}')"
-VERBOSE_OPT="V"
-VERBOSE_OPT_LOW="$(echo $VERBOSE_OPT | awk '{print tolower($0)}')"
 
 # Hardware variables:
 SYSTEM_VENDOR="$($DMIDECODE dump_var_mock -s system-manufacturer)"
