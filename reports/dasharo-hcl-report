@@ -126,7 +126,7 @@ update_result "kernel dmesg" logs/dmesg.err.log
 printf '######################                                             |\r'
 
 # echo "Dumping ACPI tables..."
-$ACPIDUMP > logs/acpidump.log 2> logs/acpidump.err.log
+acpidump > logs/acpidump.log 2> logs/acpidump.err.log
 update_result "ACPI tables" logs/acpidump.err.log
 printf '########################                                           |\r'
 
