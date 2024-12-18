@@ -1231,6 +1231,8 @@ You can find more info about HCL in docs.dasharo.com/glossary\r"
 }
 
 show_ram_inf() {
+  # trace logging is quite slow due to timestamp (calls 'date')
+  stop_trace_logging
   # Get the data:
   local data=""
   data=$($DMIDECODE)
@@ -1273,6 +1275,7 @@ show_ram_inf() {
   for entry in "${memory_devices_array[@]}"; do
     echo -e "${BLUE}**${YELLOW}    RAM ${entry}"
   done
+  start_trace_logging
 }
 
 show_header() {
