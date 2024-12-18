@@ -13,18 +13,25 @@ export DTS_ENV="$SBIN_DIR/dts-environment.sh"
 export DTS_SUBS="$SBIN_DIR/dts-subscription.sh"
 export DTS_HAL="$SBIN_DIR/dts-hal.sh"
 export DTS_MOCK_COMMON="$SBIN_DIR/common-mock-func.sh"
+export BASH_ENV="$SBIN_DIR/logging"
+export ERR_LOG_FILE_REALPATH
 export DTS_LOG_FILE
 export DTS_VERBOSE_LOG_FILE
-export BASH_ENV="$SBIN_DIR/logging"
+export ERR_LOG_FILE
 export SHELLOPTS
 
+ERR_LOG_FILE_REALPATH="/var/local/dts-err_$(basename "$(tty)").log"
 DTS_LOG_FILE="/tmp/dts_$(basename "$(tty)").log"
 DTS_VERBOSE_LOG_FILE="/tmp/dts-verbose_$(basename "$(tty)").log"
 
 # shellcheck source=./logging
 source "$BASH_ENV"
-start_trace_logging "${DTS_VERBOSE_LOG_FILE}"
-start_logging "${DTS_LOG_FILE}"
+start_trace_logging
+start_logging
+if [ -z "$ERR_LOG_FILE" ]; then
+    exec {ERR_LOG_FILE}> >(logger >> "$ERR_LOG_FILE_REALPATH")
+    ERR_LOG_FILE="/proc/$$/fd/$ERR_LOG_FILE"
+fi
 
 # shellcheck source=../include/dts-environment.sh
 source $DTS_ENV

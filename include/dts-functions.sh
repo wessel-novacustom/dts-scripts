@@ -84,7 +84,7 @@ fum_exit() {
     if [ "$FUM" == "fum" ]; then
       print_error "Update cannot be performed"
       print_warning "Starting bash session - please make sure you get logs from\r
-      \r$ERR_LOG_FILE and $FLASHROM_LOG_FILE; then you can poweroff the platform"
+      \r$ERR_LOG_FILE_REALPATH and $FLASHROM_LOG_FILE; then you can poweroff the platform"
       /bin/bash
     fi
 }
@@ -1561,7 +1561,7 @@ footer_options(){
       send_dts_logs
       stop_logging
       ${CMD_SHELL}
-      start_logging "$DTS_LOG_FILE"
+      start_logging
 
       # If in submenu before going to shell - return to main menu after exiting
       # shell:
@@ -1608,8 +1608,8 @@ send_dts_logs(){
     cp ${DTS_LOG_FILE} $log_dir
     cp ${DTS_VERBOSE_LOG_FILE} $log_dir
 
-    if [ -f ${ERR_LOG_FILE} ]; then
-      cp ${ERR_LOG_FILE} $log_dir
+    if [ -f ${ERR_LOG_FILE_REALPATH} ]; then
+      cp ${ERR_LOG_FILE_REALPATH} $log_dir
     fi
 
     if [ -f ${FLASHROM_LOG_FILE} ]; then

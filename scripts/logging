@@ -1,5 +1,12 @@
 #!/bin/bash
 
+logger() {
+    while read -r LINE
+    do
+        echo "[$(date +%T.%3N)]: $LINE"
+    done
+}
+
 start_logging() {
     local file="$DTS_LOG_FILE"
     if [ -z "$LOGGING" ]; then

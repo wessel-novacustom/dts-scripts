@@ -87,7 +87,6 @@ FW_BACKUP_TAR="${FW_BACKUP_DIR}.tar.gz"
 FW_BACKUP_TAR="$(echo "$FW_BACKUP_TAR" | sed 's/\ /_/g')"
 
 # Paths to system files
-ERR_LOG_FILE="/var/local/dts-err.log"
 FLASHROM_LOG_FILE="/var/local/flashrom.log"
 FLASH_INFO_FILE="/tmp/flash_info"
 OS_VERSION_FILE="/etc/os-release"
