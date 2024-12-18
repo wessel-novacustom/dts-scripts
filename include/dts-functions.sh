@@ -1449,22 +1449,40 @@ main_menu_options(){
       return 0
       ;;
     "${DPP_KEYS_OPT}")
+      local _result
+
       get_dpp_creds
 
       # Check for Dasharo Firmware for the current platform, continue to
       # packages after checking:
       check_for_dasharo_firmware
+      _result=$?
+
+      echo "Your credentials give access to:"
+      echo -n "Dasharo Pro Package (DPP): "
+
+      if [ $_result -eq 0 ]; then
+        # FIXME: what if credentials have access to
+        # firmware, but check_for_dasharo_firmware will not detect any platform?
+        # According to check_for_dasharo_firmware it will return 1 in both
+        # cases which means that we cannot detect such case.
+        print_ok "YES"
+      else
+        echo "NO"
+      fi
+
+      echo -n "DTS Extensions: "
 
       # Try to log in using available DPP credentials, start loop over if login
       # was not successful:
       login_to_dpp_server
       if [ $? -ne 0 ]; then
-        print_warning "Your credentials do not have access to DPP packages. If you bought one, check the"
-        print_warning "credentials you have used, and contact support. If you did not buy any DPP"
-        print_warning "packages - feel free to continue."
-        read -p "Press Enter to continue"
+        echo "NO"
+	read -p "Press Enter to continue"
         return 0
       fi
+
+      print_ok "YES"
 
       # Check if there is some packages available to install, start loop over if
       # no packages is available:
