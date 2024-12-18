@@ -220,8 +220,8 @@ printf '####################################                               |\r'
 # echo "Decompiling ACPI tables..."
 mkdir -p logs/acpi
 if pushd logs/acpi &> /dev/null; then
-  acpixtract -a ../acpidump.log &>/dev/null
-  iasl -d ./*.dat &>/dev/null
+  acpixtract -a ../acpidump.log >/dev/null 2>>"$ERR_LOG_FILE"
+  iasl -d ./*.dat >/dev/null 2>>"$ERR_LOG_FILE"
   popd &> /dev/null || return 1
 fi
 update_result "ACPI tables" 0 UNKNOWN

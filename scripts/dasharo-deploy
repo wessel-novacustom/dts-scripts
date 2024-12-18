@@ -511,7 +511,7 @@ romhole_migration() {
     if check_if_dasharo; then
       $CBFSTOOL layout_mock /tmp/rom.bin layout -w | grep -q "ROMHOLE" || return
       # This one is rather unlikely to fail, but just in case print a warning
-      $CBFSTOOL read_romhole_mock /tmp/rom.bin read -r ROMHOLE -f /tmp/romhole.bin 2> /dev/null
+      $CBFSTOOL read_romhole_mock /tmp/rom.bin read -r ROMHOLE -f /tmp/romhole.bin 2>>"$ERR_LOG_FILE"
       if [ $? -ne 0 ]; then
         print_warning "Failed to migrate MSI ROMHOLE, your platform's unique SMBIOS/DMI data may be lost"
         return
@@ -520,7 +520,7 @@ romhole_migration() {
       dd if=/tmp/rom.bin of=/tmp/romhole.bin skip=$((0x17C0000)) bs=128K count=1 iflag=skip_bytes > /dev/null 2>&1
     fi
 
-    $CBFSTOOL "$BIOS_UPDATE_FILE" write -r ROMHOLE -f /tmp/romhole.bin -u 2> /dev/null
+    $CBFSTOOL "$BIOS_UPDATE_FILE" write -r ROMHOLE -f /tmp/romhole.bin -u 2>>"$ERR_LOG_FILE"
 }
 
 smbios_migration() {

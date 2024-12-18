@@ -889,7 +889,7 @@ check_blobs_in_binary() {
 
   # If there is no descriptor, there is no ME as well, so skip the check
   if [ $BOARD_HAS_FD_REGION -ne 0 ]; then
-    ME_OFFSET=$($IFDTOOL check_blobs_in_binary_mock -d $1 2> /dev/null | grep "Flash Region 2 (Intel ME):" | sed 's/Flash Region 2 (Intel ME)\://' | awk '{print $1;}')
+    ME_OFFSET=$($IFDTOOL check_blobs_in_binary_mock -d $1 2>>"$ERR_LOG_FILE" | grep "Flash Region 2 (Intel ME):" | sed 's/Flash Region 2 (Intel ME)\://' | awk '{print $1;}')
     # Check for IFD signature at offset 0 (old descriptors)
     if [ "$(tail -c +0 $1|head -c 4|xxd -ps)" == "5aa5f00f" ]; then
       BINARY_HAS_FD=1
@@ -1003,8 +1003,8 @@ set_flashrom_update_params() {
   echo "Checking flash layout."
   $FLASHROM read_flash_layout_mock -p "$PROGRAMMER_BIOS" ${FLASH_CHIP_SELECT} ${FLASHROM_ADD_OPT_UPDATE} -r $BIOS_DUMP_FILE > /dev/null 2>&1
   if [ $? -eq 0 ] && [ -f "$BIOS_DUMP_FILE" ]; then
-    BOARD_FMAP_LAYOUT=$($CBFSTOOL layout_mock $BIOS_DUMP_FILE layout -w 2> /dev/null)
-    BINARY_FMAP_LAYOUT=$($CBFSTOOL layout_mock $1 layout -w 2> /dev/null)
+    BOARD_FMAP_LAYOUT=$($CBFSTOOL layout_mock $BIOS_DUMP_FILE layout -w 2>>"$ERR_LOG_FILE")
+    BINARY_FMAP_LAYOUT=$($CBFSTOOL layout_mock $1 layout -w 2>>"$ERR_LOG_FILE")
     diff <(echo "$BOARD_FMAP_LAYOUT") <(echo "$BINARY_FMAP_LAYOUT") > /dev/null 2>&1
     # If layout is identical, perform standard update using FMAP only
     if [ $? -eq 0 ]; then
@@ -1208,7 +1208,7 @@ handle_fw_switching() {
 
 sync_clocks() {
   echo "Waiting for system clock to be synced ..."
-  chronyc waitsync 10 0 0 5 &> /dev/null
+  chronyc waitsync 10 0 0 5 >/dev/null 2>>ERR_LOG_FILE
   if [[ $? -ne 0 ]]; then
     print_warning "Failed to sync system clock with NTP server!"
     print_warning "Some time critical tasks might fail!"
