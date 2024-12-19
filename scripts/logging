@@ -20,7 +20,7 @@ start_logging() {
 
 stop_logging() {
     if [ -n "$LOGGING" ]; then
-        exec &>"$(tty)"
+        exec >&0
         LOGGING=
     fi
 }
