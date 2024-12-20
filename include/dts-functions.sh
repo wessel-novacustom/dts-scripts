@@ -83,8 +83,8 @@ check_if_ac() {
 fum_exit() {
     if [ "$FUM" == "fum" ]; then
       print_error "Update cannot be performed"
-      print_warning "Starting bash session - please make sure you get logs from\r
-      \r$ERR_LOG_FILE_REALPATH and $FLASHROM_LOG_FILE; then you can poweroff the platform"
+      print_warning "Starting bash session"
+      send_dts_logs ask
       /bin/bash
     fi
 }
