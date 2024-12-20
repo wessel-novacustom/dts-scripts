@@ -1450,8 +1450,12 @@ main_menu_options(){
       ;;
     "${DPP_KEYS_OPT}")
       local _result
+      # Return if there was an issue when asking for credentials:
+      if ! get_dpp_creds; then
+        read -p "Press Enter to continue."
+        return 0
+      fi
 
-      get_dpp_creds
 
       # Check for Dasharo Firmware for the current platform, continue to
       # packages after checking:

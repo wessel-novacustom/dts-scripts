@@ -12,6 +12,11 @@ check_for_dasharo_firmware() {
 
   echo "Checking for Dasharo firmware..."
 
+  if [ -f "$DPP_CREDENTIAL_FILE" ]; then
+    print_warning "No credentials provided, cannot check for Dasharo firmware access."
+    return 1
+  fi
+
   local _check_dwn_req_resp_uefi="0"
   local _check_dwn_req_resp_heads="0"
   local _check_dwn_req_resp_seabios="0"
@@ -76,10 +81,24 @@ check_for_dasharo_firmware() {
 get_dpp_creds() {
   echo ""
   read -p "Enter logs key:                " 'TMP_CLOUDSEND_LOGS_URL'
+  if [ -z "$TMP_CLOUDSEND_LOGS_URL" ]; then
+    print_warning "Logs key is empty, discarding credentials..."
+    return 1
+  fi
+
   echo ""
   read -p "Enter firmware download key:   " 'TMP_CLOUDSEND_DOWNLOAD_URL'
+  if [ -z "$TMP_CLOUDSEND_DOWNLOAD_URL" ]; then
+    print_warning "Download key is empty, discarding credentials..."
+    return 1
+  fi
+
   echo ""
   read -p "Enter password:                " 'TMP_CLOUDSEND_PASSWORD'
+  if [ -z "$TMP_CLOUDSEND_PASSWORD" ]; then
+    print_warning "Password is empty, discarding credentials..."
+    return 1
+  fi
 
   # Export DPP creds to a file for future use. Currently these are being used
   # for both: MinIO (and its mc CLI) and cloudsend (deprecated, all DPP
