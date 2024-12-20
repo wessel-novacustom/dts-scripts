@@ -1629,7 +1629,7 @@ send_dts_logs() {
     if [ -f ${FLASHROM_LOG_FILE} ]; then
       cp ${FLASHROM_LOG_FILE} $log_dir
     fi
-    tar czf "${log_dir}.tar.gz" $log_dir
+    tar czf "${log_dir}.tar.gz" -C "$(dirname "$log_dir")" "$(basename "$log_dir")"
 
     FULL_DTS_URL="https://cloud.3mdeb.com/index.php/s/"${BASE_DTS_LOGS_URL}
 
