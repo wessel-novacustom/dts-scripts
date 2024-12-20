@@ -1231,7 +1231,9 @@ You can find more info about HCL in docs.dasharo.com/glossary\r"
 }
 
 show_ram_inf() {
-  # trace logging is quite slow due to timestamp (calls 'date')
+  # Trace logging is quite slow due to creating timestamp for each line
+  # (calls 'date'). In QEMU this function results in 650 trace lines
+  # out of 800 for every UI refresh, which is noticeable
   stop_trace_logging
   # Get the data:
   local data=""
