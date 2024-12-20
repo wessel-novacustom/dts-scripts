@@ -19,6 +19,8 @@ export DTS_VERBOSE_LOG_FILE
 export ERR_LOG_FILE
 export SHELLOPTS
 
+# $ERR_LOG_FILE is fd that can only be written to: '>()'. To copy logs
+# we need underlying file that can be copied
 ERR_LOG_FILE_REALPATH="/var/local/dts-err_$(basename "$(tty)").log"
 DTS_LOG_FILE="/tmp/dts_$(basename "$(tty)").log"
 DTS_VERBOSE_LOG_FILE="/tmp/dts-verbose_$(basename "$(tty)").log"
@@ -28,6 +30,8 @@ source "$BASH_ENV"
 start_trace_logging
 start_logging
 if [ -z "$ERR_LOG_FILE" ]; then
+    # pass everything written to $ERR_LOG_FILE to logger function and save it's
+    # output to $ERR_LOG_FILE_REALPATH file
     exec {ERR_LOG_FILE}> >(logger >> "$ERR_LOG_FILE_REALPATH")
     ERR_LOG_FILE="/proc/$$/fd/$ERR_LOG_FILE"
 fi

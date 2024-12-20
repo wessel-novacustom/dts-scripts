@@ -10,8 +10,10 @@ logger() {
 start_logging() {
     local file="$DTS_LOG_FILE"
     if [ -z "$LOGGING" ]; then
-        LOGGING="Y"
+        LOGGING="true"
         if [ -z "$DESC" ]; then
+            # Create file descriptor that echoes back anything written to it
+            # and also logs that line to file with added timestamp prefix
             exec {DESC}> >(tee >(stdbuf -i0 -oL -eL ts "[%T]: " >> "$file"))
         fi
         exec 1>&$DESC
