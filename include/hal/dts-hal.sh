@@ -144,7 +144,7 @@ tool_wrapper(){
 check_for_opensource_firmware()
 {
   echo "Checking for Open Source Embedded Controller firmware..."
-  $DASHARO_ECTOOL check_for_opensource_firm_mock info > /dev/null 2>&1
+  $DASHARO_ECTOOL check_for_opensource_firm_mock info > /dev/null 2>>"$ERR_LOG_FILE"
 
   return $?
 }
@@ -190,7 +190,7 @@ check_me_op_mode(){
 # Checks ME Current Operation Mode at offset 0x40 bits 19:16:
   local _mode
 
-  _mode="$($SETPCI check_me_op_mode_mock -s 00:16.0 42.B 2> /dev/null | cut -c2-)"
+  _mode="$($SETPCI check_me_op_mode_mock -s 00:16.0 42.B 2>>"$ERR_LOG_FILE" | cut -c2-)"
 
   echo "$_mode"
 

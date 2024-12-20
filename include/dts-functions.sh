@@ -150,7 +150,7 @@ it5570_shutdown() {
 }
 
 check_network_connection() {
-  if wget --spider cloud.3mdeb.com > /dev/null 2>&1; then
+  if wget --spider cloud.3mdeb.com > /dev/null 2>>"$ERR_LOG_FILE"; then
     return 0
   else
     return 1
@@ -324,7 +324,7 @@ board_config() {
           # Dasharo 0.9.0-rc10 and higher have board model in baseboard-version
           if check_if_dasharo && compare_versions "$DASHARO_VERSION" 0.9.0-rc10; then
             BOARD_MODEL="$($DMIDECODE dump_var_mock -s baseboard-version)"
-          elif ! $DASHARO_ECTOOL check_for_opensource_firm_mock info 2>/dev/null; then
+          elif ! $DASHARO_ECTOOL check_for_opensource_firm_mock info 2>>"$ERR_LOG_FILE"; then
             ask_for_model V540TU V560TU
           else
             BOARD_MODEL=$($DASHARO_ECTOOL novacustom_check_sys_model_mock info | grep "board:" |
@@ -687,22 +687,22 @@ check_flash_lock() {
 
 check_flash_chip() {
   echo "Gathering flash chip and chipset information..."
-  $FLASHROM flash_chip_name_mock -p "$PROGRAMMER_BIOS" --flash-name >> "$FLASH_INFO_FILE" 2>> "$ERR_LOG_FILE"
+  $FLASHROM flash_chip_name_mock -p "$PROGRAMMER_BIOS" --flash-name >> "$FLASH_INFO_FILE" 2>>"$ERR_LOG_FILE"
   if [ $? -eq 0 ]; then
     echo -n "Flash information: "
     tail -n1 "$FLASH_INFO_FILE"
-    FLASH_CHIP_SIZE=$(($($FLASHROM flash_chip_size_mock -p "$PROGRAMMER_BIOS" --flash-size 2>> /dev/null | tail -n1) / 1024 / 1024))
+    FLASH_CHIP_SIZE=$(($($FLASHROM flash_chip_size_mock -p "$PROGRAMMER_BIOS" --flash-size 2>>"$ERR_LOG_FILE" | tail -n1) / 1024 / 1024))
     echo -n "Flash size: "
     echo ${FLASH_CHIP_SIZE}M
   else
     for flash_name in $FLASH_CHIP_LIST
     do
-      $FLASHROM flash_chip_name_mock -p "$PROGRAMMER_BIOS" -c "$flash_name" --flash-name >> "$FLASH_INFO_FILE" 2>> "$ERR_LOG_FILE"
+      $FLASHROM flash_chip_name_mock -p "$PROGRAMMER_BIOS" -c "$flash_name" --flash-name >> "$FLASH_INFO_FILE" 2>>"$ERR_LOG_FILE"
       if [ $? -eq 0 ]; then
         echo "Chipset found"
         tail -n1 "$FLASH_INFO_FILE"
         FLASH_CHIP_SELECT="-c ${flash_name}"
-        FLASH_CHIP_SIZE=$(($($FLASHROM flash_chip_size_mock -p "$PROGRAMMER_BIOS" ${FLASH_CHIP_SELECT} --flash-size 2>> /dev/null | tail -n1) / 1024 / 1024))
+        FLASH_CHIP_SIZE=$(($($FLASHROM flash_chip_size_mock -p "$PROGRAMMER_BIOS" ${FLASH_CHIP_SELECT} --flash-size 2>>"$ERR_LOG_FILE" | tail -n1) / 1024 / 1024))
         echo "Chipset size"
         echo ${FLASH_CHIP_SIZE}M
         break
@@ -739,24 +739,24 @@ compare_versions() {
 
 download_bios() {
   if [ "${BIOS_LINK}" == "${BIOS_LINK_COMM}" ] || [ "${BIOS_LINK}" == "${BIOS_LINK_COMM_CAP}" ]; then
-    curl -s -L -f "$BIOS_LINK" -o $BIOS_UPDATE_FILE
+    curl -s -S -L -f "$BIOS_LINK" -o $BIOS_UPDATE_FILE 2>>"$ERR_LOG_FILE"
     error_check "Cannot access $FW_STORE_URL while downloading binary. Please
    check your internet connection"
-    curl -s -L -f "$BIOS_HASH_LINK" -o $BIOS_HASH_FILE
+    curl -s -S -L -f "$BIOS_HASH_LINK" -o $BIOS_HASH_FILE 2>>"$ERR_LOG_FILE"
     error_check "Cannot access $FW_STORE_URL while downloading signature. Please
    check your internet connection"
-    curl -s -L -f "$BIOS_SIGN_LINK" -o $BIOS_SIGN_FILE
+    curl -s -S -L -f "$BIOS_SIGN_LINK" -o $BIOS_SIGN_FILE 2>>"$ERR_LOG_FILE"
     error_check "Cannot access $FW_STORE_URL while downloading signature. Please
    check your internet connection"
   else
     USER_DETAILS="$CLOUDSEND_DOWNLOAD_URL:$CLOUDSEND_PASSWORD"
-    curl -s -L -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_LINK" -o $BIOS_UPDATE_FILE
+    curl -s -S -L -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_LINK" -o $BIOS_UPDATE_FILE 2>>"$ERR_LOG_FILE"
     error_check "Cannot access $FW_STORE_URL_DPP while downloading binary.
    Please check your internet connection and credentials"
-    curl -s -L -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_HASH_LINK" -o $BIOS_HASH_FILE
+    curl -s -S -L -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_HASH_LINK" -o $BIOS_HASH_FILE 2>>"$ERR_LOG_FILE"
     error_check "Cannot access $FW_STORE_URL_DPP while downloading signature.
    Please check your internet connection and credentials"
-    curl -s -L -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_SIGN_LINK" -o $BIOS_SIGN_FILE
+    curl -s -S -L -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_SIGN_LINK" -o $BIOS_SIGN_FILE 2>>"$ERR_LOG_FILE"
     error_check "Cannot access $FW_STORE_URL_DPP while downloading signature.
    Please check your internet connection and credentials"
   fi
@@ -764,23 +764,23 @@ download_bios() {
 
 download_ec() {
   if [ "${BIOS_LINK}" = "${BIOS_LINK_COMM}" ] || [ "${BIOS_LINK}" = "${BIOS_LINK_COMM_CAP}" ]; then
-    curl -s -L -f "$EC_LINK" -o "$EC_UPDATE_FILE"
+    curl -s -S -L -f "$EC_LINK" -o "$EC_UPDATE_FILE" 2>>"$ERR_LOG_FILE"
     error_check "Cannot access $FW_STORE_URL while downloading binary. Please
      check your internet connection"
-    curl -s -L -f "$EC_HASH_LINK" -o $EC_HASH_FILE
+    curl -s -S -L -f "$EC_HASH_LINK" -o $EC_HASH_FILE 2>>"$ERR_LOG_FILE"
     error_check "Cannot access $FW_STORE_URL while downloading signature. Please
      check your internet connection"
-    curl -s -L -f "$EC_SIGN_LINK" -o $EC_SIGN_FILE
+    curl -s -S -L -f "$EC_SIGN_LINK" -o $EC_SIGN_FILE 2>>"$ERR_LOG_FILE"
     error_check "Cannot access $FW_STORE_URL while downloading signature. Please
      check your internet connection"
   else
-    curl -s -L -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$EC_LINK" -o $EC_UPDATE_FILE
+    curl -s -S -L -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$EC_LINK" -o $EC_UPDATE_FILE 2>>"$ERR_LOG_FILE"
     error_check "Cannot access $FW_STORE_URL while downloading binary. Please
      check your internet connection and credentials"
-    curl -s -L -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$EC_HASH_LINK" -o $EC_HASH_FILE
+    curl -s -S -L -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$EC_HASH_LINK" -o $EC_HASH_FILE 2>>"$ERR_LOG_FILE"
     error_check "Cannot access $FW_STORE_URL while downloading signature. Please
      check your internet connection and credentials"
-    curl -s -L -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$EC_SIGN_LINK" -o $EC_SIGN_FILE
+    curl -s -S -L -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$EC_SIGN_LINK" -o $EC_SIGN_FILE 2>>"$ERR_LOG_FILE"
     error_check "Cannot access $FW_STORE_URL while downloading signature. Please
      check your internet connection and credentials"
   fi
@@ -1001,11 +1001,11 @@ set_flashrom_update_params() {
   # We need to read whole binary (or BIOS region), otherwise cbfstool will
   # return different attributes for CBFS regions
   echo "Checking flash layout."
-  $FLASHROM read_flash_layout_mock -p "$PROGRAMMER_BIOS" ${FLASH_CHIP_SELECT} ${FLASHROM_ADD_OPT_UPDATE} -r $BIOS_DUMP_FILE > /dev/null 2>&1
+  $FLASHROM read_flash_layout_mock -p "$PROGRAMMER_BIOS" ${FLASH_CHIP_SELECT} ${FLASHROM_ADD_OPT_UPDATE} -r $BIOS_DUMP_FILE > /dev/null 2>>"$ERR_LOG_FILE"
   if [ $? -eq 0 ] && [ -f "$BIOS_DUMP_FILE" ]; then
     BOARD_FMAP_LAYOUT=$($CBFSTOOL layout_mock $BIOS_DUMP_FILE layout -w 2>>"$ERR_LOG_FILE")
     BINARY_FMAP_LAYOUT=$($CBFSTOOL layout_mock $1 layout -w 2>>"$ERR_LOG_FILE")
-    diff <(echo "$BOARD_FMAP_LAYOUT") <(echo "$BINARY_FMAP_LAYOUT") > /dev/null 2>&1
+    diff <(echo "$BOARD_FMAP_LAYOUT") <(echo "$BINARY_FMAP_LAYOUT") > /dev/null 2>>"$ERR_LOG_FILE"
     # If layout is identical, perform standard update using FMAP only
     if [ $? -eq 0 ]; then
       # Simply update RW_A fmap region if exists
@@ -1111,7 +1111,7 @@ handle_fw_switching() {
     done
   elif [ -n "$DPP_IS_LOGGED" ] && [ -n "$HEADS_LINK_DPP" ]; then
     local _heads_dpp=1
-    curl -sfI -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$HEADS_LINK_DPP" -o /dev/null
+    curl -sSfI -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$HEADS_LINK_DPP" -o /dev/null 2>>"$ERR_LOG_FILE"
     _heads_dpp=$?
     # We are on heads, offer switch back or perform update if DPP gives access to heads
     if [ "$DASHARO_FLAVOR" == "Dasharo (coreboot+heads)" ]; then
@@ -1316,7 +1316,7 @@ show_dpp_credentials() {
 }
 
 show_ssh_info() {
-  if systemctl is-active sshd.service &> /dev/null; then
+  if systemctl is-active sshd.service >/dev/null 2>>"$ERR_LOG_FILE"; then
     local ip=""
     ip=$(ip -br -f inet a show scope global | grep UP | awk '{ print $3 }' | tr '\n' ' ')
     # Display "check your connection" in red color in IP field in case no IPV4
@@ -1528,7 +1528,7 @@ show_footer(){
   echo -ne "${RED}${REBOOT_OPT_UP}${NORMAL} to reboot  ${NORMAL}"
   echo -ne "${RED}${POWEROFF_OPT_UP}${NORMAL} to poweroff  ${NORMAL}"
   echo -e "${RED}${SHELL_OPT_UP}${NORMAL} to enter shell  ${NORMAL}"
-  if systemctl is-active sshd.service &> /dev/null; then
+  if systemctl is-active sshd.service >/dev/null 2>>"$ERR_LOG_FILE"; then
     echo -ne "${RED}${SSH_OPT_UP}${NORMAL} to stop SSH server  ${NORMAL}"
   else
     echo -ne "${RED}${SSH_OPT_UP}${NORMAL} to launch SSH server  ${NORMAL}"
@@ -1548,7 +1548,7 @@ footer_options(){
     "${SSH_OPT_UP}" | "${SSH_OPT_LOW}")
       wait_for_network_connection || return 0
 
-      if systemctl is-active sshd.service> /dev/null 2>&1; then
+      if systemctl is-active sshd.service >/dev/null 2>>"$ERR_LOG_FILE"; then
         print_ok "Turning off the SSH server..."
         systemctl stop sshd.service
       else

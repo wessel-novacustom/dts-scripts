@@ -80,7 +80,7 @@ check_for_firmware_access() {
       # This firmware type require user to provide creds:
       [ "$DPP_IS_LOGGED" == "true" ] || return 1
 
-      curl -sfI -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_LINK_DPP" -o /dev/null
+      curl -sfI -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_LINK_DPP" -o /dev/null 2>>"$ERR_LOG_FILE"
 
       [ $? -ne 0 ] && return 1
       ;;
@@ -88,7 +88,7 @@ check_for_firmware_access() {
       # This firmware type require user to provide creds:
       [ "$DPP_IS_LOGGED" == "true" ] || return 1
 
-      curl -sfI -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_LINK_DPP_CAP" -o /dev/null
+      curl -sfI -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_LINK_DPP_CAP" -o /dev/null 2>>"$ERR_LOG_FILE"
 
       [ $? -ne 0 ] && return 1
       ;;
@@ -96,7 +96,7 @@ check_for_firmware_access() {
       # This firmware type require user to provide creds:
       [ "$DPP_IS_LOGGED" == "true" ] || return 1
 
-      curl -sfI -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_LINK_DPP_SEABIOS" -o /dev/null
+      curl -sfI -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_LINK_DPP_SEABIOS" -o /dev/null 2>>"$ERR_LOG_FILE"
 
       [ $? -ne 0 ] && return 1
       ;;
@@ -104,7 +104,7 @@ check_for_firmware_access() {
       # This firmware type require user to provide creds:
       [ "$DPP_IS_LOGGED" == "true" ] || return 1
 
-      curl -sfI -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$HEADS_LINK_DPP" -o /dev/null
+      curl -sfI -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$HEADS_LINK_DPP" -o /dev/null 2>>"$ERR_LOG_FILE"
 
       [ $? -ne 0 ] && return 1
       ;;
@@ -517,7 +517,7 @@ romhole_migration() {
         return
       fi
     else
-      dd if=/tmp/rom.bin of=/tmp/romhole.bin skip=$((0x17C0000)) bs=128K count=1 iflag=skip_bytes > /dev/null 2>&1
+      dd if=/tmp/rom.bin of=/tmp/romhole.bin skip=$((0x17C0000)) bs=128K count=1 iflag=skip_bytes >/dev/null 2>>"$ERR_LOG_FILE"
     fi
 
     $CBFSTOOL "$BIOS_UPDATE_FILE" write -r ROMHOLE -f /tmp/romhole.bin -u 2>>"$ERR_LOG_FILE"
@@ -601,10 +601,10 @@ check_vboot_keys() {
       FLASHROM_ADD_OPT_READ="--ifd -i bios"
     fi
     echo "Checking vboot keys."
-    $FLASHROM read_firm_mock -p "$PROGRAMMER_BIOS" ${FLASH_CHIP_SELECT} ${FLASHROM_ADD_OPT_READ} -r $BIOS_DUMP_FILE > /dev/null 2>/dev/null
+    $FLASHROM read_firm_mock -p "$PROGRAMMER_BIOS" ${FLASH_CHIP_SELECT} ${FLASHROM_ADD_OPT_READ} -r $BIOS_DUMP_FILE >/dev/null 2>>"$ERR_LOG_FILE"
     if [ $? -eq 0 ] && [ -f $BIOS_DUMP_FILE ]; then
       FLASH_KEYS=$(CBFSTOOL=$(which cbfstool) $FUTILITY dump_vboot_keys show $BIOS_DUMP_FILE | grep -i 'key sha1sum')
-      diff <(echo "$BINARY_KEYS") <(echo "$FLASH_KEYS") > /dev/null 2>&1
+      diff <(echo "$BINARY_KEYS") <(echo "$FLASH_KEYS") >/dev/null 2>>"$ERR_LOG_FILE"
       # If keys are different we must additionally flash at least GBB region as well
       if [ $? -ne 0 ]; then
         FLASHROM_ADD_OPT_UPDATE+=" -i GBB"
