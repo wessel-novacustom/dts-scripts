@@ -994,7 +994,7 @@ update_workflow() {
   else
     compare_versions $DASHARO_VERSION $UPDATE_VERSION
     if [ $? -ne 1 ]; then
-      error_exit "No update available for your machine"
+      error_exit "No update available for your machine" 2
     fi
   fi
 

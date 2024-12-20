@@ -91,12 +91,16 @@ fum_exit() {
 
 error_exit() {
   _error_msg="$1"
+  local exit_code=1
+  if [ "$#" -eq 2 ]; then
+     exit_code=$2
+  fi
   if [ -n "$_error_msg" ]; then
     # Avoid printing empty line if no message was passed
     print_error "$_error_msg"
   fi
   fum_exit
-  exit 1
+  exit $exit_code
 }
 
 error_check() {
@@ -1355,6 +1359,7 @@ show_main_menu() {
 
 main_menu_options(){
   local OPTION=$1
+  local result
 
   case ${OPTION} in
     "${HCL_REPORT_OPT}")
@@ -1407,7 +1412,9 @@ main_menu_options(){
         fi
 
         if [ -n "${LOGS_SENT}" ]; then
-          if ! ${CMD_DASHARO_DEPLOY} install; then
+          ${CMD_DASHARO_DEPLOY} install
+          result=$?
+          if [ "$result" -ne 0 ] && [ "$result" -ne 2 ]; then
             send_dts_logs ask
           fi
         fi
@@ -1437,7 +1444,9 @@ main_menu_options(){
         fi
 
         # Use regular update process for everything else
-        if ! ${CMD_DASHARO_DEPLOY} update; then
+        ${CMD_DASHARO_DEPLOY} update;
+        result=$?
+        if [ "$result" -ne 0 ] && [ "$result" -ne 2 ]; then
           send_dts_logs ask
         fi
       fi
