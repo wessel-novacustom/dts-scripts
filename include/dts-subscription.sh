@@ -12,7 +12,7 @@ check_for_dasharo_firmware() {
 
   echo "Checking for Dasharo firmware..."
 
-  if [ -f "$DPP_CREDENTIAL_FILE" ]; then
+  if ! [ -f "$DPP_CREDENTIAL_FILE" ]; then
     print_warning "No credentials provided, cannot check for Dasharo firmware access."
     return 1
   fi
