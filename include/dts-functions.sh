@@ -1580,7 +1580,7 @@ footer_options(){
       if [ "${SEND_LOGS_ACTIVE}" == "true" ]; then
         unset SEND_LOGS_ACTIVE
       else
-        SEND_LOGS_ACTIVE="true"
+        export SEND_LOGS_ACTIVE="true"
       fi
       ;;
     "${VERBOSE_OPT}" | "${VERBOSE_OPT_LOW}")
