@@ -980,7 +980,7 @@ update_workflow() {
   prepare_env update
 
   print_ok "Current Dasharo version: $DASHARO_VERSION"
-  print_ok "Latest available Dasharo version for your subscribtion: $UPDATE_VERSION"
+  print_ok "Latest available Dasharo version for your subscription: $UPDATE_VERSION"
 
 
   # TODO: Why do we separate Heads firmware-related code from other code? A
