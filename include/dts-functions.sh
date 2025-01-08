@@ -1212,7 +1212,7 @@ handle_fw_switching() {
 
 sync_clocks() {
   echo "Waiting for system clock to be synced ..."
-  chronyc waitsync 10 0 0 5 >/dev/null 2>>ERR_LOG_FILE
+  chronyc waitsync 10 0 0 5 >/dev/null 2>>"$ERR_LOG_FILE"
   if [[ $? -ne 0 ]]; then
     print_warning "Failed to sync system clock with NTP server!"
     print_warning "Some time critical tasks might fail!"
@@ -1767,7 +1767,7 @@ check_if_intel() {
 ask_for_confirmation() {
   local text="$1"
 
-  read -p "$1 [N/y]: "
+  read -p "$text [N/y]: "
   case ${REPLY} in
     yes|y|Y|Yes|YES)
       return 0
