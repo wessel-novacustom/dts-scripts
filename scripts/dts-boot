@@ -19,11 +19,13 @@ export DTS_VERBOSE_LOG_FILE
 export ERR_LOG_FILE
 export SHELLOPTS
 
+TMP_LOG_DIR="/tmp/logs"
+mkdir -p "$TMP_LOG_DIR"
 # $ERR_LOG_FILE is fd that can only be written to: '>()'. To copy logs
 # we need underlying file that can be copied
 ERR_LOG_FILE_REALPATH="/var/local/dts-err_$(basename "$(tty)").log"
-DTS_LOG_FILE="/tmp/dts_$(basename "$(tty)").log"
-DTS_VERBOSE_LOG_FILE="/tmp/dts-verbose_$(basename "$(tty)").log"
+DTS_LOG_FILE="$TMP_LOG_DIR/dts_$(basename "$(tty)").log"
+DTS_VERBOSE_LOG_FILE="$TMP_LOG_DIR/dts-verbose_$(basename "$(tty)").log"
 
 # shellcheck source=./logging
 source "$BASH_ENV"
