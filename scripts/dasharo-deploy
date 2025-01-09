@@ -979,6 +979,10 @@ update_workflow() {
   # Set all global variables needed for installation:
   prepare_env update
 
+  if [ -z "$UPDATE_VERSION" ]; then
+    error_exit "No update available for your machine"
+  fi
+
   print_ok "Current Dasharo version: $DASHARO_VERSION"
   print_ok "Latest available Dasharo version for your subscription: $UPDATE_VERSION"
 
