@@ -1444,7 +1444,7 @@ main_menu_options(){
         fi
 
         # Use regular update process for everything else
-        ${CMD_DASHARO_DEPLOY} update;
+        ${CMD_DASHARO_DEPLOY} update
         result=$?
         if [ "$result" -ne 0 ] && [ "$result" -ne 2 ]; then
           send_dts_logs ask
@@ -1625,9 +1625,9 @@ send_dts_logs() {
     log_dir+="_${uuid}_$(date +'%Y_%m_%d_%H_%M_%S_%N')"
     log_dir="${log_dir// /_}"
     log_dir="${log_dir//\//_}"
-    log_dir="/tmp/${log_dir}"
+    log_dir="${TMP_LOG_DIR}/${log_dir}"
 
-    mkdir $log_dir
+    mkdir -p $log_dir
     cp ${DTS_LOG_FILE} $log_dir
     cp ${DTS_VERBOSE_LOG_FILE} $log_dir
 
@@ -1767,13 +1767,16 @@ check_if_intel() {
 ask_for_confirmation() {
   local text="$1"
 
-  read -p "$text [N/y]: "
-  case ${REPLY} in
-    yes|y|Y|Yes|YES)
-      return 0
-      ;;
-    *)
-      return 1
-      ;;
-  esac
+  while read -p "$text [n/y]: "; do
+    case ${REPLY} in
+      y|Y|yes|Yes|YES)
+        return 0
+        ;;
+      n|N|no|No|NO)
+        return 1
+        ;;
+      *)
+        ;;
+    esac
+  done
 }

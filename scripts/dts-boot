@@ -13,13 +13,13 @@ export DTS_SUBS="$SBIN_DIR/dts-subscription.sh"
 export DTS_HAL="$SBIN_DIR/dts-hal.sh"
 export DTS_MOCK_COMMON="$SBIN_DIR/common-mock-func.sh"
 export BASH_ENV="$SBIN_DIR/logging"
+export TMP_LOG_DIR="/tmp/logs"
 export ERR_LOG_FILE_REALPATH
 export DTS_LOG_FILE
 export DTS_VERBOSE_LOG_FILE
 export ERR_LOG_FILE
 export SHELLOPTS
 
-TMP_LOG_DIR="/tmp/logs"
 mkdir -p "$TMP_LOG_DIR"
 # $ERR_LOG_FILE is fd that can only be written to: '>()'. To copy logs
 # we need underlying file that can be copied
