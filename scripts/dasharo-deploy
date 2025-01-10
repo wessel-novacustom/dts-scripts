@@ -363,6 +363,9 @@ prepare_env() {
     BIOS_SIGN_LINK=$BIOS_SIGN_LINK_DPP_SEABIOS
 
     return 0
+  elif [ "$FIRMWARE_VERSION" == "heads" ]; then
+    handle_fw_switching "$CAN_SWITCH_TO_HEADS"
+    return
   fi
 
   # Must not get here. If it gets here - the above variables are empty and
@@ -984,18 +987,11 @@ update_workflow() {
   fi
 
   print_ok "Current Dasharo version: $DASHARO_VERSION"
-  print_ok "Latest available Dasharo version for your subscription: $UPDATE_VERSION"
 
-
-  # TODO: Why do we separate Heads firmware-related code from other code? A
-  # common way to handle this should be found.
-  #
-  # Versions should be compared only in case we are not switching to Heads,
-  # because heads version is not set at this moment, it is being set and
-  # compared in handle_fw_switching:
   if [ "$CAN_SWITCH_TO_HEADS" = "true" ] || [ "$DASHARO_FLAVOR" == "Dasharo (coreboot+heads)" ]; then
-    handle_fw_switching $CAN_SWITCH_TO_HEADS
+    print_ok "Latest available Dasharo version for your subscription: $UPDATE_VERSION (coreboot+Heads)"
   else
+    print_ok "Latest available Dasharo version for your subscription: $UPDATE_VERSION"
     compare_versions $DASHARO_VERSION $UPDATE_VERSION
     if [ $? -ne 1 ]; then
       error_exit "No update available for your machine"
