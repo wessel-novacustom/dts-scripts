@@ -1415,7 +1415,7 @@ main_menu_options(){
           ${CMD_DASHARO_DEPLOY} install
           result=$?
           if [ "$result" -ne 0 ] && [ "$result" -ne 2 ]; then
-            send_dts_logs ask
+            send_dts_logs ask && return 0
           fi
         fi
       else
@@ -1447,7 +1447,7 @@ main_menu_options(){
         ${CMD_DASHARO_DEPLOY} update
         result=$?
         if [ "$result" -ne 0 ] && [ "$result" -ne 2 ]; then
-          send_dts_logs ask
+          send_dts_logs ask && return 0
         fi
       fi
       read -p "Press Enter to continue."
@@ -1461,7 +1461,7 @@ main_menu_options(){
 
       if check_if_dasharo; then
         if ! ${CMD_DASHARO_DEPLOY} restore; then
-          send_dts_logs ask
+          send_dts_logs ask && return 0
         fi
       fi
       read -p "Press Enter to continue."
