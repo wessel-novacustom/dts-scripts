@@ -219,10 +219,10 @@ printf '####################################                               |\r'
 
 # echo "Decompiling ACPI tables..."
 mkdir -p logs/acpi
-if pushd logs/acpi &> /dev/null; then
-  acpixtract -a ../acpidump.log &>/dev/null
-  iasl -d ./*.dat &>/dev/null
-  popd &> /dev/null || return 1
+if pushd logs/acpi >/dev/null 2>>"$ERR_LOG_FILE"; then
+  acpixtract -a ../acpidump.log >/dev/null 2>>"$ERR_LOG_FILE"
+  iasl -d ./*.dat >/dev/null 2>>"$ERR_LOG_FILE"
+  popd >/dev/null 2>>"$ERR_LOG_FILE" || return 1
 fi
 update_result "ACPI tables" 0 UNKNOWN
 printf '######################################                             |\r'
@@ -325,7 +325,7 @@ fi
 # warning:
 # shellcheck disable=SC2046
 MAC_ADDR=`cat /sys/class/net/$(ip route show default | head -1 | awk '/default/ {print $5}')/address`
-grep -rl "${MAC_ADDR}" logs > /dev/null && grep -rl "${MAC_ADDR}" logs | xargs sed -i 's/'${MAC_ADDR}'/MAC ADDRESS REMOVED/g'
+grep -rl "${MAC_ADDR}" logs >/dev/null && grep -rl "${MAC_ADDR}" logs | xargs sed -i 's/'${MAC_ADDR}'/MAC ADDRESS REMOVED/g'
 tar -zcf "$filename.tar.gz" logs/*
 rm -rf logs
 

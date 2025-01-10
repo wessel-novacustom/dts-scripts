@@ -83,20 +83,24 @@ check_if_ac() {
 fum_exit() {
     if [ "$FUM" == "fum" ]; then
       print_error "Update cannot be performed"
-      print_warning "Starting bash session - please make sure you get logs from\r
-      \r$ERR_LOG_FILE and $FLASHROM_LOG_FILE; then you can poweroff the platform"
+      print_warning "Starting bash session"
+      send_dts_logs ask
       /bin/bash
     fi
 }
 
 error_exit() {
   _error_msg="$1"
+  local exit_code=1
+  if [ "$#" -eq 2 ]; then
+     exit_code=$2
+  fi
   if [ -n "$_error_msg" ]; then
     # Avoid printing empty line if no message was passed
     print_error "$_error_msg"
   fi
   fum_exit
-  exit 1
+  exit $exit_code
 }
 
 error_check() {
@@ -150,7 +154,7 @@ it5570_shutdown() {
 }
 
 check_network_connection() {
-  if wget --spider cloud.3mdeb.com > /dev/null 2>&1; then
+  if wget --spider cloud.3mdeb.com > /dev/null 2>>"$ERR_LOG_FILE"; then
     return 0
   else
     return 1
@@ -324,7 +328,7 @@ board_config() {
           # Dasharo 0.9.0-rc10 and higher have board model in baseboard-version
           if check_if_dasharo && compare_versions "$DASHARO_VERSION" 0.9.0-rc10; then
             BOARD_MODEL="$($DMIDECODE dump_var_mock -s baseboard-version)"
-          elif ! $DASHARO_ECTOOL check_for_opensource_firm_mock info 2>/dev/null; then
+          elif ! $DASHARO_ECTOOL check_for_opensource_firm_mock info 2>>"$ERR_LOG_FILE"; then
             ask_for_model V540TU V560TU
           else
             BOARD_MODEL=$($DASHARO_ECTOOL novacustom_check_sys_model_mock info | grep "board:" |
@@ -687,22 +691,22 @@ check_flash_lock() {
 
 check_flash_chip() {
   echo "Gathering flash chip and chipset information..."
-  $FLASHROM flash_chip_name_mock -p "$PROGRAMMER_BIOS" --flash-name >> "$FLASH_INFO_FILE" 2>> "$ERR_LOG_FILE"
+  $FLASHROM flash_chip_name_mock -p "$PROGRAMMER_BIOS" --flash-name >> "$FLASH_INFO_FILE" 2>>"$ERR_LOG_FILE"
   if [ $? -eq 0 ]; then
     echo -n "Flash information: "
     tail -n1 "$FLASH_INFO_FILE"
-    FLASH_CHIP_SIZE=$(($($FLASHROM flash_chip_size_mock -p "$PROGRAMMER_BIOS" --flash-size 2>> /dev/null | tail -n1) / 1024 / 1024))
+    FLASH_CHIP_SIZE=$(($($FLASHROM flash_chip_size_mock -p "$PROGRAMMER_BIOS" --flash-size 2>>"$ERR_LOG_FILE" | tail -n1) / 1024 / 1024))
     echo -n "Flash size: "
     echo ${FLASH_CHIP_SIZE}M
   else
     for flash_name in $FLASH_CHIP_LIST
     do
-      $FLASHROM flash_chip_name_mock -p "$PROGRAMMER_BIOS" -c "$flash_name" --flash-name >> "$FLASH_INFO_FILE" 2>> "$ERR_LOG_FILE"
+      $FLASHROM flash_chip_name_mock -p "$PROGRAMMER_BIOS" -c "$flash_name" --flash-name >> "$FLASH_INFO_FILE" 2>>"$ERR_LOG_FILE"
       if [ $? -eq 0 ]; then
         echo "Chipset found"
         tail -n1 "$FLASH_INFO_FILE"
         FLASH_CHIP_SELECT="-c ${flash_name}"
-        FLASH_CHIP_SIZE=$(($($FLASHROM flash_chip_size_mock -p "$PROGRAMMER_BIOS" ${FLASH_CHIP_SELECT} --flash-size 2>> /dev/null | tail -n1) / 1024 / 1024))
+        FLASH_CHIP_SIZE=$(($($FLASHROM flash_chip_size_mock -p "$PROGRAMMER_BIOS" ${FLASH_CHIP_SELECT} --flash-size 2>>"$ERR_LOG_FILE" | tail -n1) / 1024 / 1024))
         echo "Chipset size"
         echo ${FLASH_CHIP_SIZE}M
         break
@@ -739,24 +743,24 @@ compare_versions() {
 
 download_bios() {
   if [ "${BIOS_LINK}" == "${BIOS_LINK_COMM}" ] || [ "${BIOS_LINK}" == "${BIOS_LINK_COMM_CAP}" ]; then
-    curl -s -L -f "$BIOS_LINK" -o $BIOS_UPDATE_FILE
+    curl -s -S -L -f "$BIOS_LINK" -o $BIOS_UPDATE_FILE 2>>"$ERR_LOG_FILE"
     error_check "Cannot access $FW_STORE_URL while downloading binary. Please
    check your internet connection"
-    curl -s -L -f "$BIOS_HASH_LINK" -o $BIOS_HASH_FILE
+    curl -s -S -L -f "$BIOS_HASH_LINK" -o $BIOS_HASH_FILE 2>>"$ERR_LOG_FILE"
     error_check "Cannot access $FW_STORE_URL while downloading signature. Please
    check your internet connection"
-    curl -s -L -f "$BIOS_SIGN_LINK" -o $BIOS_SIGN_FILE
+    curl -s -S -L -f "$BIOS_SIGN_LINK" -o $BIOS_SIGN_FILE 2>>"$ERR_LOG_FILE"
     error_check "Cannot access $FW_STORE_URL while downloading signature. Please
    check your internet connection"
   else
     USER_DETAILS="$CLOUDSEND_DOWNLOAD_URL:$CLOUDSEND_PASSWORD"
-    curl -s -L -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_LINK" -o $BIOS_UPDATE_FILE
+    curl -s -S -L -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_LINK" -o $BIOS_UPDATE_FILE 2>>"$ERR_LOG_FILE"
     error_check "Cannot access $FW_STORE_URL_DPP while downloading binary.
    Please check your internet connection and credentials"
-    curl -s -L -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_HASH_LINK" -o $BIOS_HASH_FILE
+    curl -s -S -L -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_HASH_LINK" -o $BIOS_HASH_FILE 2>>"$ERR_LOG_FILE"
     error_check "Cannot access $FW_STORE_URL_DPP while downloading signature.
    Please check your internet connection and credentials"
-    curl -s -L -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_SIGN_LINK" -o $BIOS_SIGN_FILE
+    curl -s -S -L -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$BIOS_SIGN_LINK" -o $BIOS_SIGN_FILE 2>>"$ERR_LOG_FILE"
     error_check "Cannot access $FW_STORE_URL_DPP while downloading signature.
    Please check your internet connection and credentials"
   fi
@@ -764,23 +768,23 @@ download_bios() {
 
 download_ec() {
   if [ "${BIOS_LINK}" = "${BIOS_LINK_COMM}" ] || [ "${BIOS_LINK}" = "${BIOS_LINK_COMM_CAP}" ]; then
-    curl -s -L -f "$EC_LINK" -o "$EC_UPDATE_FILE"
+    curl -s -S -L -f "$EC_LINK" -o "$EC_UPDATE_FILE" 2>>"$ERR_LOG_FILE"
     error_check "Cannot access $FW_STORE_URL while downloading binary. Please
      check your internet connection"
-    curl -s -L -f "$EC_HASH_LINK" -o $EC_HASH_FILE
+    curl -s -S -L -f "$EC_HASH_LINK" -o $EC_HASH_FILE 2>>"$ERR_LOG_FILE"
     error_check "Cannot access $FW_STORE_URL while downloading signature. Please
      check your internet connection"
-    curl -s -L -f "$EC_SIGN_LINK" -o $EC_SIGN_FILE
+    curl -s -S -L -f "$EC_SIGN_LINK" -o $EC_SIGN_FILE 2>>"$ERR_LOG_FILE"
     error_check "Cannot access $FW_STORE_URL while downloading signature. Please
      check your internet connection"
   else
-    curl -s -L -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$EC_LINK" -o $EC_UPDATE_FILE
+    curl -s -S -L -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$EC_LINK" -o $EC_UPDATE_FILE 2>>"$ERR_LOG_FILE"
     error_check "Cannot access $FW_STORE_URL while downloading binary. Please
      check your internet connection and credentials"
-    curl -s -L -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$EC_HASH_LINK" -o $EC_HASH_FILE
+    curl -s -S -L -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$EC_HASH_LINK" -o $EC_HASH_FILE 2>>"$ERR_LOG_FILE"
     error_check "Cannot access $FW_STORE_URL while downloading signature. Please
      check your internet connection and credentials"
-    curl -s -L -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$EC_SIGN_LINK" -o $EC_SIGN_FILE
+    curl -s -S -L -f -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$EC_SIGN_LINK" -o $EC_SIGN_FILE 2>>"$ERR_LOG_FILE"
     error_check "Cannot access $FW_STORE_URL while downloading signature. Please
      check your internet connection and credentials"
   fi
@@ -889,7 +893,7 @@ check_blobs_in_binary() {
 
   # If there is no descriptor, there is no ME as well, so skip the check
   if [ $BOARD_HAS_FD_REGION -ne 0 ]; then
-    ME_OFFSET=$($IFDTOOL check_blobs_in_binary_mock -d $1 2> /dev/null | grep "Flash Region 2 (Intel ME):" | sed 's/Flash Region 2 (Intel ME)\://' | awk '{print $1;}')
+    ME_OFFSET=$($IFDTOOL check_blobs_in_binary_mock -d $1 2>>"$ERR_LOG_FILE" | grep "Flash Region 2 (Intel ME):" | sed 's/Flash Region 2 (Intel ME)\://' | awk '{print $1;}')
     # Check for IFD signature at offset 0 (old descriptors)
     if [ "$(tail -c +0 $1|head -c 4|xxd -ps)" == "5aa5f00f" ]; then
       BINARY_HAS_FD=1
@@ -1001,11 +1005,11 @@ set_flashrom_update_params() {
   # We need to read whole binary (or BIOS region), otherwise cbfstool will
   # return different attributes for CBFS regions
   echo "Checking flash layout."
-  $FLASHROM read_flash_layout_mock -p "$PROGRAMMER_BIOS" ${FLASH_CHIP_SELECT} ${FLASHROM_ADD_OPT_UPDATE} -r $BIOS_DUMP_FILE > /dev/null 2>&1
+  $FLASHROM read_flash_layout_mock -p "$PROGRAMMER_BIOS" ${FLASH_CHIP_SELECT} ${FLASHROM_ADD_OPT_UPDATE} -r $BIOS_DUMP_FILE > /dev/null 2>>"$ERR_LOG_FILE"
   if [ $? -eq 0 ] && [ -f "$BIOS_DUMP_FILE" ]; then
-    BOARD_FMAP_LAYOUT=$($CBFSTOOL layout_mock $BIOS_DUMP_FILE layout -w 2> /dev/null)
-    BINARY_FMAP_LAYOUT=$($CBFSTOOL layout_mock $1 layout -w 2> /dev/null)
-    diff <(echo "$BOARD_FMAP_LAYOUT") <(echo "$BINARY_FMAP_LAYOUT") > /dev/null 2>&1
+    BOARD_FMAP_LAYOUT=$($CBFSTOOL layout_mock $BIOS_DUMP_FILE layout -w 2>>"$ERR_LOG_FILE")
+    BINARY_FMAP_LAYOUT=$($CBFSTOOL layout_mock $1 layout -w 2>>"$ERR_LOG_FILE")
+    diff <(echo "$BOARD_FMAP_LAYOUT") <(echo "$BINARY_FMAP_LAYOUT") > /dev/null 2>>"$ERR_LOG_FILE"
     # If layout is identical, perform standard update using FMAP only
     if [ $? -eq 0 ]; then
       # Simply update RW_A fmap region if exists
@@ -1111,7 +1115,7 @@ handle_fw_switching() {
     done
   elif [ -n "$DPP_IS_LOGGED" ] && [ -n "$HEADS_LINK_DPP" ]; then
     local _heads_dpp=1
-    curl -sfI -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$HEADS_LINK_DPP" -o /dev/null
+    curl -sSfI -u "$USER_DETAILS" -H "$CLOUD_REQUEST" "$HEADS_LINK_DPP" -o /dev/null 2>>"$ERR_LOG_FILE"
     _heads_dpp=$?
     # We are on heads, offer switch back or perform update if DPP gives access to heads
     if [ "$DASHARO_FLAVOR" == "Dasharo (coreboot+heads)" ]; then
@@ -1208,7 +1212,7 @@ handle_fw_switching() {
 
 sync_clocks() {
   echo "Waiting for system clock to be synced ..."
-  chronyc waitsync 10 0 0 5 &> /dev/null
+  chronyc waitsync 10 0 0 5 >/dev/null 2>>"$ERR_LOG_FILE"
   if [[ $? -ne 0 ]]; then
     print_warning "Failed to sync system clock with NTP server!"
     print_warning "Some time critical tasks might fail!"
@@ -1231,6 +1235,10 @@ You can find more info about HCL in docs.dasharo.com/glossary\r"
 }
 
 show_ram_inf() {
+  # Trace logging is quite slow due to creating timestamp for each line
+  # (calls 'date'). In QEMU this function results in 650 trace lines
+  # out of 800 for every UI refresh, which is noticeable
+  stop_trace_logging
   # Get the data:
   local data=""
   data=$($DMIDECODE)
@@ -1273,6 +1281,7 @@ show_ram_inf() {
   for entry in "${memory_devices_array[@]}"; do
     echo -e "${BLUE}**${YELLOW}    RAM ${entry}"
   done
+  start_trace_logging
 }
 
 show_header() {
@@ -1311,7 +1320,7 @@ show_dpp_credentials() {
 }
 
 show_ssh_info() {
-  if systemctl is-active sshd.service &> /dev/null; then
+  if systemctl is-active sshd.service >/dev/null 2>>"$ERR_LOG_FILE"; then
     local ip=""
     ip=$(ip -br -f inet a show scope global | grep UP | awk '{ print $3 }' | tr '\n' ' ')
     # Display "check your connection" in red color in IP field in case no IPV4
@@ -1350,6 +1359,7 @@ show_main_menu() {
 
 main_menu_options(){
   local OPTION=$1
+  local result
 
   case ${OPTION} in
     "${HCL_REPORT_OPT}")
@@ -1403,6 +1413,10 @@ main_menu_options(){
 
         if [ -n "${LOGS_SENT}" ]; then
           ${CMD_DASHARO_DEPLOY} install
+          result=$?
+          if [ "$result" -ne 0 ] && [ "$result" -ne 2 ]; then
+            send_dts_logs ask && return 0
+          fi
         fi
       else
         # TODO: This should be placed in dasharo-deploy:
@@ -1431,6 +1445,10 @@ main_menu_options(){
 
         # Use regular update process for everything else
         ${CMD_DASHARO_DEPLOY} update
+        result=$?
+        if [ "$result" -ne 0 ] && [ "$result" -ne 2 ]; then
+          send_dts_logs ask && return 0
+        fi
       fi
       read -p "Press Enter to continue."
 
@@ -1442,7 +1460,9 @@ main_menu_options(){
       [ "${SYSTEM_VENDOR}" = "QEMU" ] || [ "${SYSTEM_VENDOR}" = "Emulation" ] && return 0
 
       if check_if_dasharo; then
-        ${CMD_DASHARO_DEPLOY} restore
+        if ! ${CMD_DASHARO_DEPLOY} restore; then
+          send_dts_logs ask && return 0
+        fi
       fi
       read -p "Press Enter to continue."
 
@@ -1517,7 +1537,7 @@ show_footer(){
   echo -ne "${RED}${REBOOT_OPT_UP}${NORMAL} to reboot  ${NORMAL}"
   echo -ne "${RED}${POWEROFF_OPT_UP}${NORMAL} to poweroff  ${NORMAL}"
   echo -e "${RED}${SHELL_OPT_UP}${NORMAL} to enter shell  ${NORMAL}"
-  if systemctl is-active sshd.service &> /dev/null; then
+  if systemctl is-active sshd.service >/dev/null 2>>"$ERR_LOG_FILE"; then
     echo -ne "${RED}${SSH_OPT_UP}${NORMAL} to stop SSH server  ${NORMAL}"
   else
     echo -ne "${RED}${SSH_OPT_UP}${NORMAL} to launch SSH server  ${NORMAL}"
@@ -1526,11 +1546,6 @@ show_footer(){
     echo -e "${RED}${SEND_LOGS_OPT}${NORMAL} to disable sending DTS logs ${NORMAL}"
   else
     echo -e "${RED}${SEND_LOGS_OPT}${NORMAL} to enable sending DTS logs ${NORMAL}"
-  fi
-  if [ "${VERBOSE_ACTIVE}" == "true" ]; then
-    echo -ne "${RED}${VERBOSE_OPT}${NORMAL} to disable verbose mode ${NORMAL}"
-  else
-    echo -ne "${RED}${VERBOSE_OPT}${NORMAL} to enable verbose mode ${NORMAL}"
   fi
   echo -ne "${YELLOW}\nEnter an option:${NORMAL}"
 }
@@ -1542,7 +1557,7 @@ footer_options(){
     "${SSH_OPT_UP}" | "${SSH_OPT_LOW}")
       wait_for_network_connection || return 0
 
-      if systemctl is-active sshd.service> /dev/null 2>&1; then
+      if systemctl is-active sshd.service >/dev/null 2>>"$ERR_LOG_FILE"; then
         print_ok "Turning off the SSH server..."
         systemctl stop sshd.service
       else
@@ -1561,8 +1576,9 @@ footer_options(){
       echo "Entering shell, to leave type exit and press Enter or press LCtrl+D"
       echo ""
       send_dts_logs
-      set_verbose "false"
+      stop_logging
       ${CMD_SHELL}
+      start_logging
 
       # If in submenu before going to shell - return to main menu after exiting
       # shell:
@@ -1583,20 +1599,19 @@ footer_options(){
         export SEND_LOGS_ACTIVE="true"
       fi
       ;;
-    "${VERBOSE_OPT}" | "${VERBOSE_OPT_LOW}")
-      if [ "${VERBOSE_ACTIVE}" == "true" ]; then
-        set_verbose "false"
-      else
-        set_verbose "true"
-      fi
-      ;;
   esac
 
   return 1
 }
 
-send_dts_logs(){
-  if [ "${SEND_LOGS_ACTIVE}" == "true" ]; then
+send_dts_logs() {
+  local send_logs="false"
+  if [ "${SEND_LOGS_ACTIVE}" = "true" ]; then
+    send_logs="true"
+  elif [ "$1" = "ask" ] && ask_for_confirmation "Do you want to send console logs to 3mdeb?"; then
+    send_logs="true"
+  fi
+  if [ "$send_logs" = "true" ]; then
     echo "Sending logs..."
 
     log_dir=$(dmidecode -s system-manufacturer)_$(dmidecode -s system-product-name)_$(dmidecode -s bios-version)
@@ -1610,19 +1625,20 @@ send_dts_logs(){
     log_dir+="_${uuid}_$(date +'%Y_%m_%d_%H_%M_%S_%N')"
     log_dir="${log_dir// /_}"
     log_dir="${log_dir//\//_}"
-    log_dir="/tmp/${log_dir}"
+    log_dir="${TMP_LOG_DIR}/${log_dir}"
 
-    mkdir $log_dir
+    mkdir -p $log_dir
     cp ${DTS_LOG_FILE} $log_dir
+    cp ${DTS_VERBOSE_LOG_FILE} $log_dir
 
-    if [ -f ${ERR_LOG_FILE} ]; then
-      cp ${ERR_LOG_FILE} $log_dir
+    if [ -f ${ERR_LOG_FILE_REALPATH} ]; then
+      cp ${ERR_LOG_FILE_REALPATH} $log_dir
     fi
 
     if [ -f ${FLASHROM_LOG_FILE} ]; then
       cp ${FLASHROM_LOG_FILE} $log_dir
     fi
-    tar czf "${log_dir}.tar.gz" $log_dir
+    tar czf "${log_dir}.tar.gz" -C "$(dirname "$log_dir")" "$(basename "$log_dir")"
 
     FULL_DTS_URL="https://cloud.3mdeb.com/index.php/s/"${BASE_DTS_LOGS_URL}
 
@@ -1635,7 +1651,9 @@ send_dts_logs(){
       echo "Failed to send logs to the cloud"
       return 1
     fi
-    unset SEND_LOGS_ACTIVE
+  fi
+  if [ "$1" = "ask" ]; then
+    read -p "Press Enter to continue."
   fi
 }
 
@@ -1745,21 +1763,19 @@ check_if_intel() {
   fi
 }
 
-set_verbose() {
-  if [ $1 == "true" ]; then
-    VERBOSE_ACTIVE="true"
-    CMD_DASHARO_DEPLOY="/usr/bin/env bash -x $CMD_DASHARO_DEPLOY"
-    CMD_DASHARO_HCL_REPORT="/usr/bin/env bash -x $CMD_DASHARO_HCL_REPORT"
-    CMD_EC_TRANSITION="/usr/bin/env bash -x $CMD_EC_TRANSITION"
-    CMD_CLOUD_LIST="/usr/bin/env bash -x $CMD_CLOUD_LIST"
-    set -x
-  elif [ $1 == "false" ]; then
-    unset VERBOSE_ACTIVE
-    # Remove the -x option
-    CMD_DASHARO_DEPLOY=$(echo $CMD_DASHARO_DEPLOY | sed 's|^/usr/bin/env bash -x ||')
-    CMD_DASHARO_HCL_REPORT=$(echo $CMD_DASHARO_HCL_REPORT | sed 's|^/usr/bin/env bash -x ||')
-    CMD_EC_TRANSITION=$(echo $CMD_EC_TRANSITION | sed 's|^/usr/bin/env bash -x ||')
-    CMD_CLOUD_LIST=$(echo $CMD_CLOUD_LIST | sed 's|^/usr/bin/env bash -x ||')
-    set +x
-  fi
+ask_for_confirmation() {
+  local text="$1"
+
+  while read -p "$text [n/y]: "; do
+    case ${REPLY} in
+      y|Y|yes|Yes|YES)
+        return 0
+        ;;
+      n|N|no|No|NO)
+        return 1
+        ;;
+      *)
+        ;;
+    esac
+  done
 }

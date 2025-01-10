@@ -50,8 +50,6 @@ SSH_OPT_UP="K"
 SSH_OPT_LOW="$(echo $SSH_OPT_UP | awk '{print tolower($0)}')"
 SEND_LOGS_OPT="L"
 SEND_LOGS_OPT_LOW="$(echo $SEND_LOGS_OPT | awk '{print tolower($0)}')"
-VERBOSE_OPT="V"
-VERBOSE_OPT_LOW="$(echo $VERBOSE_OPT | awk '{print tolower($0)}')"
 
 # Hardware variables:
 SYSTEM_VENDOR="$($DMIDECODE dump_var_mock -s system-manufacturer)"
@@ -89,7 +87,6 @@ FW_BACKUP_TAR="${FW_BACKUP_DIR}.tar.gz"
 FW_BACKUP_TAR="$(echo "$FW_BACKUP_TAR" | sed 's/\ /_/g')"
 
 # Paths to system files
-ERR_LOG_FILE="/var/local/dts-err.log"
 FLASHROM_LOG_FILE="/var/local/flashrom.log"
 FLASH_INFO_FILE="/tmp/flash_info"
 OS_VERSION_FILE="/etc/os-release"
