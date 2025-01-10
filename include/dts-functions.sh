@@ -1651,7 +1651,6 @@ send_dts_logs() {
       echo "Failed to send logs to the cloud"
       return 1
     fi
-    unset SEND_LOGS_ACTIVE
   fi
   if [ "$1" = "ask" ]; then
     read -p "Press Enter to continue."
