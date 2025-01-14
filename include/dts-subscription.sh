@@ -230,7 +230,7 @@ install_dpp_package(){
 }
 
 install_all_dpp_packages(){
-  echo "Installing available DPP packages..."
+  echo "Installing available DTS extensions..."
 
   update_package_list || return 1
 
@@ -255,7 +255,7 @@ install_all_dpp_packages(){
 }
 
 check_avail_dpp_packages(){
-  echo "Checking for available DPP packages..."
+  echo "Checking for available DTS extensions..."
   AVAILABLE_PACKAGES=$(mc find --name "*.rpm" $DPP_SERVER_USER_ALIAS)
 
   if [ -z "$AVAILABLE_PACKAGES" ]; then
