@@ -181,7 +181,7 @@ cap_upd_tool(){
 
 check_if_heci_present(){
 # FIXME: what if HECI is not device 16.0?
-  $FSREAD_TOOL test_mock test -d /sys/class/pci_bus/0000:00/device/0000:00:16.0
+  $FSREAD_TOOL test -d /sys/class/pci_bus/0000:00/device/0000:00:16.0
 
   return $?
 }
