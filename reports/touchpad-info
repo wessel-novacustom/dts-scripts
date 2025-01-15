@@ -22,8 +22,8 @@ path=$($FSREAD_TOOL cat "/sys/bus/i2c/devices/$devname/firmware_node/path")
 ACPI_CALL_PATH="/proc/acpi/call"
 
 if [ ! -f "$ACPI_CALL_PATH" ]; then
-   echo "File ${ACPI_CALL_PATH} doesn\'t exist. Exiting"
-   exit 3
+   echo "File ${ACPI_CALL_PATH} doesn\'t exist..."
+   return 3
 fi
 
 echo "$path._DSM bF7F6DF3C67425545AD05B30A3D8938DE 1 1" > ${ACPI_CALL_PATH}

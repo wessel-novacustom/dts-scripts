@@ -1218,7 +1218,7 @@ if [ "${SYSTEM_VENDOR}" != "QEMU" ] && [ "${SYSTEM_VENDOR}" != "Emulation" ]; th
   # Size of flashchip should be checked before board_config func. because the
   # func. assigns some configs based on the chip size detected for ASUS boards
   # (FIXME).
-  check_flash_chip
+  check_flash_chip || error_exit "No supported chipset found, exit."
 fi
 
 board_config

@@ -713,9 +713,11 @@ check_flash_chip() {
       fi
     done
     if [ -z "$FLASH_CHIP_SELECT" ]; then
-      error_exit "No supported chipset found, exit."
+      return 1
     fi
   fi
+
+  return 0
 }
 
 compare_versions() {
