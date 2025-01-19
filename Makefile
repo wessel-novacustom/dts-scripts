@@ -24,7 +24,5 @@ install:
 	install -m 0755 reports/dasharo-hcl-report $(DESTDIR)$(SBINDIR)
 	install -m 0755 reports/touchpad-info $(DESTDIR)$(SBINDIR)
 
-	install -m 0755 autostart.sh $(DESTDIR)$(SBINDIR)
-
 	install -d $(DESTDIR)$(SYSCONFDIR)/profile.d
 	install -m 0755 dts-profile.sh $(DESTDIR)$(SYSCONFDIR)/profile.d
