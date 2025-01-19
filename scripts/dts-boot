@@ -48,6 +48,5 @@ source $DTS_HAL
 if [ -f $FUM_EFIVAR ]; then
     $SBIN_DIR/dasharo-deploy update fum
 else
-    [ -f "$SBIN_DIR/autostart.sh" ] && $SBIN_DIR/autostart.sh
     $SBIN_DIR/dts
 fi
