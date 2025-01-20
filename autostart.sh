@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+sleep 5
+
 echo "test" > /test.txt
 
 broadcast_to_tty() {
