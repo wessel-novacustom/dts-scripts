@@ -6,7 +6,7 @@ echo "test" > /test.txt
 
 broadcast_to_tty() {
     local message="$1"
-    echo "$message" > /dev/pts/0 || echo "$message" > /dev/tty1
+    echo "$message" > /dev/tty1
 }
 
 # Controleer de internetverbinding
