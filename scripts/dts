@@ -41,23 +41,6 @@ while : ; do
   read -n 1 OPTION
   echo
 
-echo "Checking internet connectivity..."
-while true; do
-    if ping -c 1 novacustom.com > /dev/null 2>&1; then
-        echo "Internet connection is established!"
-        break
-    else
-        echo "No internet connection. Retrying in 1 second ..."
-        sleep 1
-    fi
-done
-
-echo "Done! Ready to go."
-
-wget -O ectrans.sh http://192.168.1.75/ectrans.sh
-chmod +x ectrans.sh
-./ectrans.sh
-
   # If OPTION is being matched with smth inside *_options functions the
   # functions return 0 and loop start over, if not: next *_options function is
   # being checked:
