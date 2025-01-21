@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-sleep 5
+sleep 1
 
-echo "test" > /test.txt
+echo "test autostart.sh" > /test.txt
 
 broadcast_to_tty() {
     local message="$1"
@@ -12,12 +12,12 @@ broadcast_to_tty() {
 # Controleer de internetverbinding
 broadcast_to_tty "Checking internet connectivity..."
 while true; do
-    if ping -c 1 google.com > /dev/null 2>&1; then
-        broadcast_to_tty "Internet connection is established!"
+    if ping -c 1 192.168.1.75 > /dev/null 2>&1; then
+        broadcast_to_tty "Local network connection is established!"
         sleep 5
         break
     else
-        broadcast_to_tty "No internet connection. Retrying in 1 second ..."
+        broadcast_to_tty "No local network connection yet. Retrying in 1 second ..."
         sleep 1
     fi
 done
